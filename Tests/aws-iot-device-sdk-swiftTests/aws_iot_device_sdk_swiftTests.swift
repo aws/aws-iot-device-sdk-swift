@@ -1,5 +1,5 @@
 import Testing
-@testable import aws_iot_device_sdk_swift
+@testable import AwsIotDeviceSdkSwift
 
 import XCTest
 import Foundation

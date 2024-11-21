@@ -12,8 +12,8 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "aws-iot-device-sdk-swift",
-            targets: ["aws-iot-device-sdk-swift"]),
+            name: "AwsIotDeviceSdkSwift",
+            targets: ["AwsIotDeviceSdkSwift"]),
     ],
     dependencies: [
         .package(url: "https://github.com/awslabs/aws-crt-swift.git", branch: "secitem_bindings"), // DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
@@ -26,8 +26,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "aws-iot-device-sdk-swiftTests",
-            dependencies: ["aws-iot-device-sdk-swift"]
+            name: "AwsIotDeviceSdkSwiftTests",
+            dependencies: ["AwsIotDeviceSdkSwift"]
         ),
     ]
 )
