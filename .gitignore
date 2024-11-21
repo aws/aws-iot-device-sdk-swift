@@ -8,6 +8,9 @@ cmake-build-debug
 .swiftpm
 .vscode
 
+# Ignore local swift package cache
+Package.resolved
+
 # Ignore XCode project local user data
 ### Xcode ###
 ## User settings
