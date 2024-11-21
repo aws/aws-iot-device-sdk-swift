@@ -3,7 +3,7 @@
 
 import XCTest
 import AwsCommonRuntimeKit
-@testable import aws_iot_device_sdk_swift
+@testable import AwsIotDeviceSdkSwift
 
 class XCBaseTestCase: XCTestCase {
     override func setUp() {
