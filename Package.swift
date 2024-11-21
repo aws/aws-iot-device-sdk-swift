@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "aws-iot-device-sdk-swift",
+    name: "AwsIotDeviceSdkSwift",
     platforms: [
         .iOS(.v13), 
         .macOS(.v10_15), 
@@ -20,7 +20,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "aws-iot-device-sdk-swift",
+            name: "AwsIotDeviceSdkSwift",
             dependencies: [
                 .product(name: "AwsCommonRuntimeKit", package: "aws-crt-swift")
             ]
