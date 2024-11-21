@@ -1,0 +1,27 @@
+name: CI
+
+on:
+    push:
+        branches-ignore:
+            - 'main'
+            - 'docs'
+
+env:
+    AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+    osx:
+        runs-on: ${{ matrix.runner }}
+        strategy:
+            matrix:
+                runner:
+                    - macos-13
+                    - macos-latest
+        permissions:
+            id-token: write
+        steps:
+            - name: Install boto3
+              run: |
+                python3 -m venv .venv
+                source .venv/bin/activate
+                pything3 -m pip install boto3
