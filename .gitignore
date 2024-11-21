@@ -1,0 +1,32 @@
+.idea
+.build
+build
+build-xcode
+build-xcode-ios
+cmake-build-debug
+.DS_Store
+.swiftpm
+.vscode
+
+# Ignore local swift package cache
+Package.resolved
+
+# Ignore XCode project local user data
+### Xcode ###
+## User settings
+**/xcuserdata/
+
+## Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
+
+### Xcode Patch ###
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# End of https://www.toptal.com/developers/gitignore/api/xcode
