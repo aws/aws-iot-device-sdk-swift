@@ -160,7 +160,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     /*===============================================================
                      Builder Test Cases
     =================================================================*/
-/*
+
     func testMqttBuilderMTLSFromFile() throws {
         let certPath = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
@@ -270,5 +270,4 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
-    */
 }
