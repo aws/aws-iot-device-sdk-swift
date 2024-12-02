@@ -220,7 +220,6 @@ public class Mqtt5ClientBuilder {
     public func websocketsWithDefaultAwsSigning(
         region: String, 
         credentialsProvider: CredentialsProvider,
-        websocketProxyOptions: String,
         endpoint: String,
         port: UInt32 = 8883,
         clientId: String? = nil,
@@ -244,14 +243,14 @@ public class Mqtt5ClientBuilder {
             fatalError("Failed to create TLSContext: \(error)")
         }
             
-        let signingConfig = SigningConfig(
-            algorithm: SigningAlgorithmType.signingV4,
-            signatureType: SignatureType.requestQueryParams,
-            service: "iotdevicegateway",
-            region: region,
-            credentialsProvider: credentialsProvider,
-            omitSessionToken: true
-        )
+        // let signingConfig = SigningConfig(
+        //     algorithm: SigningAlgorithmType.signingV4,
+        //     signatureType: SignatureType.requestQueryParams,
+        //     service: "iotdevicegateway",
+        //     region: region,
+        //     credentialsProvider: credentialsProvider,
+        //     omitSessionToken: true
+        // )
 
         return createMqttClient(
             endpoint: endpoint,

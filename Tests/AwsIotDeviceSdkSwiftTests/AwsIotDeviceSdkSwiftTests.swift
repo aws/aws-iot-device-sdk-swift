@@ -270,4 +270,27 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
+
+    func testMqttWebsocketWithDefaultAWSSigning() async throws {
+        let region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_WS_REGION")
+        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
+
+        let elg = try EventLoopGroup()
+        let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
+        let clientBootstrap = try ClientBootstrap(
+            eventLoopGroup: elg, 
+            hostResolver: resolver)
+        
+        let context = MqttTestContext()
+        let builder = Mqtt5ClientBuilder()
+        let provider = CredentialsProvider(source: .defaultChain(
+            bootstrap: clientBootstrap, 
+            fileBasedConfiguration: FileBasedConfiguration))
+
+        let mqttClient = builder.websocketsWithDefaultAwsSigning(
+            region: region, 
+            credentialsProvider: provider, 
+            endpoint: endpoint)
+
+    }
 }
