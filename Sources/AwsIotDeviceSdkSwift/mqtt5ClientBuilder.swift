@@ -2,7 +2,8 @@
 ///  SPDX-License-Identifier: Apache-2.0.
 
 import Foundation
-import AwsCommonRuntimeKit
+@_exported import AwsCommonRuntimeKit
+// import AwsCommonRuntimeKit
 
 fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     // Check if the username being used already has a query
