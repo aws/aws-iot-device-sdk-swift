@@ -143,8 +143,8 @@ public class Mqtt5ClientBuilder {
         let tlsOptions = TLSContextOptions.makeDefault()
 
         if (useWebsocket) {
-            _onWebsocketTransform = { httpRequest, completeCallback in 
-                completeCallback(httpRequest, 0)            
+            _onWebsocketTransform = { httpRequest, completeCallback in
+                completeCallback(httpRequest, 0)
             }
         } else {
             tlsOptions.setAlpnList(["mqtt"])
@@ -165,28 +165,25 @@ public class Mqtt5ClientBuilder {
     public static func mtlsFromData(
         certData: Data, 
         keyData: Data,
-        endpoint: String,
-        port: UInt32 = 8883) throws -> Mqtt5ClientBuilder  {
+        endpoint: String) throws -> Mqtt5ClientBuilder  {
 
-        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint, port: port)
+        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint, port: 8883)
     }
 
     public static func mtlsFromPKCS12(
         pkcs12Path: String, 
         pkcs12Password: String,
-        endpoint: String,
-        port: UInt32 = 8883) throws -> Mqtt5ClientBuilder {
+        endpoint: String) throws -> Mqtt5ClientBuilder {
         
-        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint, port: port)
+        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint, port: 8883)
     }
 
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
-                                                       port: UInt32 = 443,
                                                        region: String, 
                                                        credentialsProvider: CredentialsProvider) throws -> Mqtt5ClientBuilder {
 
         return try Mqtt5ClientBuilder(endpoint: endpoint, 
-                                      port: port, 
+                                      port: 443, 
                                       region: region, 
                                       credentialsProvider: credentialsProvider)
     }
@@ -243,13 +240,11 @@ public class Mqtt5ClientBuilder {
     }
 
     public static func websocketsWithCustomAuthorizer(endpoint: String,
-                                                      port: UInt32 = 443,
                                                       authAuthorizerName: String,
                                                       authPassword: Data,
                                                       authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
         
         return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      port:port,
                                       authAuthorizerName: authAuthorizerName,
                                       authPassword: authPassword,
                                       authUsername: authUsername,
@@ -257,7 +252,6 @@ public class Mqtt5ClientBuilder {
     }
 
     public static func websocketsWithUnsignedCustomAuthorizer(endpoint: String,
-                                                              port: UInt32 = 443,
                                                               authAuthorizerName: String,
                                                               authPassword: Data? = nil,
                                                               authTokenKeyName: String,
@@ -265,7 +259,6 @@ public class Mqtt5ClientBuilder {
                                                               authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
         
         return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      port:port,
                                       authAuthorizerName: authAuthorizerName,
                                       authPassword: authPassword,
                                       authTokenKeyName: authTokenKeyName,
@@ -275,7 +268,6 @@ public class Mqtt5ClientBuilder {
     }
 
     public static func websocketsWithSignedCustomAuthorizer(endpoint: String,
-                                                            port: UInt32 = 443,
                                                             authAuthorizerName: String,
                                                             authPassword: Data? = nil,
                                                             authAuthorizerSignature: String,
@@ -284,7 +276,6 @@ public class Mqtt5ClientBuilder {
                                                             authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
         
         return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      port:port,
                                       authAuthorizerName: authAuthorizerName,
                                       authPassword: authPassword,
                                       authAuthorizerSignature: authAuthorizerSignature,
@@ -295,13 +286,11 @@ public class Mqtt5ClientBuilder {
     }
 
     public static func directWithUnsignedCustomAuthorizer(endpoint: String,
-                                                          port: UInt32 = 443,
                                                           authAuthorizerName: String? = nil,
                                                           authPassword: Data? = nil,
                                                           authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
     
         return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      port:port,
                                       authAuthorizerName: authAuthorizerName,
                                       authPassword: authPassword,
                                       authUsername: authUsername,
@@ -309,7 +298,6 @@ public class Mqtt5ClientBuilder {
     }
 
     public static func directWithSignedCustomAuthorizer(endpoint: String,
-                                                        port: UInt32 = 443,
                                                         authAuthorizerName: String,
                                                         authAuthorizerSignature: String,
                                                         authTokenKeyName: String,
@@ -318,7 +306,6 @@ public class Mqtt5ClientBuilder {
                                                         authPassword: Data? = nil) throws -> Mqtt5ClientBuilder {
         
         return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      port:port,
                                       authAuthorizerName: authAuthorizerName,
                                       authPassword: authPassword,
                                       authAuthorizerSignature: authAuthorizerSignature,
@@ -462,13 +449,14 @@ public class Mqtt5ClientBuilder {
         _onLifecycleEventStopped = onLifecycleEventStopped
     }
 
+    // WIP DEBUG check whether we want to allow anyone to turn this off.
     /// Whether to send the SDK version number in the CONNECT packet.
     /// Default is True.
     ///
     /// - Parameter enableMetricsCollection: (Bool)
-    public func withMetricsCollection(_ enableMetricsCollection: Bool) {
-        _enableMetricsCollection = enableMetricsCollection
-    }
+    // public func withMetricsCollection(_ enableMetricsCollection: Bool) {
+    //     _enableMetricsCollection = enableMetricsCollection
+    // }
 
     /// **port** (`int`): Override default server port.
     /// Default port is 443 if system supports ALPN or websockets are being used.
