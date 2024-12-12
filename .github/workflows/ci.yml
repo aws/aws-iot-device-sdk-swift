@@ -25,3 +25,118 @@ jobs:
                 python3 -m venv .venv
                 source .venv/bin/activate
                 python3 -m pip install boto3
+
+    ios-integration-test:
+        runs-on: macos-14
+        permissions:
+            id-token: write # This is required for requesting the JWT
+            contents: read # This is required for actions/checkout
+        env:
+            DEVELOPER_DIR: /Applications/Xcode.app
+            XCODE_DESTINATION: 'OS X'
+            NSUnbufferedIO: YES
+        steps:
+            - name: Build ${{ env.PACKAGE_NAME }} + consumers
+                run: |
+                python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
+                chmod a+x builder
+                ./builder build -p ${{ env.PACKAGE_NAME }}
+            - name: Install the Apple certificate and provisioning profile
+                run: |
+                CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+                PP_PATH=$RUNNER_TEMP/mqttclient.mobileprovision
+                KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/AppleDeveloperCertificate.p12 $CERTIFICATE_PATH
+                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/aws-common-runtime.MqttClient.mobileprovision $PP_PATH
+                pkcs12_identity_pw=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/ios/pkcs12_identity_password" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
+                # create temporary keychain
+                security create-keychain -p "$pkcs12_identity_pw" $KEYCHAIN_PATH
+                security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+                security unlock-keychain -p "$pkcs12_identity_pw" $KEYCHAIN_PATH
+                # import certificate to keychain
+                security import $CERTIFICATE_PATH -P "$pkcs12_identity_pw" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+                security list-keychain -d user -s $KEYCHAIN_PATH
+                # apply provisioning profile        
+                mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+                cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+            - name : Setup iOS App Credentials
+                run : |
+                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/PubSub/
+                ENDPOINT=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "unit-test/endpoint" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
+                cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
+                key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
+                sed -i '' "s/<endpoint>/${ENDPOINT}/g" ContentView.swift
+            - name: Build Test App
+                run: |
+                xcode-select --print-path
+                pwd
+                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
+                pwd
+                xcodebuild -resolvePackageDependencies
+                echo "start build app"
+                xcodebuild -scheme "PubSub" \
+                -archivePath $RUNNER_TEMP/PubSub.xcarchive \
+                -configuration Release \
+                -destination generic/platform=iOS \
+                clean archive -allowProvisioningUpdates
+            - name: Export ipa
+                run: |
+                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
+                aws s3 cp s3://aws-crt-test-stuff/ExportOptions.plist ExportOptions.plist
+                xcodebuild -exportArchive -archivePath $RUNNER_TEMP/PubSub.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath output
+                cd output
+                ls
+            - name: Setup Device Farm test file and environment
+            # Device Farm Instructions: https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium.html
+                run: |
+                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
+                pwd
+                pip install virtualenv
+                virtualenv --help
+                virtualenv workspace
+                cd workspace
+                source bin/activate
+                pip install -r ../../../Scripts/DeviceFarmScript/requirements.txt
+                # Create a test bundle folder for upload
+                mkdir tests
+                cp ../../../Scripts/DeviceFarmScript/mqtt_ios_test.py tests/
+                find tests/
+                py.test --collect-only tests/
+                cd tests/
+                find . -name '__pycache__' -type d -exec rm -r {} +
+                find . -name '*.pyc' -exec rm -f {} +
+                find . -name '*.pyo' -exec rm -f {} +
+                find . -name '*~' -exec rm -f {} +
+                cd ..
+                pip freeze > requirements.txt
+                zip -r test_bundle.zip tests/ requirements.txt
+            - name: configure AWS credentials
+                uses: aws-actions/configure-aws-credentials@v2
+                with:
+                aws-region: us-west-2 # Device Farm only available on us-west-2
+            - name: Execute device farm iOS Highly Available
+                run: |
+                cd aws-iot-device-sdk-swift/Scripts/DeviceFarmScript/
+                pip install -r ./requirements.txt
+                ls
+                python ./run_ios_ci.py \
+                --run_id ${{ github.run_id }} \
+                --run_attempt ${{ github.run_attempt }} \
+                --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
+                --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSHighlyAvailablePool" --query "SecretString" | cut -f2 -d\") \
+                --app_file_path ./output/PubSub.ipa \
+                --test_file_path ./workspace/test_bundle.zip \
+                --test_spec_file_path ./test_spec.yml
+            - name: Execute device farm iOS 13
+                run: |
+                cd aws-iot-device-sdk-swift/Scripts/DeviceFarmScript/
+                pip install -r ./requirements.txt
+                ls
+                python ./run_ios_ci.py \
+                --run_id ${{ github.run_id }} \
+                --run_attempt ${{ github.run_attempt }} \
+                --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
+                --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOS13PoolArn" --query "SecretString" | cut -f2 -d\") \
+                --app_file_path ./output/PubSub.ipa \
+                --test_file_path ./workspace/test_bundle.zip \
+                --test_spec_file_path ./test_spec.yml
