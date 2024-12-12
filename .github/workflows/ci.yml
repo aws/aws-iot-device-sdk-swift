@@ -13,6 +13,7 @@ env:
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
     RUN: ${{ github.run_id }}-${{ github.run_number }}
+    CI_DEVICEFARM_ROLE: arn:aws:iam::180635532705:role/CI_DeviceFarm_IOS_Test
 
 jobs:
     osx:
@@ -41,6 +42,15 @@ jobs:
             XCODE_DESTINATION: 'OS X'
             NSUnbufferedIO: YES
         steps:
+            - name: configure AWS credentials (containers)
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
+            #- name: Build ${{ env.PACKAGE_NAME }} + consumers
+            #  run: |
+            #    python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
+            #    chmod a+x builder
+            #    ./builder build -p ${{ env.PACKAGE_NAME }}
             - name: Install the Apple certificate and provisioning profile
               run: |
                 CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
