@@ -73,7 +73,7 @@ jobs:
             - name : Setup iOS App Credentials
               run : |
                 pwd
-                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/PubSub/
+                cd Samples/iOS/PubSub/PubSub/
                 ENDPOINT=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "unit-test/endpoint" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
@@ -82,7 +82,7 @@ jobs:
               run: |
                 xcode-select --print-path
                 pwd
-                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
+                cd Samples/iOS/PubSub/
                 pwd
                 xcodebuild -resolvePackageDependencies
                 echo "start build app"
@@ -93,7 +93,7 @@ jobs:
                 clean archive -allowProvisioningUpdates
             - name: Export ipa
               run: |
-                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
+                cd Samples/iOS/PubSub/
                 aws s3 cp s3://aws-crt-test-stuff/ExportOptions.plist ExportOptions.plist
                 xcodebuild -exportArchive -archivePath $RUNNER_TEMP/PubSub.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath output
                 cd output
@@ -101,7 +101,7 @@ jobs:
             - name: Setup Device Farm test file and environment
             # Device Farm Instructions: https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium.html
               run: |
-                cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
+                cd Samples/iOS/PubSub/
                 pwd
                 pip install virtualenv
                 virtualenv --help
@@ -128,7 +128,7 @@ jobs:
                 aws-region: us-west-2 # Device Farm only available on us-west-2
             - name: Execute device farm iOS Highly Available
               run: |
-                cd aws-iot-device-sdk-swift/Scripts/DeviceFarmScript/
+                cd Scripts/DeviceFarmScript/
                 pip install -r ./requirements.txt
                 ls
                 python ./run_ios_ci.py \
@@ -141,7 +141,7 @@ jobs:
                 --test_spec_file_path ./test_spec.yml
             - name: Execute device farm iOS 13
               run: |
-                cd aws-iot-device-sdk-swift/Scripts/DeviceFarmScript/
+                cd Scripts/DeviceFarmScript/
                 pip install -r ./requirements.txt
                 ls
                 python ./run_ios_ci.py \
