@@ -111,8 +111,8 @@ jobs:
                 pip freeze > requirements.txt
                 zip -r test_bundle.zip tests/ requirements.txt
             - name: configure AWS credentials
-                uses: aws-actions/configure-aws-credentials@v2
-                with:
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
                 aws-region: us-west-2 # Device Farm only available on us-west-2
             - name: Execute device farm iOS Highly Available
               run: |
