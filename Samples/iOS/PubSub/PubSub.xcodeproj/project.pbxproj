@@ -56,6 +56,7 @@
 		A61999BD2D0A15DD00B01729 /* PubSub */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A61999CC2D0A15DF00B01729 /* Build configuration list for PBXNativeTarget "PubSub" */;
+			compatibilityVersion = "Xcode 14.0";
 			buildPhases = (
 				A61999BA2D0A15DD00B01729 /* Sources */,
 				A61999BB2D0A15DD00B01729 /* Frameworks */,
