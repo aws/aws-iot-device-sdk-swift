@@ -12,6 +12,7 @@ env:
     BUILDER_SOURCE: releases
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
+    RUN: ${{ github.run_id }}-${{ github.run_number }}
 
 jobs:
     osx:
