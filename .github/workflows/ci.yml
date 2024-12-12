@@ -42,7 +42,7 @@ jobs:
                 chmod a+x builder
                 ./builder build -p ${{ env.PACKAGE_NAME }}
             - name: Install the Apple certificate and provisioning profile
-                run: |
+              run: |
                 CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
                 PP_PATH=$RUNNER_TEMP/mqttclient.mobileprovision
                 KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
@@ -60,14 +60,14 @@ jobs:
                 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
                 cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
             - name : Setup iOS App Credentials
-                run : |
+              run : |
                 cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/PubSub/
                 ENDPOINT=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "unit-test/endpoint" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
                 sed -i '' "s/<endpoint>/${ENDPOINT}/g" ContentView.swift
             - name: Build Test App
-                run: |
+              run: |
                 xcode-select --print-path
                 pwd
                 cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
@@ -80,7 +80,7 @@ jobs:
                 -destination generic/platform=iOS \
                 clean archive -allowProvisioningUpdates
             - name: Export ipa
-                run: |
+              run: |
                 cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
                 aws s3 cp s3://aws-crt-test-stuff/ExportOptions.plist ExportOptions.plist
                 xcodebuild -exportArchive -archivePath $RUNNER_TEMP/PubSub.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath output
@@ -88,7 +88,7 @@ jobs:
                 ls
             - name: Setup Device Farm test file and environment
             # Device Farm Instructions: https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium.html
-                run: |
+              run: |
                 cd aws-iot-device-sdk-swift/Samples/iOS/PubSub/
                 pwd
                 pip install virtualenv
@@ -115,7 +115,7 @@ jobs:
                 with:
                 aws-region: us-west-2 # Device Farm only available on us-west-2
             - name: Execute device farm iOS Highly Available
-                run: |
+              run: |
                 cd aws-iot-device-sdk-swift/Scripts/DeviceFarmScript/
                 pip install -r ./requirements.txt
                 ls
@@ -128,7 +128,7 @@ jobs:
                 --test_file_path ./workspace/test_bundle.zip \
                 --test_spec_file_path ./test_spec.yml
             - name: Execute device farm iOS 13
-                run: |
+              run: |
                 cd aws-iot-device-sdk-swift/Scripts/DeviceFarmScript/
                 pip install -r ./requirements.txt
                 ls
