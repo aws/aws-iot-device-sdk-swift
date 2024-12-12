@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -103,7 +103,7 @@
 			packageReferences = (
 				A61999D72D0A16BD00B01729 /* XCLocalSwiftPackageReference "../../../../aws-iot-device-sdk-swift" */,
 			);
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion =60;
 			productRefGroup = A61999BF2D0A15DD00B01729 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
