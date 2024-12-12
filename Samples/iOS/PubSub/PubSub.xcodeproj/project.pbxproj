@@ -14,14 +14,6 @@
 		A61999BE2D0A15DD00B01729 /* PubSub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PubSub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		A61999C02D0A15DD00B01729 /* PubSub */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PubSub;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		A61999BB2D0A15DD00B01729 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -64,9 +56,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				A61999C02D0A15DD00B01729 /* PubSub */,
 			);
 			name = PubSub;
 			packageProductDependencies = (
