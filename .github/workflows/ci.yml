@@ -62,7 +62,7 @@ jobs:
                 CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
                 PP_PATH=$RUNNER_TEMP/mqttclient.mobileprovision
                 KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/AppleDeveloperCertificate.p12 $CERTIFICATE_PATH
+                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/pkcs12_identity.p12 $CERTIFICATE_PATH
                 aws s3 cp s3://iot-sdk-ci-bucket-us-east1/aws-common-runtime.MqttClient.mobileprovision $PP_PATH
                 pkcs12_identity_pw=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/ios/pkcs12_identity_password" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 # create temporary keychain
