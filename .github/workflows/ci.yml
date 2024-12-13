@@ -87,9 +87,9 @@ jobs:
                 xcode-select --print-path
                 cd Samples/iOS/PubSub/
                 ls ~/Library/MobileDevice/Provisioning\ Profiles
-                sudo xcodebuild -resolvePackageDependencies
+                xcodebuild -resolvePackageDependencies
                 echo "start build app"
-                sudo xcodebuild -scheme "MqttClient" \
+                xcodebuild -scheme "MqttClient" \
                 -archivePath $RUNNER_TEMP/PubSub.xcarchive \
                 -configuration Release \
                 -destination generic/platform=iOS \
@@ -97,7 +97,7 @@ jobs:
             - name: Export ipa
               run: |
                 cd Samples/iOS/PubSub/
-                aws s3 cp s3://aws-crt-test-stuff/ExportOptions.plist ExportOptions.plist
+                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/ExportOptions.plist ExportOptions.plist
                 xcodebuild -exportArchive -archivePath $RUNNER_TEMP/PubSub.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath output
                 cd output
                 ls
