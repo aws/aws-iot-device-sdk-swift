@@ -89,6 +89,7 @@ jobs:
                 pwd
                 cd Samples/iOS/PubSub/
                 pwd
+                ls ~/Library/MobileDevice/Provisioning\ Profiles
                 xcodebuild -resolvePackageDependencies
                 echo "start build app"
                 xcodebuild -scheme "MqttClient" \
