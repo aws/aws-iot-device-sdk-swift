@@ -111,10 +111,11 @@ jobs:
                 virtualenv workspace
                 cd workspace
                 source bin/activate
-                pip install -r ../../../Scripts/DeviceFarmScripts/requirements.txt
+                ls ../../../../
+                pip install -r ../../../../Scripts/DeviceFarmScripts/requirements.txt
                 # Create a test bundle folder for upload
                 mkdir tests
-                cp ../../../Scripts/DeviceFarmScripts/mqtt_ios_test.py tests/
+                cp ../../../../Scripts/DeviceFarmScripts/mqtt_ios_test.py tests/
                 find tests/
                 py.test --collect-only tests/
                 cd tests/
