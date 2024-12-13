@@ -1,4 +1,4 @@
-# PubSub Sample
+# iOS PubSub Sample
 
 [**Return to main sample list**](./README.md)
 
@@ -68,10 +68,10 @@ On startup, the device connects to the server, subscribes to a topic, and begins
 
 3. [Install the SDK][TODO: SDK README IS IN WIP]
 
-## How to run the sample (XCode)
-0. Download your certificate files into `PubSub\PubSub` folder. Save the certificate files as `.\PubSub\PubSub\cert.pem`, and the private key file as `.\PubSub\PubSub\privatekey.pem`.
-1. Launch the `PubSub\PubSub.xcodeproject` with XCode
-2. Setup your endpoint in `PubSub\PubSub\ContentView.swift`
+## How to run the sample (with XCode)
+0. Prepare your certificates: Download your certificate files into `PubSub\MqttClient` folder. Save the certificate files as `.\PubSub\MqttClient\cert.pem`, and the private key file as `.\PubSub\MqttClient\privatekey.pem`.
+1. Launch the `PubSub\MqttClient.xcodeproject` with XCode
+2. Setup your endpoint in `PubSub\MqttClient\ContentView.swift`: Replace "<your-endpoint>" in the source with your IoT endpoint value.
 ```
 let TEST_HOST = "<your-endpoint>"
 ```
