@@ -3,54 +3,60 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A61999D92D0A16BD00B01729 /* AwsIotDeviceSdkSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A61999D82D0A16BD00B01729 /* AwsIotDeviceSdkSwift */; };
-		A6AE983F2D0BA17F003C04B1 /* PubSubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6AE983E2D0BA17F003C04B1 /* PubSubApp.swift */; };
-		A6AE98412D0BA1D3003C04B1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6AE98402D0BA1D3003C04B1 /* ContentView.swift */; };
+		A6183C4B2CFE3157007281B8 /* cert.pem in Resources */ = {isa = PBXBuildFile; fileRef = A6183C482CFE3157007281B8 /* cert.pem */; };
+		A6183C4F2CFE322E007281B8 /* privatekey.pem in Resources */ = {isa = PBXBuildFile; fileRef = A6183C4E2CFE322E007281B8 /* privatekey.pem */; };
+		A63CEBB52C238347003A71B7 /* MqttClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB42C238347003A71B7 /* MqttClientApp.swift */; };
+		A63CEBB72C238347003A71B7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB62C238347003A71B7 /* ContentView.swift */; };
+		A6587EE12D0BB00D00D5D40E /* AwsIotDeviceSdkSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */; };
+		A6587EE52D0BB05E00D5D40E /* AwsCommonRuntimeKit in Frameworks */ = {isa = PBXBuildFile; productRef = A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A6183C482CFE3157007281B8 /* cert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.pem; sourceTree = "<group>"; };
 		A6183C4E2CFE322E007281B8 /* privatekey.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = privatekey.pem; sourceTree = "<group>"; };
-		A6AE983E2D0BA17F003C04B1 /* PubSubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubSubApp.swift; sourceTree = "<group>"; };
-		A6AE98402D0BA1D3003C04B1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A63CEBB12C238347003A71B7 /* MqttClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MqttClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A63CEBB42C238347003A71B7 /* MqttClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MqttClientApp.swift; sourceTree = "<group>"; };
+		A63CEBB62C238347003A71B7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A61999BB2D0A15DD00B01729 /* Frameworks */ = {
+		A63CEBAE2C238347003A71B7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A61999D92D0A16BD00B01729 /* AwsIotDeviceSdkSwift in Frameworks */,
+				A6587EE52D0BB05E00D5D40E /* AwsCommonRuntimeKit in Frameworks */,
+				A6587EE12D0BB00D00D5D40E /* AwsIotDeviceSdkSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A61999B52D0A15DD00B01729 = {
+		A63CEBA82C238347003A71B7 = {
 			isa = PBXGroup;
 			children = (
-				A61999C02D0A15DD00B01729 /* MqttClient */,
-				A61999BF2D0A15DD00B01729 /* Products */,
+				A63CEBB32C238347003A71B7 /* MqttClient */,
+				A63CEBB22C238347003A71B7 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A61999BF2D0A15DD00B01729 /* Products */ = {
+		A63CEBB22C238347003A71B7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				A63CEBB12C238347003A71B7 /* MqttClient.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A61999C02D0A15DD00B01729 /* MqttClient */ = {
+		A63CEBB32C238347003A71B7 /* MqttClient */ = {
 			isa = PBXGroup;
 			children = (
-				A6AE98402D0BA1D3003C04B1 /* ContentView.swift */,
-				A6AE983E2D0BA17F003C04B1 /* PubSubApp.swift */,
+				A63CEBB42C238347003A71B7 /* MqttClientApp.swift */,
+				A63CEBB62C238347003A71B7 /* ContentView.swift */,
 				A6183C482CFE3157007281B8 /* cert.pem */,
 				A6183C4E2CFE322E007281B8 /* privatekey.pem */,
 			);
@@ -60,42 +66,43 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A61999BD2D0A15DD00B01729 /* PubSub */ = {
+		A63CEBB02C238347003A71B7 /* MqttClient */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A61999CC2D0A15DF00B01729 /* Build configuration list for PBXNativeTarget "PubSub" */;
-			compatibilityVersion = "Xcode 14.0";
+			buildConfigurationList = A63CEBBF2C238348003A71B7 /* Build configuration list for PBXNativeTarget "MqttClient" */;
 			buildPhases = (
-				A61999BA2D0A15DD00B01729 /* Sources */,
-				A61999BB2D0A15DD00B01729 /* Frameworks */,
-				A61999BC2D0A15DD00B01729 /* Resources */,
+				A63CEBAD2C238347003A71B7 /* Sources */,
+				A63CEBAE2C238347003A71B7 /* Frameworks */,
+				A63CEBAF2C238347003A71B7 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = PubSub;
+			name = MqttClient;
 			packageProductDependencies = (
-				A61999D82D0A16BD00B01729 /* AwsIotDeviceSdkSwift */,
+				A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */,
+				A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */,
 			);
-			productName = PubSub;
+			productName = MqttClient;
+			productReference = A63CEBB12C238347003A71B7 /* MqttClient.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A61999B62D0A15DD00B01729 /* Project object */ = {
+		A63CEBA92C238347003A71B7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 1520;
 				TargetAttributes = {
-					A61999BD2D0A15DD00B01729 = {
+					A63CEBB02C238347003A71B7 = {
 						CreatedOnToolsVersion = 15.2;
 					};
 				};
 			};
-			buildConfigurationList = A61999B92D0A15DD00B01729 /* Build configuration list for PBXProject "PubSub" */;
+			buildConfigurationList = A63CEBAC2C238347003A71B7 /* Build configuration list for PBXProject "MqttClient" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -103,44 +110,45 @@
 				en,
 				Base,
 			);
-			mainGroup = A61999B52D0A15DD00B01729;
-			minimizedProjectReferenceProxies = 1;
+			mainGroup = A63CEBA82C238347003A71B7;
 			packageReferences = (
-				A61999D72D0A16BD00B01729 /* XCLocalSwiftPackageReference "../../.." */,
+				A6587EDF2D0BB00D00D5D40E /* XCLocalSwiftPackageReference "../../../../aws-iot-device-sdk-swift" */,
 			);
-			productRefGroup = A61999BF2D0A15DD00B01729 /* Products */;
+			productRefGroup = A63CEBB22C238347003A71B7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A61999BD2D0A15DD00B01729 /* PubSub */,
+				A63CEBB02C238347003A71B7 /* MqttClient */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A61999BC2D0A15DD00B01729 /* Resources */ = {
+		A63CEBAF2C238347003A71B7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6183C4F2CFE322E007281B8 /* privatekey.pem in Resources */,
+				A6183C4B2CFE3157007281B8 /* cert.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A61999BA2D0A15DD00B01729 /* Sources */ = {
+		A63CEBAD2C238347003A71B7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6AE98412D0BA1D3003C04B1 /* ContentView.swift in Sources */,
-				A6AE983F2D0BA17F003C04B1 /* PubSubApp.swift in Sources */,
+				A63CEBB72C238347003A71B7 /* ContentView.swift in Sources */,
+				A63CEBB52C238347003A71B7 /* MqttClientApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A61999CA2D0A15DF00B01729 /* Debug */ = {
+		A63CEBBD2C238348003A71B7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -203,7 +211,7 @@
 			};
 			name = Debug;
 		};
-		A61999CB2D0A15DF00B01729 /* Release */ = {
+		A63CEBBE2C238348003A71B7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -259,12 +267,11 @@
 			};
 			name = Release;
 		};
-		A61999CD2D0A15DF00B01729 /* Debug */ = {
+		A63CEBC02C238348003A71B7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -286,18 +293,17 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		A61999CE2D0A15DF00B01729 /* Release */ = {
+		A63CEBC12C238348003A71B7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -316,6 +322,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = aws.iot.device.sdk.swift.PubSub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -325,20 +332,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A61999B92D0A15DD00B01729 /* Build configuration list for PBXProject "PubSub" */ = {
+		A63CEBAC2C238347003A71B7 /* Build configuration list for PBXProject "MqttClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A61999CA2D0A15DF00B01729 /* Debug */,
-				A61999CB2D0A15DF00B01729 /* Release */,
+				A63CEBBD2C238348003A71B7 /* Debug */,
+				A63CEBBE2C238348003A71B7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A61999CC2D0A15DF00B01729 /* Build configuration list for PBXNativeTarget "PubSub" */ = {
+		A63CEBBF2C238348003A71B7 /* Build configuration list for PBXNativeTarget "MqttClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A61999CD2D0A15DF00B01729 /* Debug */,
-				A61999CE2D0A15DF00B01729 /* Release */,
+				A63CEBC02C238348003A71B7 /* Debug */,
+				A63CEBC12C238348003A71B7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -346,18 +353,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		A61999D72D0A16BD00B01729 /* XCLocalSwiftPackageReference "../../.." */ = {
+		A6587EDF2D0BB00D00D5D40E /* XCLocalSwiftPackageReference "../../../../aws-iot-device-sdk-swift" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../..;
+			relativePath = "../../../../aws-iot-device-sdk-swift";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A61999D82D0A16BD00B01729 /* AwsIotDeviceSdkSwift */ = {
+		A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AwsCommonRuntimeKit;
+		};
+		A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AwsIotDeviceSdkSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = A61999B62D0A15DD00B01729 /* Project object */;
+	rootObject = A63CEBA92C238347003A71B7 /* Project object */;
 }
