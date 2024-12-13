@@ -90,9 +90,9 @@ jobs:
                 cd Samples/iOS/PubSub/
                 pwd
                 ls ~/Library/MobileDevice/Provisioning\ Profiles
-                xcodebuild -resolvePackageDependencies
+                sudo xcodebuild -resolvePackageDependencies
                 echo "start build app"
-                xcodebuild -scheme "MqttClient" \
+                sudo xcodebuild -scheme "MqttClient" \
                 -archivePath $RUNNER_TEMP/PubSub.xcarchive \
                 -configuration Release \
                 -destination generic/platform=iOS \
