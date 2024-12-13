@@ -98,8 +98,8 @@ jobs:
               run: |
                 cd Samples/iOS/PubSub/
                 aws s3 cp s3://iot-sdk-ci-bucket-us-east1/ExportOptions.plist ExportOptions.plist
-                xcodebuild -exportArchive -archivePath $RUNNER_TEMP/MqttClient.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath output
-                cd output
+                xcodebuild -exportArchive -archivePath $RUNNER_TEMP/MqttClient.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath $RUNNER_TEMP/output
+                cd $RUNNER_TEMP/output
                 ls
             - name: Setup Device Farm test file and environment
             # Device Farm Instructions: https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium.html
@@ -140,8 +140,8 @@ jobs:
                 --run_attempt ${{ github.run_attempt }} \
                 --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
                 --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSHighlyAvailablePool" --query "SecretString" | cut -f2 -d\") \
-                --app_file_path ./output/MqttClient.ipa \
-                --test_file_path ./workspace/test_bundle.zip \
+                --app_file_path $RUNNER_TEMP/output/MqttClient.ipa \
+                --test_file_path ../../Samples/iOS/PubSub//workspace/test_bundle.zip \
                 --test_spec_file_path ./test_spec.yml
             - name: Execute device farm iOS 13
               run: |
@@ -153,6 +153,6 @@ jobs:
                 --run_attempt ${{ github.run_attempt }} \
                 --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
                 --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOS13PoolArn" --query "SecretString" | cut -f2 -d\") \
-                --app_file_path ./output/MqttClient.ipa \
-                --test_file_path ./workspace/test_bundle.zip \
+                --app_file_path $RUNNER_TEMP/output/MqttClient.ipa \
+                --test_file_path ../../Samples/iOS/PubSub//workspace/test_bundle.zip \
                 --test_spec_file_path ./test_spec.yml
