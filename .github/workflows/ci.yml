@@ -63,7 +63,7 @@ jobs:
                 PP_PATH=$RUNNER_TEMP/mqttclient.mobileprovision
                 KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
                 aws s3 cp s3://iot-sdk-ci-bucket-us-east1/AppleDeveloperCertificate.p12 $CERTIFICATE_PATH
-                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/3V5W3HV3D4iOS_Development.mobileprovision $PP_PATH
+                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/aws-common-runtime.MqttClient.mobileprovision $PP_PATH
                 pkcs12_identity_pw=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/ios/pkcs12_identity_password" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 # create temporary keychain
                 security create-keychain -p "$pkcs12_identity_pw" $KEYCHAIN_PATH
@@ -77,7 +77,6 @@ jobs:
                 cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
             - name : Setup iOS App Credentials
               run : |
-                pwd
                 cd Samples/iOS/PubSub/MqttClient/
                 ENDPOINT=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "unit-test/endpoint" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
@@ -86,9 +85,7 @@ jobs:
             - name: Build Test App
               run: |
                 xcode-select --print-path
-                pwd
                 cd Samples/iOS/PubSub/
-                pwd
                 ls ~/Library/MobileDevice/Provisioning\ Profiles
                 sudo xcodebuild -resolvePackageDependencies
                 echo "start build app"
