@@ -57,7 +57,7 @@ jobs:
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
             - name: run PubSub sample
               run: |
-                cd ./aws-iot-device-sdk-swift
+                pwd
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_x509_cert_connect_cfg.json
 
             
