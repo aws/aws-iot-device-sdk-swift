@@ -43,6 +43,7 @@ jobs:
                     - macos-latest
         permissions:
             id-token: write
+            contents: read # This is required for actions/checkout
         steps:
             - name: Install boto3
               run: |
@@ -52,7 +53,7 @@ jobs:
             - name: configure AWS credentials (containers)
               uses: aws-actions/configure-aws-credentials@v2
               with:
-                role-to-assume: ${{ env.CI_X509_Role }}
+                role-to-assume: ${{ env.CI_PUBSUB_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
             - name: run PubSub sample
               run: |
