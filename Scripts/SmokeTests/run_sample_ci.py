@@ -312,7 +312,7 @@ def launch_sample():
             if (i+1 < len(arguments)):
                 arguments_as_string += " "
 
-        sample_return = subprocess.run(arguments_as_string, shell=True,stdout=PIPE)
+        sample_return = subprocess.run(arguments_as_string, shell=True,stdout=subprocess.PIPE)
         exit_code = sample_return.returncode
 
     elif (config_json['language'] == "Javascript"):
