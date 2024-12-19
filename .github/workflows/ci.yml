@@ -47,8 +47,6 @@ jobs:
         steps:
             - name: Install boto3
               run: |
-                python3 -m venv .venv
-                source .venv/bin/activate
                 python3 -m pip install boto3
             - name: Checkout Source
               uses: actions/checkout@v4
