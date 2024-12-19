@@ -304,19 +304,13 @@ def launch_sample():
 
     # Swift
     elif (config_json['language'] == "Swift"):
-        # sample_path = str(current_folder)  + config_json['sample_file']
         os.chdir(config_json['sample_file'])
-        arguments = ["swift", "run", config_json['sample_product_name']]
-        arguments = arguments + config_json_arguments_list
-
+        arguments = ["swift", "run", config_json['sample_product_name']]  + config_json_arguments_list
         arguments_as_string = ""
         for i in range(0, len(arguments)):
             arguments_as_string += str(arguments[i])
             if (i+1 < len(arguments)):
                 arguments_as_string += " "
-
-
-        print (arguments)
         sample_return = subprocess.run(arguments_as_string, shell=True)
         exit_code = sample_return.returncode
         os.chdir(current_folder)
