@@ -32,7 +32,7 @@ struct X509MTLSConnectSample: ParsableCommand {
     @Option(help: "The path to the override root CA file (optional).")
     var ca_file: String? = nil
     
-    @Option(help: "Client id to use (optional)")
+    @Option(help: "Client id to use (optional). Please make sure the client id matches the policy.")
     var client_id: String? = "test-" + UUID().uuidString
     
     // The main function to run
