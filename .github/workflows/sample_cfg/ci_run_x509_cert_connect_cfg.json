@@ -9,11 +9,11 @@
             "secret": "ci/endpoint"
         },
         {
-            "secret": "ci/PubSub/cert",
+            "secret": "ci/mqtt5/us/mqtt5_thing/cert",
             "filename": "tmp_certificate.pem"
         },
         {
-            "secret": "ci/PubSub/key",
+            "secret": "ci/mqtt5/us/mqtt5_thing/key",
             "filename": "tmp_key.pem"
         }
     ]

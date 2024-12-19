@@ -53,7 +53,7 @@ jobs:
             - name: configure AWS credentials (containers)
               uses: aws-actions/configure-aws-credentials@v2
               with:
-                role-to-assume: ${{ env.CI_PUBSUB_ROLE }}
+                role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
             - name: Install boto3
               run: |

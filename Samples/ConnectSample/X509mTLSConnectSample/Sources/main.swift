@@ -33,7 +33,7 @@ struct X509MTLSConnectSample: ParsableCommand {
     var ca_file: String? = nil
     
     @Option(help: "Client id to use (optional)")
-    var client_id: String? = nil
+    var client_id: String? = "test-" + UUID().uuidString
     
     // The main function to run
     mutating func run() throws {
