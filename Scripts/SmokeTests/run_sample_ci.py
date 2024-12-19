@@ -311,9 +311,9 @@ def launch_sample():
             arguments_as_string += str(arguments[i])
             if (i+1 < len(arguments)):
                 arguments_as_string += " "
-        sample_return = subprocess.run(arguments_as_string, shell=True)
+
+        sample_return = subprocess.run(arguments_as_string, shell=True,stdout=PIPE)
         exit_code = sample_return.returncode
-        os.chdir(current_folder)
 
     elif (config_json['language'] == "Javascript"):
         os.chdir(config_json['sample_file'])
