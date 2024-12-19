@@ -1,6 +1,7 @@
 # Basic Connect Sample
 
 [**Return to main sample list**](./README.md)
+
 This sample demonstrate how to establish a Mqtt Connection against AWS IoT service with X509 client certificates. 
 
 This sample uses the
