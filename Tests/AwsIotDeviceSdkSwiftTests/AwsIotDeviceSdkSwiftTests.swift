@@ -452,8 +452,42 @@ class Mqtt5ClientTests: XCBaseTestCase {
         try connectClient(client: mqttClient, testContext: context)
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
-
     
+    func testMqttWebsocketWithCognitoCredentialProvider() async throws {
+        let iotEndpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+        let region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_REGION")
+        let cognitoEndpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_COGNITO_ENDPOINT")
+        let cognitoIdentity = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_COGNITO_IDENTITY")
+        let context = MqttTestContext(contextName: "WebsocketWithCognitoCredentialProvider")
+
+        let elg = try EventLoopGroup()
+        let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
+        let clientBootstrap = try ClientBootstrap(
+            eventLoopGroup: elg,
+            hostResolver: resolver)
+        
+        let options = TLSContextOptions.makeDefault()
+        let tlscontext = try TLSContext(options: options, mode: .client)
+        
+        let cognitoProvider = try CredentialsProvider(source: .cognito(bootstrap: clientBootstrap, tlsContext: tlscontext, endpoint: cognitoEndpoint, identity: cognitoIdentity))
+                    
+        let builder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(endpoint: iotEndpoint, region: region, credentialsProvider: cognitoProvider);
+                
+        builder.withCallbacks(
+            onPublishReceived: context.onPublishReceived,
+            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
+            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
+            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
+            onLifecycleEventStopped: context.onLifecycleEventStopped)
+
+        builder.withClientId(createClientId())
+
+        let mqttClient = try builder.build()
+
+        XCTAssertNotNil(mqttClient)
+        try connectClient(client: mqttClient, testContext: context)
+        try disconnectClientCleanup(client: mqttClient, testContext: context)
+    }
 
     func testMqttDirectWithUnsignedCustomAuth() async throws {
         let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
