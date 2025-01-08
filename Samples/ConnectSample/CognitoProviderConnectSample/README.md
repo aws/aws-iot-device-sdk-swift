@@ -1,4 +1,4 @@
-# Basic Connect Sample
+# MQTT over Websocket with Cognito authentication
 
 [**Return to main sample list**](./README.md)
 
@@ -16,7 +16,7 @@ Your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerg
 
 ## Before you run the sample
 
-0. Understand what is AWS IoT and Amazon Cognito Identities 
+0. Background knowledge about IoT and Cognito authentication
 - [What is AWS IOT?](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
 - [What is Amazon Cognito identities?](https://docs.aws.amazon.com/iot/latest/developerguide/cognito-identities.html)
 
@@ -52,10 +52,10 @@ For the purposes of this sample, please make sure your policy allows a client ID
     Note that in a real application, you may want to avoid the use of wildcards in your ClientID or use them selectively. Please follow best practices when working with AWS on production applications using the SDK.
 
     </details>
-  3. Get the `cognito_identity` to connect. You can retrieve the cognito credentials from the [AWS CLI commands](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/) or [Getting credentials](https://docs.aws.amazon.com/cognito/latest/developerguide/getting-credentials.html)
 
 ## Run the sample
-0. Prepare your certificates: you should download the certificate file and private key file during IoT resource creation.
+0. To run the sample, you would need your iot `endpoint` and `cognito_identity` from the above resource creation step. You can retrieve the cognito credentials from the [AWS CLI commands](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/) or [Getting credentials](https://docs.aws.amazon.com/cognito/latest/developerguide/getting-credentials.html)
+
 1. Switch to the sample folder, and build the sample
 ```
 cd aws-iot-device-sdk-swift/Samples/ConnectSample/CognitoProviderConnectSample
