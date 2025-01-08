@@ -8,6 +8,14 @@ on:
 
 env:
     AWS_DEFAULT_REGION: us-east-1
+    CI_UTILS_FOLDER:  "./Scripts"
+    CI_SAMPLES_CFG_FOLDER: ".github/workflows/sample_cfg"
+    CI_PUBSUB_ROLE: arn:aws:iam::180635532705:role/CI_PubSub_Role
+    CI_COGNITO_ROLE: arn:aws:iam::180635532705:role/CI_Cognito_Role
+    CI_X509_ROLE: arn:aws:iam::180635532705:role/CI_X509_Role
+    CI_CUSTOM_AUTHORIZER_ROLE: arn:aws:iam::180635532705:role/CI_CustomAuthorizer_Role
+    CI_MQTT5_ROLE: arn:aws:iam::180635532705:role/CI_MQTT5_Role
+    CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
 
 jobs:
     osx:
@@ -25,3 +33,38 @@ jobs:
                 python3 -m venv .venv
                 source .venv/bin/activate
                 python3 -m pip install boto3
+
+    smoke-test:
+        runs-on: ${{ matrix.runner }}
+        strategy:
+            matrix:
+                runner:
+                    - macos-13
+                    - macos-latest
+        permissions:
+            id-token: write
+            contents: read # This is required for actions/checkout
+        steps:
+            - name: Checkout Source
+              uses: actions/checkout@v4
+              with:
+                submodules: true
+                fetch-depth: 0
+            - name: configure AWS credentials (containers)
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                role-to-assume: ${{ env.CI_MQTT5_ROLE }}
+                aws-region: ${{ env.AWS_DEFAULT_REGION }}
+            - name: Install boto3
+              run: |
+                python3 -m venv .venv
+                source .venv/bin/activate
+                python3 -m pip install boto3
+            - name: run PubSub sample
+              run: |
+                pwd
+                source .venv/bin/activate
+                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_x509_cert_connect_cfg.json
+
+            
+            
