@@ -27,7 +27,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
     var cognitoIdentity: String
     
     @Argument(help: "The signing region used for the websocket signer")
-    var region: String
+    var region: String? = "us-east-1"
     
     @Option(help: "The path to the override root CA file (optional).")
     var ca_file: String? = nil
@@ -48,10 +48,11 @@ struct CognitoProviderConnectSample: ParsableCommand {
             /**************************************
              * 2. Setup Connect Options & callbacks
              **************************************/
-            // Create and config a client builder to access credentials from file path parsed from command line
-            let sample_context = CognitoProviderConnectSample()
+            // Setup the test context which handles the callbacks, the callback is using DispatchSemaphore for demo purpose.
+            // You probably do not want to wait on DispatchSemaphore for a final product.
+            let sample_context = CognitoProviderConnectContext()
 
-            // Create bootstrap and tlsconext for the cognito provider
+            // Create bootstrap and tlsContext for the cognito provider
             let elg = try EventLoopGroup()
             let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
             let clientBootstrap = try ClientBootstrap(
@@ -60,10 +61,12 @@ struct CognitoProviderConnectSample: ParsableCommand {
             
             let options = TLSContextOptions.makeDefault()
             let tlsContext = try TLSContext(options: options, mode: .client)
-            let cognitoEndpoint = "cognito-identity." + self.region + "amazonaws.com";
-
+            let cognitoEndpoint = "cognito-identity." + self.region! + "amazonaws.com";
+            // Create the cognito provider
             let cognitoProvider = try CredentialsProvider(source: .cognito(bootstrap: clientBootstrap, tlsContext: tlsContext, endpoint: cognitoEndpoint, identity: self.cognitoIdentity))                
-            let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(endpoint: self.endpoint, region: self.region, credentialsProvider: cognitoProvider);
+            
+            // Create a client builder to help setup the mqtt client
+            let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(endpoint: self.endpoint, region: self.region!, credentialsProvider: cognitoProvider);
                 
             // Setup callbacks and other client options
             clientBuilder.withCallbacks(onLifecycleEventAttemptingConnect: sample_context.onLifecycleEventAttemptingConnect,
@@ -111,7 +114,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
     /**************************************
      * Setup client callbacks
      **************************************/
-struct X509MTLSConnectContext{    
+struct CognitoProviderConnectContext{    
     // We wait on semaphore to demonstrate the client features. However, you probably do not want to block the application in a real product.
     var semaphoreConnectionSuccess: DispatchSemaphore
     var semaphoreConnectionFailure: DispatchSemaphore
