@@ -9,8 +9,7 @@
             "secret": "ci/endpoint"
         },
         {
-            "secret": "ci/Cognito/identity_id",
-            "name": "tmp_certificate.pem"
+            "secret": "ci/Cognito/identity_id"
         }
     ]
 }
