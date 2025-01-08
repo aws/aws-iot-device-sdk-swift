@@ -61,10 +61,9 @@ struct CognitoProviderConnectSample: ParsableCommand {
             
             let options = TLSContextOptions.makeDefault()
             let tlsContext = try TLSContext(options: options, mode: .client)
-            let cognitoEndpoint = "cognito-identity." + self.region! + "amazonaws.com";
+            let cognitoEndpoint = "cognito-identity." + self.region! + ".amazonaws.com";
             // Create the cognito provider
             let cognitoProvider = try CredentialsProvider(source: .cognito(bootstrap: clientBootstrap, tlsContext: tlsContext, endpoint: cognitoEndpoint, identity: self.cognitoIdentity))                
-            
             // Create a client builder to help setup the mqtt client
             let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(endpoint: self.endpoint, region: self.region!, credentialsProvider: cognitoProvider);
                 
