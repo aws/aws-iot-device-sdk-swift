@@ -26,11 +26,8 @@ struct CognitoProviderConnectSample: ParsableCommand {
     @Argument(help: "The Cognito identity ID to use to connect via Cognito")
     var cognitoIdentity: String
     
-    @Argument(help: "The signing region used for the websocket signer")
+    @Option(help: "The signing region used for the websocket signer")
     var region: String? = "us-east-1"
-    
-    @Option(help: "The path to the override root CA file (optional).")
-    var ca_file: String? = nil
     
     @Option(help: "Client id to use (optional). Please make sure the client id matches the policy.")
     var client_id: String? = "test-" + UUID().uuidString

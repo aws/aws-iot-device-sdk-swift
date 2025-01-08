@@ -1,0 +1,92 @@
+# Basic Connect Sample
+
+[**Return to main sample list**](./README.md)
+
+This sample demonstrate how to establish a Mqtt Connection against AWS IoT service with [Cognito](https://aws.amazon.com/cognito/) identity.
+
+This sample uses the
+[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
+for AWS IoT to send and receive messages through an MQTT connection.
+
+This sample uses a [Cognito](https://aws.amazon.com/cognito/) identity to authorize the connection. This has the advantage of not requiring the needing to store AWS credentials on the device itself with permissions to perform the IoT actions your device requires, but instead just having AWS credentials for the [Cognito](https://aws.amazon.com/cognito/) identity instead. This provides a layer of security and indirection that gives you better security.
+
+On startup, the device connects to the server and then disconnects. This sample is for reference on connecting using Cognito.
+
+Your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html) must provide privileges for this sample to connect. Below is a sample policy that can be used on your IoT Core Thing that will allow this sample to run as intended.
+
+## Before you run the sample
+
+0. Understand what is AWS IoT and Amazon Cognito Identities 
+- [What is AWS IOT?](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
+- [What is Amazon Cognito identities?](https://docs.aws.amazon.com/iot/latest/developerguide/cognito-identities.html)
+
+1. Setup AWS account and [create AWS IoT Resource](https://docs.aws.amazon.com/iot/latest/developerguide/create-iot-resources.html)
+
+2. [Config Cognito Identity Pool](https://docs.aws.amazon.com/cognito/latest/developerguide/identity-pools.html#identity-pools-create)
+
+3. Your IAM Role attached with the cognito identity Pool must provide privileges for this sample to connect to IoT. Below is a sample policy that can be used on your role that will allow this sample to run as intended.
+For the purposes of this sample, please make sure your policy allows a client ID of `test-*` to connect or use `--client_id <client ID here>` to send the client ID your policy supports.
+   <details>
+    <summary>(see sample policy)</summary>
+    <pre>
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "iot:Connect"
+          ],
+          "Resource": [
+            "arn:aws:iot:<b>region</b>:<b>account</b>:client/test-*"
+          ]
+        }
+      ]
+    }
+    </pre>
+
+    Replace with the following with the data from your AWS account:
+    * `<region>`: The AWS IoT Core region where you created your AWS IoT Core thing you wish to use with this sample. For example `us-east-1`.
+    * `<account>`: Your AWS IoT Core account ID. This is the set of numbers in the top right next to your AWS account name when using the AWS IoT Core website.
+
+    Note that in a real application, you may want to avoid the use of wildcards in your ClientID or use them selectively. Please follow best practices when working with AWS on production applications using the SDK.
+
+    </details>
+  3. Get the `cognito_identity` to connect. You can retrieve the cognito credentials from the [AWS CLI commands](https://docs.aws.amazon.com/cli/latest/reference/cognito-idp/) or [Getting credentials](https://docs.aws.amazon.com/cognito/latest/developerguide/getting-credentials.html)
+
+## Run the sample
+0. Prepare your certificates: you should download the certificate file and private key file during IoT resource creation.
+1. Switch to the sample folder, and build the sample
+```
+cd aws-iot-device-sdk-swift/Samples/ConnectSample/CognitoProviderConnectSample
+swift build
+```
+2. Run the sample
+```
+swift run CognitoProviderConnectSample <endpoint> <cognito_identity>
+```
+We also provide several extra options
+```
+OPTIONS:
+  --region <region>       The signing region used for the websocket signer (default: us-east-1)
+  --client_id <client_id> Client id to use (optional) (default:
+                          test-<UUID>).
+``` 
+Please make sure the client id you use matches the client id set in your policy. 
+
+## Trouble Shoot
+### Enable logging in samples
+
+To enable logging in the samples, you need add the following line into the code. The logger level has the following options: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, or `none`.
+```swift
+// Optional init debug log to help with debugging.
+Logger.initialize(target: .standardOutput, level: .debug)
+```
+
+### Others
+Please make sure to check out our resources too before opening an DISCUSSION:
+* [FAQ][WIP]
+* [IoT Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
+* Check for similar [Issues](https://github.com/aws/aws-iot-device-sdk-swift/issues)
+* [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
+* [Dev Blog](https://aws.amazon.com/blogs/?awsf.blog-master-iot=category-internet-of-things%23amazon-freertos%7Ccategory-internet-of-things%23aws-greengrass%7Ccategory-internet-of-things%23aws-iot-analytics%7Ccategory-internet-of-things%23aws-iot-button%7Ccategory-internet-of-things%23aws-iot-device-defender%7Ccategory-internet-of-things%23aws-iot-device-management%7Ccategory-internet-of-things%23aws-iot-platform)
