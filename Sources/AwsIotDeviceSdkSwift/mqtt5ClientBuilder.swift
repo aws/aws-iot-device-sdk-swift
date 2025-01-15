@@ -44,35 +44,35 @@ public class Mqtt5ClientBuilder {
     private var _enableMetricsCollection: Bool = true
 
     // mtlsFromPath
-    init (certPath: String, keyPath: String, endpoint: String, port: UInt32 = 8883) throws {
+    init (certPath: String, keyPath: String, endpoint: String) throws {
         let tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
         _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
-        _port = port
+        _port = 8883
     }
 
     // mtlsFromData
-    init (certData: Data, keyData: Data, endpoint: String, port: UInt32 = 8883) throws {
+    init (certData: Data, keyData: Data, endpoint: String) throws {
         let tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
         _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
-        _port = port
+        _port = 8883
     }
 
     // mtlsFromPKCS12
-    init (pkcs12Path: String, pkcs12Password: String, endpoint: String, port: UInt32 = 8883) throws {
+    init (pkcs12Path: String, pkcs12Password: String, endpoint: String, port) throws {
         let tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
         _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
-        _port = port
+        _port = 8883
     }
 
     // websocketsWithDefaultAwsSigning
-    init (endpoint: String, port: UInt32 = 443, region: String, credentialsProvider: CredentialsProvider) throws {
+    init (endpoint: String, region: String, credentialsProvider: CredentialsProvider) throws {
         let tlsOptions = TLSContextOptions.makeDefault()
         _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
         _endpoint = endpoint
-        _port = port
+        _port = 443
             
         let signingConfig = SigningConfig(
             algorithm: SigningAlgorithmType.signingV4,
@@ -97,7 +97,6 @@ public class Mqtt5ClientBuilder {
 
     // Custom Auth
     init (endpoint: String,
-          port: UInt32 = 443,
           authAuthorizerName: String? = nil,
           authPassword: Data? = nil,
           authAuthorizerSignature: String? = nil,
@@ -107,7 +106,7 @@ public class Mqtt5ClientBuilder {
           useWebsocket: Bool = true) throws {
         
         _endpoint = endpoint
-        _port = port
+        _port = 443
 
         var usernameString = ""
         if let authUsernameSet = authUsername {
@@ -157,10 +156,9 @@ public class Mqtt5ClientBuilder {
     public static func mtlsFromPath(
         certPath: String, 
         keyPath: String,
-        endpoint: String,
-        port: UInt32 = 8883) throws -> Mqtt5ClientBuilder {
+        endpoint: String) throws -> Mqtt5ClientBuilder {
 
-        return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint, port: port)
+        return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint)
     }
 
     public static func mtlsFromData(
@@ -168,7 +166,7 @@ public class Mqtt5ClientBuilder {
         keyData: Data,
         endpoint: String) throws -> Mqtt5ClientBuilder  {
 
-        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint, port: 8883)
+        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint)
     }
 
     public static func mtlsFromPKCS12(
@@ -176,15 +174,14 @@ public class Mqtt5ClientBuilder {
         pkcs12Password: String,
         endpoint: String) throws -> Mqtt5ClientBuilder {
         
-        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint, port: 8883)
+        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
                                                        region: String, 
                                                        credentialsProvider: CredentialsProvider) throws -> Mqtt5ClientBuilder {
 
-        return try Mqtt5ClientBuilder(endpoint: endpoint, 
-                                      port: 443, 
+        return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       region: region, 
                                       credentialsProvider: credentialsProvider)
     }
