@@ -466,7 +466,7 @@ public class Mqtt5ClientBuilder {
     }
 
     /// Set Client Id to be used with MQTT5 client. Used to restore session state between connections. If left empty, the 
-    /// broker will auto-assign a unique client id.  When reconnecting, the mqtt5 client will always use the auto-assigned 
+    /// broker will auto-assign a unique client id. When reconnecting, the mqtt5 client will always use the auto-assigned 
     /// client id.
     ///
     /// - Parameter clientId: A unique string identifying the client to the server.  
@@ -474,28 +474,32 @@ public class Mqtt5ClientBuilder {
         _clientId = clientId
     }
 
-    /// Username to connect with. Overriding a username set using any form of Custom Auth may cause a Custom Auth connection to fail.
+    /// Set username to connect with. Overrides username set using any form of Custom Auth.
     ///
-    /// - Parameter username: (String)
+    /// - Parameter username: A string value that the server may use for client authentication and authorization.
     public func withUsername(_ username: String) {
         _username = username
     }
 
-    /// Password to connect with.
+    /// Set password to connect with. Overrides password set using any form of Custom Auth.
     ///
-    /// - Parameter password: (Data)
+    /// - Parameter password: Opaque binary data that the server may use for client authentication and authorization.
     public func withPassword(_ password: Data) {
         _password = password
     }
-
+    
     /// The maximum time interval, in seconds, that is permitted to elapse between the point at which the 
     /// client finishes transmitting one MQTT packet and the point it starts sending the next.
-    /// The client will use PINGREQ packets to maintain this property. If the responding CONNACK contains 
-    /// a keep alive property value, then that is the negotiated keep alive value. Otherwise, the keep 
-    /// alive sent by the client is the negotiated value. keep_alive_interval_sec must be set to at least
-    /// 1 second greater than ping_timeout_ms (default 30,000 ms) or it will fail validation.
+    /// The client will use PINGREQ packets to maintain this property. 
+    /// 
+    /// If the responding CONNACK contains a keep alive property value, then that is the negotiated keep alive value. 
+    /// Otherwise, the keep alive sent by the client is the negotiated value. keep_alive_interval_sec must be set to at 
+    /// least 1 second greater than ping_timeout_ms (default 30 seconds) or it will fail validation.
+    /// 
+    /// See [MQTT5 Keep Alive](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901045)
     ///
-    /// - Parameter keepAliveInterval: (TimeInterval)
+    /// - Parameter keepAliveInterval: Time in seconds that is permitted to elapse between the point at which the
+    ///     client finishes transmitting one MQTT packet and the point it starts sending the next.
     public func withKeepAliveInterval(_ keepAliveInterval: TimeInterval) {
         _keepAliveInterval = keepAliveInterval
     }
