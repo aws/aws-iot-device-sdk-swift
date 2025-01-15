@@ -77,7 +77,7 @@ public class Mqtt5ClientBuilder {
     }
 
     // mtlsFromPKCS12
-    init (pkcs12Path: String, pkcs12Password: String, endpoint: String, port) throws {
+    init (pkcs12Path: String, pkcs12Password: String, endpoint: String) throws {
         let tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
         _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
