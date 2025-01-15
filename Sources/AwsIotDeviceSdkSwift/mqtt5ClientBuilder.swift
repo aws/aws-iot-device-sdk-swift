@@ -4,7 +4,7 @@
 import Foundation
 @_exported import AwsCommonRuntimeKit
 
-/// fileprivate method that generates string used for AWS metrics.
+/// Helper function that generates string used for AWS metrics.
 fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     // Check if the username being used already has a query
     var usernameHasQuery = false
@@ -204,6 +204,7 @@ public class Mqtt5ClientBuilder {
     }
 
     /// Create an Mqtt5ClientBuilder configured to connect using a PKCS12 file.
+    ///
     /// - Parameters:
     ///   - pkcs12Path: Path to the PKCS12 file to use
     ///   - pkcs12Password: The password for the PKCS12 file.
@@ -218,7 +219,9 @@ public class Mqtt5ClientBuilder {
         return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
-    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using credentials from the credentialsProvider for the websocket handshake.
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using credentials from the credentialsProvider 
+    /// for the websocket handshake.
+    /// 
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - region: AWS region to use when signing.
@@ -238,9 +241,12 @@ public class Mqtt5ClientBuilder {
     ///
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
-    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
-    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property.  AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
-    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
+    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK 
+    /// will not do so for you.
+    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property. 
+    /// AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when 
+    /// connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
     /// - Throws: `CommonRuntimeError.crtError`
     /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with a custom authorizer.
     public static func websocketsWithCustomAuthorizer(endpoint: String,
@@ -255,7 +261,7 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: true)
     }
 
-    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using a custom authorizer using an unsigned token.
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using a custom authorizer with an unsigned token.
     ///
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
@@ -282,7 +288,8 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: true)
     }
 
-    /// 
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using a custom authorizer with a signed token.
+    ///
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
@@ -311,7 +318,8 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: true)
     }
 
-    /// 
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT using a custom authorizer with an unsigned token.
+    ///
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
@@ -331,7 +339,8 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: false)
     }
 
-    /// 
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT using a custom authorizer with a signed token.
+    ///
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
@@ -360,7 +369,7 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: false)
     }
 
-    /// Set callbacks for MQTT5 Client. 
+    /// Setup all callbacks for the MQTT5 Client.
     ///
     /// - Parameters:
     ///   - onPublishReceived: Callback invoked for all publish packets received by client.
@@ -384,44 +393,58 @@ public class Mqtt5ClientBuilder {
         withOnLifecycleEventStopped(onLifecycleEventStopped)
     }
 
+    /// Set callback invoked for all publish packets received by client.
+    ///
+    /// - Parameter onPublishReceived: Callback invoked for all publish packets received by client.
     public func withOnPublishReceived(_ onPublishReceived: OnPublishReceived?) {
         _onPublishReceived = onPublishReceived
     }
 
+    /// Set callback invoked for Lifecycle Event Attempting Connect.
+    ///
+    /// - Parameter onLifecycleEventAttemptingConnect: Callback invoked for Lifecycle Event Attempting Connect.
     public func withOnLifecycleEventAttemptingConnect(_ onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect?) {
         _onLifecycleEventAttemptingConnect = onLifecycleEventAttemptingConnect
     }
 
+    /// Set callback invoked for Lifecycle Event Connection Success.
+    ///
+    /// - Parameter onLifecycleEventConnectionSuccess: Callback invoked for Lifecycle Event Connection Success.
     public func withOnLifecycleEventConnectionSuccess(_ onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess?) {
         _onLifecycleEventConnectionSuccess = onLifecycleEventConnectionSuccess
     }
 
+    /// Set callback invoked for Lifecycle Event Connection Failure.
+    ///
+    /// - Parameter onLifecycleEventConnectionFailure: Callback invoked for Lifecycle Event Connection Failure.
     public func withOnLifecycleEventConnectionFailure(_ onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure?) {
         _onLifecycleEventConnectionFailure = onLifecycleEventConnectionFailure
     }
 
+    /// Set callback invoked for Lifecycle Event Disconnection.
+    ///
+    /// - Parameter onLifecycleEventDisconnection: Callback invoked for Lifecycle Event Disconnection.
     public func withOnLifecycleEventDisconnection(_ onLifecycleEventDisconnection: OnLifecycleEventDisconnection?) {
         _onLifecycleEventDisconnection = onLifecycleEventDisconnection
     }
 
+    /// Set callback invoked for Lifecycle Event Stopped.
+    ///
+    /// - Parameter onLifecycleEventStopped: Callback invoked for Lifecycle Event Stopped.
     public func withOnLifecycleEventStopped(_ onLifecycleEventStopped: OnLifecycleEventStopped?) {
         _onLifecycleEventStopped = onLifecycleEventStopped
     }
 
-    /// **port** (`int`): Override default server port.
-    /// Default port is 443 if system supports ALPN or websockets are being used.
-    /// Otherwise, default port is 8883.
+    /// Override default server port. Default port is 443 if system supports ALPN or websockets are being used. Otherwise, default port is 8883.
     ///
-    /// - Parameter port: (UInt32)
+    /// - Parameter port: The IoT endpoint port to connect to. Usually 8883 for MQTT, or 443 for websockets
     public func withPort(_ port: UInt32) {
         _port = port
     }
 
-    /// ID to place in CONNECT packet. Must be unique across all devices/clients.
-    /// If an ID is already in use, the other client will be disconnected. If one is not provided,
-    /// AWS IoT server will assign a unique ID for use and return it in the CONNACK packet.
+    /// Set Client Id to be used with MQTT5 client. Used to restore session state between connections. If left empty, the broker will auto-assign a unique client id.  When reconnecting, the mqtt5 client will always use the auto-assigned client id.
     ///
-    /// - Parameter clientId: (String)
+    /// - Parameter clientId: A unique string identifying the client to the server.  
     public func withClientId(_ clientId: String) {
         _clientId = clientId
     }
