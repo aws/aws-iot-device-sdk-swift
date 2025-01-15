@@ -23,6 +23,23 @@ fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     }
 }
 
+// Helper function to append parameters to username
+fileprivate func appendToUsernameParameter(inputString: String, parameterValue: String, parameterPretext: String) -> String {
+    var returnString = inputString
+
+    if returnString.contains("?") {
+        returnString += "&"
+    } else {
+        returnString += "?"
+    }
+
+    if parameterValue.contains(parameterPretext) {
+        return returnString + parameterValue
+    } else {
+        return returnString + parameterPretext + parameterValue
+    }
+}
+
 ///A utility class used to build an MQTT5 Client configured for use with AWS IoT Core.
 public class Mqtt5ClientBuilder {
 
@@ -215,24 +232,7 @@ public class Mqtt5ClientBuilder {
         return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       region: region, 
                                       credentialsProvider: credentialsProvider)
-    }
-
-    /// Helper function to append parameters to username
-    fileprivate func appendToUsernameParameter(inputString: String, parameterValue: String, parameterPretext: String) -> String {
-        var returnString = inputString
-
-        if returnString.contains("?") {
-            returnString += "&"
-        } else {
-            returnString += "?"
-        }
-
-        if parameterValue.contains(parameterPretext) {
-            return returnString + parameterValue
-        } else {
-            return returnString + parameterPretext + parameterValue
-        }
-    }
+    }    
 
     public static func websocketsWithCustomAuthorizer(endpoint: String,
                                                       authAuthorizerName: String,
