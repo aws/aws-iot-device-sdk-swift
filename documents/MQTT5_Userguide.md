@@ -1,5 +1,5 @@
 # MQTT 5
-# Table of Contents
+## Table of Contents
 
 * [Introduction](#introduction)
 * [Getting Started with MQTT5](#getting-started-with-mqtt5)
@@ -23,7 +23,7 @@
 
 ## **Introduction**
 
-This user guide is designed to act as a reference and guide for how to use MQTT5 with the Python SDK. This guide includes code snippets for how to make an MQTT5 client with proper configuration, how to connect to AWS IoT Core, how to perform operations and interact with AWS IoT Core through MQTT5, and some best practices for MQTT5.
+This user guide is designed to act as a reference and guide for how to use MQTT5 with the IoT Device SDK for Swift. This guide includes code snippets for how to make an MQTT5 client with proper configuration, how to connect to AWS IoT Core, how to perform operations and interact with AWS IoT Core through MQTT5, and some best practices for MQTT5.
 
 If you are completely new to MQTT, it is highly recommended to check out the following resources to learn more about MQTT:
 
@@ -37,10 +37,10 @@ This user guide expects some beginner level familiarity with MQTT and the terms 
 
 ## **Getting Started with MQTT5**
 
-This section covers how to use MQTT5 in the Python SDK. This includes how to setup an MQTT5 builder for making MQTT5 clients, how to connect to AWS IoT Core, and how to perform the operations with the MQTT5 client. Each section below contains code snippets showing the functionality in Python.
+This section covers how to use MQTT5 in the Iot Device SDK for Swift. This includes how to setup an MQTT5 builder for making MQTT5 clients, how to connect to AWS IoT Core, and how to perform the operations with the MQTT5 client. Each section below contains code snippets showing the functionality in Swift.
 
 ## **Connecting To AWS IoT Core**
-We strongly recommend using the AwsIotMqtt5ClientConfigBuilder class to configure MQTT5 clients when connecting to AWS IoT Core.  The builder simplifies configuration for all authentication methods supported by AWS IoT Core.  This section shows samples for all of the authentication possibilities.
+We strongly recommend using the `mqtt5ClientBuilder` class to configure MQTT5 clients when connecting to AWS IoT Core.  The builder simplifies configuration for all authentication methods supported by AWS IoT Core.  This section shows samples for all of the authentication possibilities.
 
 ## **How to create an MQTT5 Client based on desired connection method**
 ### **Optional Keyword Arguments**
