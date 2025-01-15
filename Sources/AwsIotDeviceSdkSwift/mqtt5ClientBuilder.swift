@@ -519,7 +519,7 @@ public class Mqtt5ClientBuilder {
     /// checks go beyond the base MQTT5 spec to respect limits of specific MQTT brokers. If argument is omitted or null,
     /// then set to AWS_IOT_CORE_DEFAULTS.
     ///
-    /// - Parameter flowControlOptions: (ExtendedValidationAndFlowControlOptions)
+    /// - Parameter flowControlOptions: additional controls for client behavior with respect to operation validation and flow control.
     public func withExtendedValidationAndFlowControlOptions(_ flowControlOptions: ExtendedValidationAndFlowControlOptions) {
         _extendedValidationAndFlowControlOptions = flowControlOptions
     }
@@ -666,7 +666,7 @@ public class Mqtt5ClientBuilder {
             willDelayInterval: _willDelayInterval,
             will: _will,
             userProperties: _userProperties
-        )
+        )    
 
         // Configure client options
         let clientOptions = MqttClientOptions(
