@@ -59,35 +59,40 @@ public class Mqtt5ClientBuilder {
     private var _onLifecycleEventDisconnection: OnLifecycleEventDisconnection? = nil
     private var _onLifecycleEventStopped: OnLifecycleEventStopped? = nil
     private var _enableMetricsCollection: Bool = true
+    private var _tlsOptions: TLSContextOptions? = nil
 
     // mtlsFromPath
     init (certPath: String, keyPath: String, endpoint: String) throws {
-        let tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
-        _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+        _tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
+        // let tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
+        // _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 8883
     }
 
     // mtlsFromData
     init (certData: Data, keyData: Data, endpoint: String) throws {
-        let tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
-        _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+        _tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
+        // let tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
+        // _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 8883
     }
 
     // mtlsFromPKCS12
     init (pkcs12Path: String, pkcs12Password: String, endpoint: String) throws {
-        let tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
-        _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+        _tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
+        // let tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
+        // _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 8883
     }
 
     // websocketsWithDefaultAwsSigning
     init (endpoint: String, region: String, credentialsProvider: CredentialsProvider) throws {
-        let tlsOptions = TLSContextOptions.makeDefault()
-        _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
+        _tlsOptions = TLSContextOptions.makeDefault()
+        // let tlsOptions = TLSContextOptions.makeDefault()
+        // _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 443
             
@@ -157,17 +162,19 @@ public class Mqtt5ClientBuilder {
         _username = usernameString
         _password = authPassword
 
-        let tlsOptions = TLSContextOptions.makeDefault()
+        _tlsOptions = TLSContextOptions.makeDefault()
+        // let tlsOptions = TLSContextOptions.makeDefault()
 
         if (useWebsocket) {
             _onWebsocketTransform = { httpRequest, completeCallback in
                 completeCallback(httpRequest, 0)
             }
         } else {
-            tlsOptions.setAlpnList(["mqtt"])
+            _tlsOptions?.setAlpnList(["mqtt"])
+            // tlsOptions.setAlpnList(["mqtt"])
         }
 
-        _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
+        // _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
     }
 
     public static func mtlsFromPath(
@@ -534,6 +541,10 @@ public class Mqtt5ClientBuilder {
             will: _will,
             userProperties: _userProperties
         )
+
+        if let tlsOptions = _tlsOptions {
+            _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+        }
 
         // Configure client options
         let clientOptions = MqttClientOptions(
