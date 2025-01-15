@@ -239,8 +239,8 @@ public class Mqtt5ClientBuilder {
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
-    ///   - authPassword: The password to use with the custom authorizer.
-    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. If not provided, it will check to see if a username has already been set (via username="example") and will use that instead.  Custom authentication parameters will be appended as appropriate to any supplied username value.
+    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property.  AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
     /// - Throws: `CommonRuntimeError.crtError`
     /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with a custom authorizer.
     public static func websocketsWithCustomAuthorizer(endpoint: String,
@@ -260,10 +260,10 @@ public class Mqtt5ClientBuilder {
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
-    ///   - authPassword: The password to use with the custom authorizer. If not provided, then no password will be sent in the initial CONNECT packet.
+    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property.  AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
     ///   - authTokenKeyName: Key used to extract the custom authorizer token from MQTT username query-string properties. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
-    ///   - authTokenValue: 
-    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. If not provided, it will check to see if a username has already been set (via username="example") and will use that instead.  Custom authentication parameters will be appended as appropriate to any supplied username value.
+    ///   - authTokenValue: An opaque token value. This value must be signed by the private key associated with the custom authorizer.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
     /// - Throws: `CommonRuntimeError.crtError`
     /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with a custom authorizer and unsigned token.
     public static func websocketsWithUnsignedCustomAuthorizer(endpoint: String,
@@ -282,6 +282,17 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: true)
     }
 
+    /// 
+    /// - Parameters:
+    ///   - endpoint: Host name of AWS IoT server.
+    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property.  AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
+    ///   - authAuthorizerSignature: The digital signature of the token value.  The signature must be based on the private key associated with the custom authorizer.  The signature must be base64 encoded.
+    ///   - authTokenKeyName: Key used to extract the custom authorizer token from MQTT username query-string properties. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authTokenValue: An opaque token value. This value must be signed by the private key associated with the custom authorizer.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: 
     public static func websocketsWithSignedCustomAuthorizer(endpoint: String,
                                                             authAuthorizerName: String,
                                                             authPassword: Data? = nil,
@@ -300,6 +311,14 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: true)
     }
 
+    /// 
+    /// - Parameters:
+    ///   - endpoint: Host name of AWS IoT server.
+    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property.  AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: 
     public static func directWithUnsignedCustomAuthorizer(endpoint: String,
                                                           authAuthorizerName: String? = nil,
                                                           authPassword: Data? = nil,
@@ -312,6 +331,17 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: false)
     }
 
+    /// 
+    /// - Parameters:
+    ///   - endpoint: Host name of AWS IoT server.
+    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authAuthorizerSignature: The digital signature of the token value.  The signature must be based on the private key associated with the custom authorizer.  The signature must be base64 encoded.
+    ///   - authTokenKeyName: Key used to extract the custom authorizer token from MQTT username query-string properties. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authTokenValue: An opaque token value. This value must be signed by the private key associated with the custom authorizer.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied username value.
+    ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property.  AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: 
     public static func directWithSignedCustomAuthorizer(endpoint: String,
                                                         authAuthorizerName: String,
                                                         authAuthorizerSignature: String,
@@ -396,7 +426,7 @@ public class Mqtt5ClientBuilder {
         _clientId = clientId
     }
 
-    /// Username to connect with.
+    /// Username to connect with. Overriding a username set using any form of Custom Auth may cause a Custom Auth connection to fail.
     ///
     /// - Parameter username: (String)
     public func withUsername(_ username: String) {
