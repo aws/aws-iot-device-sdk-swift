@@ -8,8 +8,8 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 * [Samples](samples)
 * [Mac-Only TLS Behavior](#mac-only-tls-behavior)
 * [Getting Help](#getting-help)
-* [FAQ](./documents/FAQ.md)
-* [MQTT5 User Guide](./documents/MQTT5_Userguide.md)
+* [FAQ](./Documentation/FAQ.md)
+* [MQTT5 User Guide](./Documentation/MQTT5_Userguide.md)
 
 ## Build the Library
 
@@ -55,7 +55,7 @@ The best way to interact with our team is through GitHub. You can open a [discus
 
 Please make sure to check out our resources too before opening an issue:
 
-* [FAQ](./documents/FAQ.md)
+* [FAQ](./Documentation/FAQ.md)
 * [IoT Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) ([source](https://github.com/awsdocs/aws-iot-docs))
 * Check for similar [Issues](https://github.com/aws/aws-iot-device-swift/issues)
 * [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
@@ -64,8 +64,8 @@ Please make sure to check out our resources too before opening an issue:
 [Device Shadow](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html)
 and [Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html)
 is provided by code that been generated from a model of the service.
-* [Contributions Guidelines](./documents/CONTRIBUTING.md)
+* [Contributions Guidelines](./Documentation/CONTRIBUTING.md)
 
 ## License
 
-This library is licensed under the [Apache 2.0 License](./documents/LICENSE).
+This library is licensed under the [Apache 2.0 License](./Documentation/LICENSE).
