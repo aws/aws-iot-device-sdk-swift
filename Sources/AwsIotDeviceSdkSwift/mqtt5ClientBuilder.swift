@@ -218,7 +218,7 @@ public class Mqtt5ClientBuilder {
         return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
-    /// Create an Mqtt5ClientBuilder configured to connect over websockets to AWS IoT. The websocket handshake is signed using credentials from the credentialsProvider.
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using credentials from the credentialsProvider for the websocket handshake.
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - region: AWS region to use when signing.
@@ -234,6 +234,15 @@ public class Mqtt5ClientBuilder {
                                       credentialsProvider: credentialsProvider)
     }    
 
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using a custom authorizer.
+    ///
+    /// - Parameters:
+    ///   - endpoint: Host name of AWS IoT server.
+    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authPassword: The password to use with the custom authorizer.
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. If not provided, it will check to see if a username has already been set (via username="example") and will use that instead.  Custom authentication parameters will be appended as appropriate to any supplied username value.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with a custom authorizer.
     public static func websocketsWithCustomAuthorizer(endpoint: String,
                                                       authAuthorizerName: String,
                                                       authPassword: Data,
@@ -246,6 +255,17 @@ public class Mqtt5ClientBuilder {
                                       useWebsocket: true)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using a custom authorizer using an unsigned token.
+    ///
+    /// - Parameters:
+    ///   - endpoint: Host name of AWS IoT server.
+    ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authPassword: The password to use with the custom authorizer. If not provided, then no password will be sent in the initial CONNECT packet.
+    ///   - authTokenKeyName: Key used to extract the custom authorizer token from MQTT username query-string properties. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
+    ///   - authTokenValue: 
+    ///   - authUsername: The username to use with the custom authorizer. If provided, the username given will be passed when connecting to the custom authorizer. If not provided, it will check to see if a username has already been set (via username="example") and will use that instead.  Custom authentication parameters will be appended as appropriate to any supplied username value.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with a custom authorizer and unsigned token.
     public static func websocketsWithUnsignedCustomAuthorizer(endpoint: String,
                                                               authAuthorizerName: String,
                                                               authPassword: Data? = nil,
