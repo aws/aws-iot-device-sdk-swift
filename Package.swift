@@ -23,7 +23,8 @@ let package = Package(
             name: "AwsIotDeviceSdkSwift",
             dependencies: [
                 .product(name: "AwsCommonRuntimeKit", package: "aws-crt-swift")
-            ]
+            ],
+            path: "Sources"
         ),
         .testTarget(
             name: "AwsIotDeviceSdkSwiftTests",
