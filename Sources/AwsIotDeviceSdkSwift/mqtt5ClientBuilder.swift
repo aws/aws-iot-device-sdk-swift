@@ -201,6 +201,13 @@ public class Mqtt5ClientBuilder {
         return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect over websockets to AWS IoT. The websocket handshake is signed using credentials from the credentialsProvider.
+    /// - Parameters:
+    ///   - endpoint: Host name of AWS IoT server.
+    ///   - region: AWS region to use when signing.
+    ///   - credentialsProvider: Source of AWS credentials to use when signing.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets and the credentials provider.
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
                                                        region: String, 
                                                        credentialsProvider: CredentialsProvider) throws -> Mqtt5ClientBuilder {
@@ -210,7 +217,7 @@ public class Mqtt5ClientBuilder {
                                       credentialsProvider: credentialsProvider)
     }
 
-    // Helper function to append parameters to username
+    /// Helper function to append parameters to username
     fileprivate func appendToUsernameParameter(inputString: String, parameterValue: String, parameterPretext: String) -> String {
         var returnString = inputString
 
