@@ -3,8 +3,8 @@
 
 import Foundation
 @_exported import AwsCommonRuntimeKit
-// import AwsCommonRuntimeKit
 
+/// fileprivate method that generates string used for AWS metrics.
 fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     // Check if the username being used already has a query
     var usernameHasQuery = false
@@ -23,6 +23,7 @@ fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     }
 }
 
+///A utility class used to build an MQTT5 Client configured for use with AWS IoT Core.
 public class Mqtt5ClientBuilder {
 
     private var _endpoint: String? = nil
@@ -154,29 +155,51 @@ public class Mqtt5ClientBuilder {
         _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key file paths.
+    ///
+    /// - Parameters:
+    ///   - certPath: Path to certificate file.
+    ///   - keyPath: Path to private key file.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromPath(
         certPath: String, 
         keyPath: String,
-        endpoint: String,
-        port: UInt32 = 8883) throws -> Mqtt5ClientBuilder {
+        endpoint: String) throws -> Mqtt5ClientBuilder {
 
-        return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint, port: port)
+        return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key data.
+    ///
+    /// - Parameters:
+    ///   - certData: Certificate file bytes.
+    ///   - keyData: Private key bytes.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromData(
         certData: Data, 
         keyData: Data,
         endpoint: String) throws -> Mqtt5ClientBuilder  {
 
-        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint, port: 8883)
+        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using a PKCS12 file.
+    /// - Parameters:
+    ///   - pkcs12Path: Path to the PKCS12 file to use
+    ///   - pkcs12Password: The password for the PKCS12 file.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromPKCS12(
         pkcs12Path: String, 
         pkcs12Password: String,
         endpoint: String) throws -> Mqtt5ClientBuilder {
         
-        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint, port: 8883)
+        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
