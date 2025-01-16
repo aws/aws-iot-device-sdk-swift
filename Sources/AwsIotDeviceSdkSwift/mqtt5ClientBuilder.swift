@@ -60,9 +60,9 @@ public class Mqtt5ClientBuilder {
     private var _onLifecycleEventStopped: OnLifecycleEventStopped? = nil
     private var _enableMetricsCollection: Bool = true
     private var _tlsOptions: TLSContextOptions? = nil
-    private var _caPath: String? = nil
-    private var _caFile: String? = nil
+    private var _caFilePath: String? = nil
     private var _caData: Data? = nil
+    private var _caDirPath: String? = nil
 
     // mtlsFromPath
     init (certPath: String, keyPath: String, endpoint: String) throws {
@@ -516,79 +516,141 @@ public class Mqtt5ClientBuilder {
     /// checks go beyond the base MQTT5 spec to respect limits of specific MQTT brokers. If argument is omitted or null,
     /// then set to AWS_IOT_CORE_DEFAULTS.
     ///
-    /// - Parameter flowControlOptions: additional controls for client behavior with respect to operation validation and flow control.
+    /// - Parameter flowControlOptions: additional controls for client behavior with respect to operation validation and 
+    ///   flow control.
     public func withExtendedValidationAndFlowControlOptions(_ flowControlOptions: ExtendedValidationAndFlowControlOptions) {
         _extendedValidationAndFlowControlOptions = flowControlOptions
     }
 
-    // DEBUG WIP we need to make sure the CA is being set properly in tls ctx    
+    /// Overrides the default system trust store.
+    /// 
+    /// - Parameter caPath: Single file containing all trust CAs, in PEM format
     public func withCaPath(_ caPath: String) {
-        _caPath = caPath
+        _caFilePath = caPath
     }
-
-    private var _caDirPath: String? = nil
+    
+    
+    /// Overrides the default system trust store. Only used on Unix-style systems where all trust anchors are stored in a directory (e.g. /etc/ssl/certs).
+    /// 
+    /// - Parameter caDirPath: Path of directory containing all trust CAs, in PEM format.
     public func withCaDirPath(_ caDirPath: String) {
         _caDirPath = caDirPath
     }
 
+    /// Overrides the default system trust store.
+    /// 
+    /// - Parameter caData: Data containing all trust CAs, in PEM format.
     public func withCaData(_ caData: Data) {
         _caData = caData
     }
 
     private var _ackTimeout: TimeInterval? = nil
+    /// Overrides the time interval to wait for an ack after sending a QoS 1+ PUBLISH, SUBSCRIBE, or UNSUBSCRIBE before
+    /// failing the operation.  Defaults to no timeout.
+    /// 
+    /// - Parameter ackTimeout: Time interval to wait for an ack after sending a QoS 1+ PUBLISH, SUBSCRIBE,
+    ///   or UNSUBSCRIBE before failing the operation.
     public func withAckTimeout(_ ackTimeout: TimeInterval) {
         _ackTimeout = ackTimeout
     }
 
     private var _connackTimeout: TimeInterval? = nil
+    /// Overrides the time interval to wait after sending a CONNECT request for a CONNACK to arrive.  If one does not
+    /// arrive, the connection will be shut down.
+    /// 
+    /// - Parameter connackTimeout: Time interval to wait after sending a CONNECT request for a CONNACK to arrive.
     public func withConnackTimeout(_ connackTimeout: TimeInterval) {
         _connackTimeout = connackTimeout
     }
 
     private var _pingTimeout: TimeInterval? = nil
+    /// Overrides the time interval to wait after sending a PINGREQ for a PINGRESP to arrive.  If one does not arrive,
+    /// the client will close the current connection.
+    /// 
+    /// - Parameter pingTimeout: Time interval to wait after sending a PINGREQ for a PINGRESP to arrive.
     public func withPingTimeout(_ pingTimeout: TimeInterval) {
         _pingTimeout = pingTimeout
     }
 
     private var _minReconnectDelay: TimeInterval? = nil
+    /// Overrides the minimum amount of time to wait to reconnect after a disconnect.  Exponential backoff is performed
+    /// with controllable jitter after each connection failure.
+    /// 
+    /// - Parameter minReconnectDelay: Minimum amount of time to wait to reconnect after a disconnect.
     public func withMinReconnectDelay(_ minReconnectDelay: TimeInterval) {
         _minReconnectDelay = minReconnectDelay
     }
+
     private var _maxReconnectDelay: TimeInterval? = nil
+    /// Overrides the maximum amount of time to wait to reconnect after a disconnect.  Exponential backoff is performed
+    /// with controllable jitter after each connection failure.
+    /// 
+    /// - Parameter maxReconnectDelay: Maximum amount of time to wait to reconnect after a disconnect.
     public func withMaxReconnectDelay(_ maxReconnectDelay: TimeInterval) {
         _maxReconnectDelay = maxReconnectDelay
     }
+
     private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
+    /// Overrides the amount of time that must elapse with an established connection before the reconnect delay is
+    /// reset to the minimum.  This helps alleviate bandwidth-waste in fast reconnect cycles due to permission
+    /// failures on operations.
+    /// 
+    /// - Parameter minConnectedTimeToResetReconnectDelay: The amount of time that must elapse with an established
+    ///   connection before the reconnect delay is reset to the minimum
     public func withMinConnectedTimeToResetReconnectDelay(_ minConnectedTimeToResetReconnectDelay: TimeInterval) {
         _minConnectedTimeToResetReconnectDelay = minConnectedTimeToResetReconnectDelay
     }
 
     private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
+    /// Overrides how the reconnect delay is modified in order to smooth out the distribution of reconnection attempt
+    /// timepoints for a large set of reconnecting clients.
+    /// 
+    /// - Parameter retryJitterMode: Controls how the reconnect delay is modified in order to smooth out the distribution of
+    ///   reconnection attempt timepoints for a large set of reconnecting clients.
     public func withRetryJitterMode(_ retryJitterMode: ExponentialBackoffJitterMode) {
         _retryJitterMode = retryJitterMode
     }
 
     private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
+    /// Overrides how disconnects affect the queued and in-progress operations tracked by the client.  Also controls
+    /// how new operations are handled while the client is not connected.  In particular, if the client is not connected,
+    /// then any operation that would be failed on disconnect (according to these rules) will also be rejected.
+    /// 
+    /// - Parameter clientOperationQueueBehaviorType: How disconnects affect the queued and in-progress operations tracked 
+    ///   by the client.
     public func withClientOperationQueueBehaviorType(_ clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType) {
         _clientOperationQueueBehaviorType = clientOperationQueueBehaviorType
     }
 
     private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
+    /// Overrides how the MQTT5 client should behave with respect to MQTT sessions.
+    /// 
+    /// - Parameter clientSessionBehaviorType: How the MQTT5 client should behave with respect to MQTT sessions.
     public func withClientSessionBehaviorType(_ clientSessionBehaviorType: ClientSessionBehaviorType) {
         _clientSessionBehaviorType = clientSessionBehaviorType
     }
 
     private var _topicAliasingOptions: TopicAliasingOptions? = nil
+    /// Overrides how the MQTT5 client should behave with respect to topic aliasing
+    /// 
+    /// - Parameter topicAliasingOptions: How the MQTT5 client should behave with respect to topic aliasing.
     public func withTopicAliasingOptions(_ topicAliasingOptions: TopicAliasingOptions) {
         _topicAliasingOptions = topicAliasingOptions
     }
 
     private var _httpProxyOptions: HTTPProxyOptions? = nil
+    /// Overrides (tunneling) HTTP proxy usage when establishing MQTT connections.
+    /// 
+    /// - Parameter httpProxyOptions: HTTP proxy options to use when establishing MQTT connections.
     public func withHttyProxyOptions(_ httpProxyOptions: HTTPProxyOptions) {
         _httpProxyOptions = httpProxyOptions
     }
 
     private var _socketOptions: SocketOptions? = nil
+    /// Overrides the socket properties of the underlying MQTT connections made by the client.  Leave undefined to use
+    /// defaults (no TCP keep alive, 10 second socket timeout).
+    /// 
+    /// - Parameter socketOptions: Socket properties of the underlying MQTT connections made by the client.
     public func withSocketOptions(_ socketOptions: SocketOptions) {
         _socketOptions = socketOptions
     }
@@ -667,9 +729,9 @@ public class Mqtt5ClientBuilder {
         do {
             if let tlsOptions = _tlsOptions {
                 // Handle CA override
-                if let caPath = _caPath {
+                if let caPath = _caDirPath {
                     try tlsOptions.overrideDefaultTrustStoreWithPath(caPath: caPath)
-                } else if let caFile = _caFile {
+                } else if let caFile = _caFilePath {
                     try tlsOptions.overrideDefaultTrustStoreWithFile(caFile: caFile)
                 } else if let caData = _caData {
                     try tlsOptions.overrideDefaultTrustStoreWithData(caData: caData)
