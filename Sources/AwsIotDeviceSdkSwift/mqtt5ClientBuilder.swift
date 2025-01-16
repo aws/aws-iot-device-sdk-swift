@@ -674,6 +674,8 @@ public class Mqtt5ClientBuilder {
     /// information may be used to set up request-response implementations over MQTT, but doing so is outside 
     /// the scope of the MQTT5 spec and client.
     /// 
+    /// See [MQTT5 Request Response Information](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901052)
+    /// 
     /// - Parameter requestResponseInformation: Set requestResponseInformation.
     public func withRequestResponseInformation(_ requestResponseInformation: Bool) {
         _requestResponseInformation = requestResponseInformation
@@ -683,36 +685,75 @@ public class Mqtt5ClientBuilder {
     /// If true, requests that the server send additional diagnostic information (via response string or user properties)
     /// in DISCONNECT or CONNACK packets from the server.
     /// 
+    /// See [MQTT5 Request Problem Information](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901053)
+    /// 
     /// - Parameter requestProblemInformation: Set requestProblemInformation.
     public func withRequestProblemInformation(_ requestProblemInformation: Bool){
         _requestProblemInformation = requestProblemInformation
     }
 
     private var _receiveMaximum: UInt16? = nil
+    /// Notifies the server of the maximum number of in-flight QoS 1 and 2 messages the client is willing to handle.
+    /// If omitted or null, then no limit is requested.
+    /// 
+    /// See [MQTT5 Receive Maximum](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901049)
+    /// 
+    /// - Parameter receiveMaximum: Maximum number of in-flight QoS 1 and 2 messages the client is willing to handle.
     public func withReceiveMaximum(_ receiveMaximum: UInt16) {
         _receiveMaximum = receiveMaximum
     }
 
     private var _maximumPacketSize: UInt32? = nil
+    /// Notifies the server of the maximum packet size the client is willing to handle.  If omitted, then no limit 
+    /// beyond the natural limits of MQTT packet size is requested.
+    /// 
+    /// See [MQTT5 Maximum Packet Size](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901050)
+    /// 
+    /// - Parameter maximumPacketSize: Maximum packet size the client is willing to handle.
     public func withMaximumPacketSize(_ maximumPacketSize: UInt32) {
         _maximumPacketSize = maximumPacketSize
     }
 
     private var _willDelayInterval: TimeInterval? = nil
+    /// A time interval, in seconds, that the server should wait (for a session reconnection) before sending the
+    /// will message associated with the connection's session.  If omitted, the server will send the will when the
+    /// associated session is destroyed.  If the session is destroyed before a will delay interval has elapsed, then
+    /// the will must be sent at the time of session destruction.
+    /// 
+    /// See [MQTT5 Will Delay Interval](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901062)
+    /// 
+    /// - Parameter willDelayInterval: Time interval, in seconds, that the server should wait (for a session reconnection) 
+    ///   before sending the will message associated with the connection's session.
     public func withWillDelayInterval(_ willDelayInterval: TimeInterval) {
         _willDelayInterval = willDelayInterval
     }
 
     private var _will: PublishPacket? = nil
+    /// The definition of a message to be published when the connection's session is destroyed by the server or when the 
+    /// will delay interval has elapsed, whichever comes first.  If undefined, then nothing will be sent.
+    /// 
+    /// See [MQTT5 Will](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901040)
+    /// 
+    /// - Parameter will: The definition of a message to be published when the connection's session is destroyed by the server or when the 
+    ///   will delay interval has elapsed, whichever comes first.
     public func withWill(_ will: PublishPacket) {
         _will = will
     }
-
+    
     private var _userProperties: [UserProperty]? = nil 
+    /// Set of MQTT5 user properties included with the packet.
+    /// 
+    /// See [MQTT5 User Property](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901054)
+    /// 
+    /// - Parameter userProperties: Set of MQTT5 user properties included with the packet.
     public func withUserProperties(_ userProperties: [UserProperty]) {
         _userProperties = userProperties
     }
 
+    /// Constructs an MQTT5 Client configured using properties and set in the mqtt5ClientBuilder.
+    /// 
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An MQTT5 Client configured using the connection method and options set on the mqtt5ClientBuilder.
     public func build() throws -> Mqtt5Client {
         guard let unwrappedEndpoint = _endpoint else {
             throw AwsIotDeviceSdkError.missingParameter(parameterName: "Mqtt5ClientBuilder requires endpoint to build client.")
