@@ -86,10 +86,11 @@ public class Mqtt5ClientBuilder {
     }
 
     // websocketsWithDefaultAwsSigning
-    init (endpoint: String, region: String, credentialsProvider: CredentialsProvider) throws {
+    init (endpoint: String, region: String, credentialsProvider: CredentialsProvider, bootstrap: ClientBootstrap? = nil) throws {
         _tlsOptions = TLSContextOptions.makeDefault()
         _endpoint = endpoint
         _port = 443
+        _clientBootstrap = bootstrap
             
         let signingConfig = SigningConfig(
             algorithm: SigningAlgorithmType.signingV4,
