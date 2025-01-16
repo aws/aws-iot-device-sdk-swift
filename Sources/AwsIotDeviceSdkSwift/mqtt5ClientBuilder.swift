@@ -223,7 +223,9 @@ public class Mqtt5ClientBuilder {
     /// - Parameters:
     ///   - endpoint: Host name of AWS IoT server.
     ///   - region: AWS region to use when signing.
-    ///   - credentialsProvider: Source of AWS credentials to use when signing.
+    ///   - credentialsProvider: Source of AWS credentials to use when signing. 
+    ///   - bootstrap: Bootstrap to use with MQTT5 Client. Sharing a bootstrap with the one used for the credentialsProvider
+    ///     is recommended.
     /// - Throws: `CommonRuntimeError.crtError`
     /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets and the credentials provider.
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
@@ -659,16 +661,29 @@ public class Mqtt5ClientBuilder {
     }
 
     private var _clientBootstrap: ClientBootstrap? = nil
+    /// Overrides the ClientBootstrap used by the MQTT5 client to establish MQTT connections. If one isn't provided, 
+    /// one will be created during MQTT5 Client creation.
+    /// 
+    /// - Parameter clientBootstrap: The client boootstrap to be used when establishing MQTT connections.
     public func withBootstrap(_ clientBootstrap: ClientBootstrap){
         _clientBootstrap = clientBootstrap
     }
 
     private var _requestResponseInformation: Bool? = nil
+    /// If true, requests that the server send response information in the subsequent CONNACK.  This response 
+    /// information may be used to set up request-response implementations over MQTT, but doing so is outside 
+    /// the scope of the MQTT5 spec and client.
+    /// 
+    /// - Parameter requestResponseInformation: Set requestResponseInformation.
     public func withRequestResponseInformation(_ requestResponseInformation: Bool) {
         _requestResponseInformation = requestResponseInformation
     }
 
     private var _requestProblemInformation: Bool? = nil
+    /// If true, requests that the server send additional diagnostic information (via response string or user properties)
+    /// in DISCONNECT or CONNACK packets from the server.
+    /// 
+    /// - Parameter requestProblemInformation: Set requestProblemInformation.
     public func withRequestProblemInformation(_ requestProblemInformation: Bool){
         _requestProblemInformation = requestProblemInformation
     }
