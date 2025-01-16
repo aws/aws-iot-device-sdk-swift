@@ -228,11 +228,13 @@ public class Mqtt5ClientBuilder {
     /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets and the credentials provider.
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
                                                        region: String, 
-                                                       credentialsProvider: CredentialsProvider) throws -> Mqtt5ClientBuilder {
+                                                       credentialsProvider: CredentialsProvider,
+                                                       bootstrap: ClientBootstrap?) throws -> Mqtt5ClientBuilder {
 
         return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       region: region, 
-                                      credentialsProvider: credentialsProvider)
+                                      credentialsProvider: credentialsProvider,
+                                      bootstrap: bootstrap)
     }    
 
     /// Create an Mqtt5ClientBuilder configured to connect to AWS IoT over websockets using a custom authorizer.
