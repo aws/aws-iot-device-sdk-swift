@@ -44,7 +44,6 @@ public class Mqtt5ClientBuilder {
 
     private var _endpoint: String? = nil
     private var _port: UInt32 = 8883
-    private var _tlsCtx: TLSContext? = nil
     private var _onWebsocketTransform: OnWebSocketHandshakeIntercept? = nil
     private var _clientId: String? = nil
     private var _username: String? = nil
@@ -60,12 +59,13 @@ public class Mqtt5ClientBuilder {
     private var _onLifecycleEventStopped: OnLifecycleEventStopped? = nil
     private var _enableMetricsCollection: Bool = true
     private var _tlsOptions: TLSContextOptions? = nil
+    private var _caPath: String? = nil
+    private var _caFile: String? = nil
+    private var _caData: Data? = nil
 
     // mtlsFromPath
     init (certPath: String, keyPath: String, endpoint: String) throws {
         _tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
-        // let tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
-        // _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 8883
     }
@@ -73,8 +73,6 @@ public class Mqtt5ClientBuilder {
     // mtlsFromData
     init (certData: Data, keyData: Data, endpoint: String) throws {
         _tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
-        // let tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
-        // _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 8883
     }
@@ -82,8 +80,6 @@ public class Mqtt5ClientBuilder {
     // mtlsFromPKCS12
     init (pkcs12Path: String, pkcs12Password: String, endpoint: String) throws {
         _tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
-        // let tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
-        // _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 8883
     }
@@ -91,8 +87,6 @@ public class Mqtt5ClientBuilder {
     // websocketsWithDefaultAwsSigning
     init (endpoint: String, region: String, credentialsProvider: CredentialsProvider) throws {
         _tlsOptions = TLSContextOptions.makeDefault()
-        // let tlsOptions = TLSContextOptions.makeDefault()
-        // _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
         _endpoint = endpoint
         _port = 443
             
@@ -163,7 +157,6 @@ public class Mqtt5ClientBuilder {
         _password = authPassword
 
         _tlsOptions = TLSContextOptions.makeDefault()
-        // let tlsOptions = TLSContextOptions.makeDefault()
 
         if (useWebsocket) {
             _onWebsocketTransform = { httpRequest, completeCallback in
@@ -171,10 +164,7 @@ public class Mqtt5ClientBuilder {
             }
         } else {
             _tlsOptions?.setAlpnList(["mqtt"])
-            // tlsOptions.setAlpnList(["mqtt"])
         }
-
-        // _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
     }
 
     public static func mtlsFromPath(
@@ -398,8 +388,7 @@ public class Mqtt5ClientBuilder {
         _extendedValidationAndFlowControlOptions = flowControlOptions
     }
 
-    // DEBUG WIP we need to make sure the CA is being set properly in tls ctx
-    private var _caPath: String? = nil
+    // DEBUG WIP we need to make sure the CA is being set properly in tls ctx    
     public func withCaPath(_ caPath: String) {
         _caPath = caPath
     }
@@ -409,7 +398,6 @@ public class Mqtt5ClientBuilder {
         _caDirPath = caDirPath
     }
 
-    private var _caData: Data? = nil
     public func withCaData(_ caData: Data) {
         _caData = caData
     }
@@ -542,8 +530,21 @@ public class Mqtt5ClientBuilder {
             userProperties: _userProperties
         )
 
-        if let tlsOptions = _tlsOptions {
+        var _tlsCtx: TLSContext? = nil
+        do {
+            if let tlsOptions = _tlsOptions {
+                // Handle CA override
+                if let caPath = _caPath {
+                    try tlsOptions.overrideDefaultTrustStoreWithPath(caPath: caPath)
+                } else if let caFile = _caFile {
+                    try tlsOptions.overrideDefaultTrustStoreWithFile(caFile: caFile)
+                } else if let caData = _caData {
+                    try tlsOptions.overrideDefaultTrustStoreWithData(caData: caData)
+                }
             _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+            }
+        } catch {
+            throw CommonRunTimeError.crtError(CRTError.makeFromLastError())
         }
 
         // Configure client options
