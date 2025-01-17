@@ -62,6 +62,29 @@ public class Mqtt5ClientBuilder {
     private var _caPath: String? = nil
     private var _caFile: String? = nil
     private var _caData: Data? = nil
+    private var _caDirPath: String? = nil
+    private var _certLabel: String? = nil
+    private var _keyLabel: String? = nil
+    private var _ackTimeout: TimeInterval? = nil
+    private var _connackTimeout: TimeInterval? = nil
+    private var _pingTimeout: TimeInterval? = nil
+    private var _minReconnectDelay: TimeInterval? = nil
+    private var _maxReconnectDelay: TimeInterval? = nil
+    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
+    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
+    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
+    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
+    private var _topicAliasingOptions: TopicAliasingOptions? = nil
+    private var _httpProxyOptions: HTTPProxyOptions? = nil
+    private var _socketOptions: SocketOptions? = nil
+    private var _clientBootstrap: ClientBootstrap? = nil
+    private var _requestResponseInformation: Bool? = nil
+    private var _requestProblemInformation: Bool? = nil
+    private var _receiveMaximum: UInt16? = nil
+    private var _maximumPacketSize: UInt32? = nil
+    private var _willDelayInterval: TimeInterval? = nil
+    private var _will: PublishPacket? = nil
+    private var _userProperties: [UserProperty]? = nil 
 
     // mtlsFromPath
     init (certPath: String, keyPath: String, endpoint: String) throws {
@@ -396,7 +419,6 @@ public class Mqtt5ClientBuilder {
         _caPath = caPath
     }
 
-    private var _caDirPath: String? = nil
     public func withCaDirPath(_ caDirPath: String) {
         _caDirPath = caDirPath
     }
@@ -405,100 +427,87 @@ public class Mqtt5ClientBuilder {
         _caData = caData
     }
 
-    private var _ackTimeout: TimeInterval? = nil
+    public func withSecitemLabels(certLabel: String? = nil, keyLabel: String? = nil) {
+        _certLabel = certLabel
+        _keyLabel = keyLabel
+    }
+
     public func withAckTimeout(_ ackTimeout: TimeInterval) {
         _ackTimeout = ackTimeout
     }
 
-    private var _connackTimeout: TimeInterval? = nil
     public func withConnackTimeout(_ connackTimeout: TimeInterval) {
         _connackTimeout = connackTimeout
     }
 
-    private var _pingTimeout: TimeInterval? = nil
     public func withPingTimeout(_ pingTimeout: TimeInterval) {
         _pingTimeout = pingTimeout
     }
 
-    private var _minReconnectDelay: TimeInterval? = nil
     public func withMinReconnectDelay(_ minReconnectDelay: TimeInterval) {
         _minReconnectDelay = minReconnectDelay
     }
-    private var _maxReconnectDelay: TimeInterval? = nil
+
     public func withMaxReconnectDelay(_ maxReconnectDelay: TimeInterval) {
         _maxReconnectDelay = maxReconnectDelay
     }
-    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
+
     public func withMinConnectedTimeToResetReconnectDelay(_ minConnectedTimeToResetReconnectDelay: TimeInterval) {
         _minConnectedTimeToResetReconnectDelay = minConnectedTimeToResetReconnectDelay
     }
 
-    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
     public func withRetryJitterMode(_ retryJitterMode: ExponentialBackoffJitterMode) {
         _retryJitterMode = retryJitterMode
     }
 
-    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
     public func withClientOperationQueueBehaviorType(_ clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType) {
         _clientOperationQueueBehaviorType = clientOperationQueueBehaviorType
     }
 
-    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
     public func withClientSessionBehaviorType(_ clientSessionBehaviorType: ClientSessionBehaviorType) {
         _clientSessionBehaviorType = clientSessionBehaviorType
     }
 
-    private var _topicAliasingOptions: TopicAliasingOptions? = nil
     public func withTopicAliasingOptions(_ topicAliasingOptions: TopicAliasingOptions) {
         _topicAliasingOptions = topicAliasingOptions
     }
 
-    private var _httpProxyOptions: HTTPProxyOptions? = nil
     public func withHttyProxyOptions(_ httpProxyOptions: HTTPProxyOptions) {
         _httpProxyOptions = httpProxyOptions
     }
 
-    private var _socketOptions: SocketOptions? = nil
     public func withSocketOptions(_ socketOptions: SocketOptions) {
         _socketOptions = socketOptions
     }
 
-    private var _clientBootstrap: ClientBootstrap? = nil
     public func withBootstrap(_ clientBootstrap: ClientBootstrap){
         _clientBootstrap = clientBootstrap
     }
 
-    private var _requestResponseInformation: Bool? = nil
     public func withRequestResponseInformation(_ requestResponseInformation: Bool) {
         _requestResponseInformation = requestResponseInformation
     }
 
-    private var _requestProblemInformation: Bool? = nil
     public func withRequestProblemInformation(_ requestProblemInformation: Bool){
         _requestProblemInformation = requestProblemInformation
     }
 
-    private var _receiveMaximum: UInt16? = nil
     public func withReceiveMaximum(_ receiveMaximum: UInt16) {
         _receiveMaximum = receiveMaximum
     }
 
-    private var _maximumPacketSize: UInt32? = nil
     public func withMaximumPacketSize(_ maximumPacketSize: UInt32) {
         _maximumPacketSize = maximumPacketSize
     }
 
-    private var _willDelayInterval: TimeInterval? = nil
     public func withWillDelayInterval(_ willDelayInterval: TimeInterval) {
         _willDelayInterval = willDelayInterval
     }
 
-    private var _will: PublishPacket? = nil
     public func withWill(_ will: PublishPacket) {
         _will = will
     }
 
-    private var _userProperties: [UserProperty]? = nil 
     public func withUserProperties(_ userProperties: [UserProperty]) {
         _userProperties = userProperties
     }
@@ -544,7 +553,11 @@ public class Mqtt5ClientBuilder {
                 } else if let caData = _caData {
                     try tlsOptions.overrideDefaultTrustStoreWithData(caData: caData)
                 }
-            _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+
+                // Apply labels if available
+                try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
+                
+                _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
             }
         } catch {
             throw CommonRunTimeError.crtError(CRTError.makeFromLastError())
