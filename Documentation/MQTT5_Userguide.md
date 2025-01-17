@@ -6,9 +6,8 @@
 * [Connecting to AWS IoT Core](#connecting-to-aws-iot-core)
 * [How to create an MQTT5 Client based on desired connection method](#how-to-create-a-mqtt5-client-based-on-desired-connection-method)
     * [Direct MQTT with X509-based mutual TLS](#direct-mqtt-with-x509-based-mutual-tls)
-    * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
-    * [Direct MQTT with PKCS11 Method](#direct-mqtt-with-pkcs11-method)
     * [Direct MQTT with PKCS12 Method](#direct-mqtt-with-pkcs12-method)
+    * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
     * [MQTT over Websockets with Sigv4 authentication](#mqtt-over-websockets-with-sigv4-authentication)
     * [MQTT over Websockets with Cognito authentication](#mqtt-over-websockets-with-cognito-authentication)
     * [Direct MQTT with Windows Certificate Store Method](#direct-mqtt-with-windows-certificate-store-method)
@@ -31,7 +30,6 @@ If you are completely new to MQTT, it is highly recommended to check out the fol
 * MQTT.org FAQ (includes list of commonly used terms): https://mqtt.org/faq/
 * MQTT on AWS IoT Core documentation: https://docs.aws.amazon.com/iot/latest/developerguide/mqtt.html
 * MQTT 5 standard: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html
-* MQTT 311 standard: https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
 
 This user guide expects some beginner level familiarity with MQTT and the terms used to describe MQTT.
 
@@ -40,42 +38,85 @@ This user guide expects some beginner level familiarity with MQTT and the terms 
 This section covers how to use MQTT5 in the Iot Device SDK for Swift. This includes how to setup an MQTT5 builder for making MQTT5 clients, how to connect to AWS IoT Core, and how to perform the operations with the MQTT5 client. Each section below contains code snippets showing the functionality in Swift.
 
 ## **Connecting To AWS IoT Core**
-We strongly recommend using the `mqtt5ClientBuilder` class to configure MQTT5 clients when connecting to AWS IoT Core.  The builder simplifies configuration for all authentication methods supported by AWS IoT Core.  This section shows samples for all of the authentication possibilities.
+We strongly recommend using the `Mqtt5ClientBuilder` class to configure MQTT5 clients when connecting to AWS IoT Core.  The builder simplifies configuration for all authentication methods supported by AWS IoT Core.  This section shows samples for all of the authentication possibilities.
 
 ## **How to create an MQTT5 Client based on desired connection method**
-### **Optional Keyword Arguments**
-All lifecycle events and the callback for publishes received by the MQTT5 Client should be added to the builder on creation of the Client. A full list of accepted arguments can be found in the API guide.
+### **Lifecycle Events and Optional Configurations**
+All lifecycle events and the callback for publishes received by the MQTT5 Client should be added to the `Mqtt5ClientBuilder` prior to calling `build()`. A full list of configuration methods can be found in the API guide.
+``` swift
+    // After creating an instance of the `Mqtt5ClientBuilder`
+
+    // All callbacks can be assigned using the `withCallbacks()` func
+    clientBuilder.withCallbacks(onPublishReceived: self.onPublishReceived,
+                                onLifecycleEventAttemptingConnect: self.onLifecycleEventAttemptingConnect,
+                                onLifecycleEventConnectionSuccess: self.onLifecycleEventConnectionSuccess,
+                                onLifecycleEventConnectionFailure: self.onLifecycleEventConnectionFailure,
+                                onLifecycleEventDisconnection: self.onLifecycleEventDisconnection,
+                                onLifecycleEventStopped: self.onLifecycleEventStopped)
+
+    // Individual callbacks can also be assigned independently
+    clientBuilder.withOnPublishReceived(self.onPublishReceived)
+```
 #### **Direct MQTT with X509-based mutual TLS**
 For X509 based mutual TLS, you can create a client where the certificate and private key are configured by path:
 
-```python
-    # X.509 based certificate file
-    cert_filepath = "<certificate file path>"
-    # PKCS#1 or PKCS#8 PEM encoded private key file
-    pri_key_filepath = "<private key file path>"
+```swift
+    let endpoint: String = "<Host name of AWS IoT server>"
+    // X.509 based certificate file
+    let certPath: String = "<certificate file path>"
+    // PKCS#8 PEM encoded private key file
+    let keyPath: String = "<private key file path>"
 
-    # other builder configurations can be added using **kwargs in the builder
+    let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(certPath: self.certPath, 
+                                                            keyPath: self.keyPath, 
+                                                            endpoint: self.endpoint)
+    
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
 
-    # Create an MQTT5 Client using mqtt5_client_builder
-    client = mqtt5_client_builder.mtls_from_path(
-        endpoint = "<account-specific endpoint>",
-        cert_filepath=cert_filepath,
-        pri_key_filepath=pri_key_filepath))
+    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    let client = try clientBuilder.build()
 ```
 
+#### **Direct MQTT with PKCS12 Method**
+
+An MQTT5 direct connection can be made using a PKCS12 file rather than using a PEM encoded private key. To create an MQTT5 builder configured for this connection, see the following code:
+
+```swift
+    let endpoint: String = "<Host name of AWS IoT server>"
+    let pkcs12Path: String = "<PKCS12 file path>"
+    let pkcs12Password: String = "<PKCS12 password>"
+    
+    let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(pkcs12Path: self.pkcs12Path, 
+                                                              pkcs12Password: self.pkcs12Password,
+                                                              endpoint: self.endpoint)
+
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+
+    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    let client = try clientBuilder.build()
+```
+
+**Note**: TLS integration with PKCS#12 is only available on Apple devices.
 #### **Direct MQTT with Custom Authentication**
 AWS IoT Core Custom Authentication allows you to use a lambda to gate access to IoT Core resources.  For this authentication method,
 you must supply an additional configuration structure containing fields relevant to AWS IoT Core Custom Authentication.
 If your custom authenticator does not use signing, you don't specify anything related to the token signature:
 
-```python
-    # other builder configurations can be added using **kwargs in the builder
+```swift
+    var endpoint: String = "<account-specific endpoint>"
+    let authAuthorizerName: String = "<Name of your custom authorizer>"
+    let authPassword: Data = "<Password used with custom authorizer>"
+    let authUsername: Sting = "<Username to use with custom authorizer>"
 
-    client = mqtt5_client_builder.direct_with_custom_authorizer(
-        endpoint = "<account-specific endpoint>",
-        auth_authorizer_name = "<Name of your custom authorizer>",
-        auth_username = "<Value of the username field that should be passed to the authorizer's lambda>",
-        auth_password = <Binary data value of the password field to be passed to the authorizer lambda>)
+    let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(endpoint: self.endpoint,
+                                                                                  authAuthorizerName: self.authAuthorizerName,
+                                                                                  authPassword: self.authPassword,
+                                                                                  authUsername: self.authUsername)
+
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+
+    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    let client = try clientBuilder.build()
 ```
 
 If your custom authorizer uses signing, you must specify the three signed token properties as well. It is your responsibility to URI-encode the auth_username, auth_authorizer_name, and auth_token_key_name parameters.
@@ -92,44 +133,6 @@ If your custom authorizer uses signing, you must specify the three signed token 
 ```
 
 In both cases, the builder will construct a final CONNECT packet username field value for you based on the values configured.  Do not add the token-signing fields to the value of the username that you assign within the custom authentication config structure.  Similarly, do not add any custom authentication related values to the username in the CONNECT configuration optionally attached to the client configuration. The builder will do everything for you.
-
-#### **Direct MQTT with PKCS11 Method**
-
-An MQTT5 direct connection can be made using a PKCS11 device rather than using a PEM encoded private key, the private key for mutual TLS is stored on a PKCS#11 compatible smart card or Hardware Security Module (HSM). To create an MQTT5 builder configured for this connection, see the following code:
-
-```python
-    # other builder configurations can be added using **kwargs in the builder
-
-    pkcs11_lib = io.Pkcs11Lib(
-        file="<Path to PKCS11 library>",
-        behavior=io.Pkcs11Lib.InitializeFinalizeBehavior.STRICT)
-
-    client = mqtt5_client_builder.mtls_with_pkcs11(
-        pkcs11_lib=pkcs11_lib,
-        user_pin=user_pin,
-        slot_id=pkcs11_slot_id,
-        token_label=pkcs11_token_label,
-        priave_key_label=pkcs11_private_key_label,
-        cert_filepath=pkcs11_cert_filepath,
-        endpoint = "<account-specific endpoint>")
-```
-
-**Note**: Currently, TLS integration with PKCS#11 is only available on Unix devices.
-
-#### **Direct MQTT with PKCS12 Method**
-
-An MQTT5 direct connection can be made using a PKCS12 file rather than using a PEM encoded private key. To create an MQTT5 builder configured for this connection, see the following code:
-
-```python
-    # other builder configurations can be added using **kwargs in the builder
-
-    client = mqtt5_client_builder.mtls_with_pkcs12(
-        pkcs12_filepath = "<PKCS12 file path>,
-        pkcs12_password = "<PKCS12 password>
-        endpoint = "<account-specific endpoint>")
-```
-
-**Note**: Currently, TLS integration with PKCS#12 is only available on MacOS devices.
 
 #### **MQTT over Websockets with Sigv4 authentication**
 Sigv4-based authentication requires a credentials provider capable of sourcing valid AWS credentials. Sourced credentials

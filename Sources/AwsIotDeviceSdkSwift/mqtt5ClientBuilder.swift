@@ -253,7 +253,7 @@ public class Mqtt5ClientBuilder {
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
                                                        region: String, 
                                                        credentialsProvider: CredentialsProvider,
-                                                       bootstrap: ClientBootstrap?) throws -> Mqtt5ClientBuilder {
+                                                       bootstrap: ClientBootstrap? = nil) throws -> Mqtt5ClientBuilder {
 
         return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       region: region, 
@@ -336,14 +336,14 @@ public class Mqtt5ClientBuilder {
     ///     connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied 
     ///     username value.
     /// - Throws: `CommonRuntimeError.crtError`
-    /// - Returns: 
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with a custom authorizer with a signed token.
     public static func websocketsWithSignedCustomAuthorizer(endpoint: String,
                                                             authAuthorizerName: String,
                                                             authPassword: Data? = nil,
                                                             authAuthorizerSignature: String,
                                                             authTokenKeyName: String,
                                                             authTokenValue: String,
-                                                            authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
+                                                            authUsername: String) throws -> Mqtt5ClientBuilder {
         
         return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       authAuthorizerName: authAuthorizerName,
@@ -367,7 +367,7 @@ public class Mqtt5ClientBuilder {
     ///     connecting to the custom authorizer. Custom authentication parameters will be appended as appropriate to any supplied 
     ///     username value.
     /// - Throws: `CommonRuntimeError.crtError`
-    /// - Returns: 
+    /// - Returns: An Mqtt5ClientBuilder configured to connect to AWS IoT using a custom authorizer with an unsigned token.
     public static func directWithUnsignedCustomAuthorizer(endpoint: String,
                                                           authAuthorizerName: String? = nil,
                                                           authPassword: Data? = nil,
@@ -397,7 +397,7 @@ public class Mqtt5ClientBuilder {
     ///   - authPassword: The password to use with the custom authorizer.  Becomes the MQTT5 CONNECT packet's password property. 
     ///     AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
     /// - Throws: `CommonRuntimeError.crtError`
-    /// - Returns: 
+    /// - Returns: An Mqtt5ClientBuilder configured to connect to AWS IoT using a custom authorizer with a signed token.
     public static func directWithSignedCustomAuthorizer(endpoint: String,
                                                         authAuthorizerName: String,
                                                         authAuthorizerSignature: String,
