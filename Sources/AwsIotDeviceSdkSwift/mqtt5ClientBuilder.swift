@@ -218,7 +218,7 @@ public class Mqtt5ClientBuilder {
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
                                                        region: String, 
                                                        credentialsProvider: CredentialsProvider,
-                                                       bootstrap: ClientBootstrap?) throws -> Mqtt5ClientBuilder {
+                                                       bootstrap: ClientBootstrap? = nil) throws -> Mqtt5ClientBuilder {
 
         return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       region: region, 
