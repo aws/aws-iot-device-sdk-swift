@@ -63,6 +63,28 @@ public class Mqtt5ClientBuilder {
     private var _caFilePath: String? = nil
     private var _caData: Data? = nil
     private var _caDirPath: String? = nil
+    private var _certLabel: String? = nil
+    private var _keyLabel: String? = nil
+    private var _ackTimeout: TimeInterval? = nil
+    private var _connackTimeout: TimeInterval? = nil
+    private var _pingTimeout: TimeInterval? = nil
+    private var _minReconnectDelay: TimeInterval? = nil
+    private var _maxReconnectDelay: TimeInterval? = nil
+    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
+    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
+    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
+    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
+    private var _topicAliasingOptions: TopicAliasingOptions? = nil
+    private var _httpProxyOptions: HTTPProxyOptions? = nil
+    private var _socketOptions: SocketOptions? = nil
+    private var _clientBootstrap: ClientBootstrap? = nil
+    private var _requestResponseInformation: Bool? = nil
+    private var _requestProblemInformation: Bool? = nil
+    private var _receiveMaximum: UInt16? = nil
+    private var _maximumPacketSize: UInt32? = nil
+    private var _willDelayInterval: TimeInterval? = nil
+    private var _will: PublishPacket? = nil
+    private var _userProperties: [UserProperty]? = nil 
 
     // mtlsFromPath
     init (certPath: String, keyPath: String, endpoint: String) throws {
@@ -535,7 +557,8 @@ public class Mqtt5ClientBuilder {
     }
     
     
-    /// Overrides the default system trust store. Only used on Unix-style systems where all trust anchors are stored in a directory (e.g. /etc/ssl/certs).
+    /// Overrides the default system trust store. Only used on Unix-style systems where all trust anchors are stored in a 
+    /// directory (e.g. /etc/ssl/certs).
     /// 
     /// - Parameter caDirPath: Path of directory containing all trust CAs, in PEM format.
     public func withCaDirPath(_ caDirPath: String) {
@@ -549,7 +572,18 @@ public class Mqtt5ClientBuilder {
         _caData = caData
     }
 
-    private var _ackTimeout: TimeInterval? = nil
+    /// Use specified labels when importing certificate and key into keychain.
+    ///
+    /// NOTE: This option is only available on iOS and tvOS.
+    /// 
+    /// - Parameters:
+    ///   - certLabel: Human readable label to apply to certificate being imported into keychain.
+    ///   - keyLabel: Human readable label to apply to key being imported into keychain.
+    public func withSecitemLabels(certLabel: String? = nil, keyLabel: String? = nil) {
+        _certLabel = certLabel
+        _keyLabel = keyLabel
+    }
+
     /// Overrides the time interval to wait for an ack after sending a QoS 1+ PUBLISH, SUBSCRIBE, or UNSUBSCRIBE before
     /// failing the operation.  Defaults to no timeout.
     /// 
@@ -559,7 +593,6 @@ public class Mqtt5ClientBuilder {
         _ackTimeout = ackTimeout
     }
 
-    private var _connackTimeout: TimeInterval? = nil
     /// Overrides the time interval to wait after sending a CONNECT request for a CONNACK to arrive.  If one does not
     /// arrive, the connection will be shut down.
     /// 
@@ -568,7 +601,6 @@ public class Mqtt5ClientBuilder {
         _connackTimeout = connackTimeout
     }
 
-    private var _pingTimeout: TimeInterval? = nil
     /// Overrides the time interval to wait after sending a PINGREQ for a PINGRESP to arrive.  If one does not arrive,
     /// the client will close the current connection.
     /// 
@@ -577,7 +609,6 @@ public class Mqtt5ClientBuilder {
         _pingTimeout = pingTimeout
     }
 
-    private var _minReconnectDelay: TimeInterval? = nil
     /// Overrides the minimum amount of time to wait to reconnect after a disconnect.  Exponential backoff is performed
     /// with controllable jitter after each connection failure.
     /// 
@@ -586,7 +617,6 @@ public class Mqtt5ClientBuilder {
         _minReconnectDelay = minReconnectDelay
     }
 
-    private var _maxReconnectDelay: TimeInterval? = nil
     /// Overrides the maximum amount of time to wait to reconnect after a disconnect.  Exponential backoff is performed
     /// with controllable jitter after each connection failure.
     /// 
@@ -595,7 +625,6 @@ public class Mqtt5ClientBuilder {
         _maxReconnectDelay = maxReconnectDelay
     }
 
-    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
     /// Overrides the amount of time that must elapse with an established connection before the reconnect delay is
     /// reset to the minimum.  This helps alleviate bandwidth-waste in fast reconnect cycles due to permission
     /// failures on operations.
@@ -606,7 +635,6 @@ public class Mqtt5ClientBuilder {
         _minConnectedTimeToResetReconnectDelay = minConnectedTimeToResetReconnectDelay
     }
 
-    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
     /// Overrides how the reconnect delay is modified in order to smooth out the distribution of reconnection attempt
     /// timepoints for a large set of reconnecting clients.
     /// 
@@ -616,7 +644,6 @@ public class Mqtt5ClientBuilder {
         _retryJitterMode = retryJitterMode
     }
 
-    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
     /// Overrides how disconnects affect the queued and in-progress operations tracked by the client.  Also controls
     /// how new operations are handled while the client is not connected.  In particular, if the client is not connected,
     /// then any operation that would be failed on disconnect (according to these rules) will also be rejected.
@@ -627,7 +654,6 @@ public class Mqtt5ClientBuilder {
         _clientOperationQueueBehaviorType = clientOperationQueueBehaviorType
     }
 
-    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
     /// Overrides how the MQTT5 client should behave with respect to MQTT sessions.
     /// 
     /// - Parameter clientSessionBehaviorType: How the MQTT5 client should behave with respect to MQTT sessions.
@@ -635,7 +661,6 @@ public class Mqtt5ClientBuilder {
         _clientSessionBehaviorType = clientSessionBehaviorType
     }
 
-    private var _topicAliasingOptions: TopicAliasingOptions? = nil
     /// Overrides how the MQTT5 client should behave with respect to topic aliasing
     /// 
     /// - Parameter topicAliasingOptions: How the MQTT5 client should behave with respect to topic aliasing.
@@ -643,7 +668,6 @@ public class Mqtt5ClientBuilder {
         _topicAliasingOptions = topicAliasingOptions
     }
 
-    private var _httpProxyOptions: HTTPProxyOptions? = nil
     /// Overrides (tunneling) HTTP proxy usage when establishing MQTT connections.
     /// 
     /// - Parameter httpProxyOptions: HTTP proxy options to use when establishing MQTT connections.
@@ -651,7 +675,6 @@ public class Mqtt5ClientBuilder {
         _httpProxyOptions = httpProxyOptions
     }
 
-    private var _socketOptions: SocketOptions? = nil
     /// Overrides the socket properties of the underlying MQTT connections made by the client.  Leave undefined to use
     /// defaults (no TCP keep alive, 10 second socket timeout).
     /// 
@@ -660,7 +683,6 @@ public class Mqtt5ClientBuilder {
         _socketOptions = socketOptions
     }
 
-    private var _clientBootstrap: ClientBootstrap? = nil
     /// Overrides the ClientBootstrap used by the MQTT5 client to establish MQTT connections. If one isn't provided, 
     /// one will be created during MQTT5 Client creation.
     /// 
@@ -669,7 +691,6 @@ public class Mqtt5ClientBuilder {
         _clientBootstrap = clientBootstrap
     }
 
-    private var _requestResponseInformation: Bool? = nil
     /// If true, requests that the server send response information in the subsequent CONNACK.  This response 
     /// information may be used to set up request-response implementations over MQTT, but doing so is outside 
     /// the scope of the MQTT5 spec and client.
@@ -681,7 +702,6 @@ public class Mqtt5ClientBuilder {
         _requestResponseInformation = requestResponseInformation
     }
 
-    private var _requestProblemInformation: Bool? = nil
     /// If true, requests that the server send additional diagnostic information (via response string or user properties)
     /// in DISCONNECT or CONNACK packets from the server.
     /// 
@@ -692,7 +712,6 @@ public class Mqtt5ClientBuilder {
         _requestProblemInformation = requestProblemInformation
     }
 
-    private var _receiveMaximum: UInt16? = nil
     /// Notifies the server of the maximum number of in-flight QoS 1 and 2 messages the client is willing to handle.
     /// If omitted or null, then no limit is requested.
     /// 
@@ -703,7 +722,6 @@ public class Mqtt5ClientBuilder {
         _receiveMaximum = receiveMaximum
     }
 
-    private var _maximumPacketSize: UInt32? = nil
     /// Notifies the server of the maximum packet size the client is willing to handle.  If omitted, then no limit 
     /// beyond the natural limits of MQTT packet size is requested.
     /// 
@@ -714,7 +732,6 @@ public class Mqtt5ClientBuilder {
         _maximumPacketSize = maximumPacketSize
     }
 
-    private var _willDelayInterval: TimeInterval? = nil
     /// A time interval, in seconds, that the server should wait (for a session reconnection) before sending the
     /// will message associated with the connection's session.  If omitted, the server will send the will when the
     /// associated session is destroyed.  If the session is destroyed before a will delay interval has elapsed, then
@@ -728,7 +745,6 @@ public class Mqtt5ClientBuilder {
         _willDelayInterval = willDelayInterval
     }
 
-    private var _will: PublishPacket? = nil
     /// The definition of a message to be published when the connection's session is destroyed by the server or when the 
     /// will delay interval has elapsed, whichever comes first.  If undefined, then nothing will be sent.
     /// 
@@ -740,7 +756,6 @@ public class Mqtt5ClientBuilder {
         _will = will
     }
     
-    private var _userProperties: [UserProperty]? = nil 
     /// Set of MQTT5 user properties included with the packet.
     /// 
     /// See [MQTT5 User Property](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901054)
@@ -795,7 +810,11 @@ public class Mqtt5ClientBuilder {
                 } else if let caData = _caData {
                     try tlsOptions.overrideDefaultTrustStoreWithData(caData: caData)
                 }
-            _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+
+                // Apply labels if available
+                try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
+                
+                _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
             }
         } catch {
             throw CommonRunTimeError.crtError(CRTError.makeFromLastError())
