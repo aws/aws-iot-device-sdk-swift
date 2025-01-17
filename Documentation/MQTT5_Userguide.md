@@ -8,9 +8,7 @@
     * [Direct MQTT with X509-based mutual TLS](#direct-mqtt-with-x509-based-mutual-tls)
     * [Direct MQTT with PKCS12 Method](#direct-mqtt-with-pkcs12-method)
     * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
-    * [MQTT over Websockets with Sigv4 authentication](#mqtt-over-websockets-with-sigv4-authentication)
     * [MQTT over Websockets with Cognito authentication](#mqtt-over-websockets-with-cognito-authentication)
-    * [Direct MQTT with Windows Certificate Store Method](#direct-mqtt-with-windows-certificate-store-method)
 * [Adding an HTTP Proxy](#adding-an-http-proxy)
 * [Client Lifecycle Management](#client-lifecycle-management)
     * [Lifecycle Events](#lifecycle-events)
@@ -67,9 +65,10 @@ For X509 based mutual TLS, you can create a client where the certificate and pri
     // PKCS#8 PEM encoded private key file
     let keyPath: String = "<private key file path>"
 
-    let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(certPath: self.certPath, 
-                                                            keyPath: self.keyPath, 
-                                                            endpoint: self.endpoint)
+    let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(
+        certPath: self.certPath, 
+        keyPath: self.keyPath, 
+        endpoint: self.endpoint)
     
     // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
 
@@ -86,9 +85,10 @@ An MQTT5 direct connection can be made using a PKCS12 file rather than using a P
     let pkcs12Path: String = "<PKCS12 file path>"
     let pkcs12Password: String = "<PKCS12 password>"
     
-    let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(pkcs12Path: self.pkcs12Path, 
-                                                              pkcs12Password: self.pkcs12Password,
-                                                              endpoint: self.endpoint)
+    let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
+        pkcs12Path: self.pkcs12Path, 
+        pkcs12Password: self.pkcs12Password,
+        endpoint: self.endpoint)
 
     // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
 
@@ -103,15 +103,16 @@ you must supply an additional configuration structure containing fields relevant
 If your custom authenticator does not use signing, you don't specify anything related to the token signature:
 
 ```swift
-    var endpoint: String = "<account-specific endpoint>"
+    let endpoint: String = "<account-specific endpoint>"
     let authAuthorizerName: String = "<Name of your custom authorizer>"
     let authPassword: Data = "<Password used with custom authorizer>"
     let authUsername: Sting = "<Username to use with custom authorizer>"
 
-    let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(endpoint: self.endpoint,
-                                                                                  authAuthorizerName: self.authAuthorizerName,
-                                                                                  authPassword: self.authPassword,
-                                                                                  authUsername: self.authUsername)
+    let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
+        endpoint: self.endpoint,
+        authAuthorizerName: self.authAuthorizerName,
+        authPassword: self.authPassword,
+        authUsername: self.authUsername)
 
     // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
 
@@ -121,42 +122,23 @@ If your custom authenticator does not use signing, you don't specify anything re
 
 If your custom authorizer uses signing, you must specify the three signed token properties as well. It is your responsibility to URI-encode the auth_username, auth_authorizer_name, and auth_token_key_name parameters.
 
-```python
-    # other builder configurations can be added using **kwargs in the builder
+```swift
+    let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
+        endpoint: self.endpoint,
+        authAuthorizerName: self.authAuthorizerName,
+        authAuthorizerSignature: self.authAuthorizerSignature,
+        authTokenKeyName: self.authTokenKeyName,
+        authTokenValue: self.authTokenValue,
+        authUsername: self.authUsername,
+        authPassword: self.authPassword)
+    
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
 
-    client = mqtt5_client_builder.direct_with_custom_authorizer(
-        endpoint = "<account-specific endpoint>",
-        auth_authorizer_name = "<Name of your custom authorizer>",
-        auth_username = "<Value of the username field that should be passed to the authorizer's lambda>",
-        auth_password = <Binary data value of the password field to be passed to the authorizer lambda>,
-        auth_authorizer_signature= "<The signature of the custom authorizer>")
+    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    let client = try clientBuilder.build()
 ```
 
 In both cases, the builder will construct a final CONNECT packet username field value for you based on the values configured.  Do not add the token-signing fields to the value of the username that you assign within the custom authentication config structure.  Similarly, do not add any custom authentication related values to the username in the CONNECT configuration optionally attached to the client configuration. The builder will do everything for you.
-
-#### **MQTT over Websockets with Sigv4 authentication**
-Sigv4-based authentication requires a credentials provider capable of sourcing valid AWS credentials. Sourced credentials
-will sign the websocket upgrade request made by the client while connecting.  The default credentials provider chain supported by
-the SDK is capable of resolving credentials in a variety of environments according to a chain of priorities:
-
-```Environment -> Profile (local file system) -> STS Web Identity -> IMDS (ec2) or ECS```
-
-If the default credentials provider chain and built-in AWS region extraction logic are sufficient, you do not need to specify
-any additional configuration:
-
-```python
-    # The signing region. e.x.: 'us-east-1'
-    signing_region = "<signing region>"
-    credentials_provider = auth.AwsCredentialsProvider.new_default_chain()
-
-    # other builder configurations can be added using **kwargs in the builder
-
-    # Create an MQTT5 Client using mqtt5_client_builder
-    client = mqtt5_client_builder.websockets_with_default_aws_signing(
-        endpoint = "<account-specific endpoint>",
-        region = signing_region,
-        credentials_provider=credentials_provider))
-```
 
 #### **MQTT over Websockets with Cognito authentication**
 
@@ -164,41 +146,44 @@ An MQTT5 websocket connection can be made using Cognito to authenticate rather t
 
 To create an MQTT5 builder configured for this connection, see the following code:
 
-```python
-    # The signing region. e.x.: 'us-east-1'
-    signing_region = "<signing region>"
+```swift
+    // The signing region. e.x.: 'us-east-1'
+    let signingRegion: String = "<signing region>"
 
     # See https://docs.aws.amazon.com/general/latest/gr/cognito_identity.html for Cognito endpoints
-    cognito_endpoint = "cognito-identity." + signing_region + ".amazonaws.com"
-    cognito_identity_id = "<Cognito identity ID>"
-    credentials_provider = auth.AwsCredentialsProvider.new_cognito(
-        endpoint=cognito_endpoint,
-        identity=cognito_identity_id,
-        tls_ctx=io.ClientTlsContext(TlsContextOptions()))
+    let cognitoEndpoint: String = "cognito-identity." + signing_region + ".amazonaws.com"
+    let cognitoIdentityId = "<Cognito identity ID>"
 
-    # other builder configurations can be added using **kwargs in the builder
+    // Create bootstrap and tlsContext for the cognito provider
+    let elg = try EventLoopGroup()
+    let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
+    let clientBootstrap = try ClientBootstrap(
+        eventLoopGroup: elg,
+        hostResolver: resolver)        
+    let options = TLSContextOptions.makeDefault()
+    let tlsContext = try TLSContext(options: options, mode: .client)
 
-    # Create an MQTT5 Client using mqtt5_client_builder
-    client = mqtt5_client_builder.websockets_with_default_aws_signing(
-        endpoint = "<account-specific endpoint>",
-        region = signing_region,
-        credentials_provider=credentials_provider))
+    // Create the cognito provider
+    let cognitoProvider = try CredentialsProvider(
+        source: .cognito(
+            bootstrap: self.clientBootstrap,
+            tlsContext: self.tlsContext,
+            endpoint: self.cognitoEndpoint, 
+            identity: self.cognitoIdentity))
+
+    // Create the Mqtt5ClientBuilder
+    let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
+        endpoint: self.endpoint, 
+        region: self.region,
+        credentialsProvider: cognitoProvider);
+        
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+
+    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    let client = try clientBuilder.build()
 ```
 
 **Note**: A Cognito identity ID is different from a Cognito identity pool ID and trying to connect with a Cognito identity pool ID will not work. If you are unable to connect, make sure you are passing a Cognito identity ID rather than a Cognito identity pool ID.
-
-#### **Direct MQTT with Windows Certificate Store Method**
-An MQTT5 direct connection can be made with mutual TLS with the certificate and private key in the Windows certificate
-store, rather than simply being files on disk. To create an MQTT5 builder configured for this connection, see the
-following code:
-
-```python
-    client = mqtt5_client_builder.mtls_with_windows_cert_store_path(
-        cert_store_path="<CurrentUser\\MY\\A11F8A9B5DF5B98BA3508FBCA575D09570E0D2C6>",
-        endpoint="<client specific endpoint>")
-```
-
-**Note**: Windows Certificate Store connection support is only available on Windows devices.
 
 ### **Adding an HTTP Proxy**
 No matter what your connection transport or authentication method is, you may connect through an HTTP proxy
