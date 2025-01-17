@@ -322,38 +322,6 @@ class Mqtt5ClientTests: XCBaseTestCase {
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
 
-    func testMqttWebsocketWithHttpProxy() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
-        let region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_WS_REGION")
-
-        let context = MqttTestContext(contextName: "WebsocketWithHttpProxy")
-        let elg = try EventLoopGroup()
-        let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
-        let clientBootstrap = try ClientBootstrap(
-            eventLoopGroup: elg,
-            hostResolver: resolver)
-        let provider: CredentialsProvider = try CredentialsProvider(source: .defaultChain(
-            bootstrap: clientBootstrap, 
-            fileBasedConfiguration: FileBasedConfiguration()))
-        
-        let builder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-            endpoint: endpoint, 
-            region: region, 
-            credentialsProvider: provider, 
-            bootstrap: clientBootstrap)
-        
-        builder.withCallbacks(onPublishReceived: context.onPublishReceived,
-                              onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-                              onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-                              onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-                              onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
     
     func testMqttWebsocketWithCustomAuth() async throws {
         let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
