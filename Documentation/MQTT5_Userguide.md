@@ -9,7 +9,9 @@
     * [Direct MQTT with PKCS12 Method](#direct-mqtt-with-pkcs12-method)
     * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
     * [MQTT over Websockets with Cognito authentication](#mqtt-over-websockets-with-cognito-authentication)
-* [Adding an HTTP Proxy](#adding-an-http-proxy)
+* [Assigning Callbacks and Optional Configurations](#assigning-callbacks-and-optional-configurations)
+    * [Adding Callbacks](#adding-callbacks)
+    * [Adding an HTTP Proxy](#adding-an-http-proxy)
 * [Client Lifecycle Management](#client-lifecycle-management)
     * [Lifecycle Events](#lifecycle-events)
 * [Client Operations](#client-operations)
@@ -39,22 +41,6 @@ This section covers how to use MQTT5 in the Iot Device SDK for Swift. This inclu
 We strongly recommend using the `Mqtt5ClientBuilder` class to configure MQTT5 clients when connecting to AWS IoT Core.  The builder simplifies configuration for all authentication methods supported by AWS IoT Core.  This section shows samples for all of the authentication possibilities.
 
 ## **How to create an MQTT5 Client based on desired connection method**
-### **Lifecycle Events and Optional Configurations**
-All lifecycle events and the callback for publishes received by the MQTT5 Client should be added to the `Mqtt5ClientBuilder` prior to calling `build()`. A full list of configuration methods can be found in the API guide.
-``` swift
-    // After creating an instance of the `Mqtt5ClientBuilder`
-
-    // All callbacks can be assigned using the `withCallbacks()` func
-    clientBuilder.withCallbacks(onPublishReceived: self.onPublishReceived,
-                                onLifecycleEventAttemptingConnect: self.onLifecycleEventAttemptingConnect,
-                                onLifecycleEventConnectionSuccess: self.onLifecycleEventConnectionSuccess,
-                                onLifecycleEventConnectionFailure: self.onLifecycleEventConnectionFailure,
-                                onLifecycleEventDisconnection: self.onLifecycleEventDisconnection,
-                                onLifecycleEventStopped: self.onLifecycleEventStopped)
-
-    // Individual callbacks can also be assigned independently
-    clientBuilder.withOnPublishReceived(self.onPublishReceived)
-```
 #### **Direct MQTT with X509-based mutual TLS**
 For X509 based mutual TLS, you can create a client where the certificate and private key are configured by path:
 
@@ -70,7 +56,7 @@ For X509 based mutual TLS, you can create a client where the certificate and pri
         keyPath: self.keyPath, 
         endpoint: self.endpoint)
     
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
     // Create an MQTT5 Client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
@@ -90,7 +76,7 @@ An MQTT5 direct connection can be made using a PKCS12 file rather than using a P
         pkcs12Password: self.pkcs12Password,
         endpoint: self.endpoint)
 
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
     // Create an MQTT5 Client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
@@ -114,7 +100,7 @@ If your custom authenticator does not use signing, you don't specify anything re
         authPassword: self.authPassword,
         authUsername: self.authUsername)
 
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
     // Create an MQTT5 Client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
@@ -132,7 +118,7 @@ If your custom authorizer uses signing, you must specify the three signed token 
         authUsername: self.authUsername,
         authPassword: self.authPassword)
     
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
     // Create an MQTT5 Client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
@@ -177,7 +163,7 @@ To create an MQTT5 builder configured for this connection, see the following cod
         region: self.region,
         credentialsProvider: cognitoProvider);
         
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions
+    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
     // Create an MQTT5 Client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
@@ -185,21 +171,37 @@ To create an MQTT5 builder configured for this connection, see the following cod
 
 **Note**: A Cognito identity ID is different from a Cognito identity pool ID and trying to connect with a Cognito identity pool ID will not work. If you are unable to connect, make sure you are passing a Cognito identity ID rather than a Cognito identity pool ID.
 
+## **Assigning Callbacks and Optional Configurations**
+All lifecycle events and the callback for publishes received by the MQTT5 Client should be added to the `Mqtt5ClientBuilder` prior to calling `build()`. A full list of configuration methods can be found in the API guide.
+
+### **Adding Callbacks**
+``` swift
+    // After creating an instance of the `Mqtt5ClientBuilder`
+
+    // All callbacks can be assigned using the `withCallbacks()` func
+    clientBuilder.withCallbacks(onPublishReceived: self.onPublishReceived,
+                                onLifecycleEventAttemptingConnect: self.onLifecycleEventAttemptingConnect,
+                                onLifecycleEventConnectionSuccess: self.onLifecycleEventConnectionSuccess,
+                                onLifecycleEventConnectionFailure: self.onLifecycleEventConnectionFailure,
+                                onLifecycleEventDisconnection: self.onLifecycleEventDisconnection,
+                                onLifecycleEventStopped: self.onLifecycleEventStopped)
+
+    // Individual callbacks can also be assigned independently
+    // e.g.
+    clientBuilder.withOnPublishReceived(self.onPublishReceived)
+```
 ### **Adding an HTTP Proxy**
 No matter what your connection transport or authentication method is, you may connect through an HTTP proxy
-by adding the http_proxy_options keyword argument to the builder:
+by adding `HTTPProxyOptions` to the builder:
 
-```python
-    http_proxy_options = http.HttpProxyOptions(
-        host_name = "<proxy host>",
-        port = <proxy port>)
+```swift
+    // After creating the Mqtt5ClientBuilder
 
-    # Create an MQTT5 Client using mqtt5_client_builder with proxy options as keyword argument
-    client = mqtt5_client_builder.mtls_from_path(
-        endpoint = "<account-specific endpoint>",
-        cert_filepath = "<certificate file path>",
-        pri_key_filepath = "<private key file path>",
-        http_proxy_options = http_proxy_options))
+    // add HTTPProxyOptions to the builder
+    builder.withHttyProxyOptions(HTTPProxyOptions(hostName: "<Http Proxy Host>", port: <Http Proxy Port>))
+
+    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    let client = try clientBuilder.build()
 ```
 
 SDK Proxy support also includes support for basic authentication and TLS-to-proxy.  SDK proxy support does not include any additional
@@ -209,44 +211,36 @@ proxy authentication methods (kerberos, NTLM, etc...) nor does it include non-HT
 Once created, an MQTT5 client's configuration is immutable.  Invoking start() on the client will put it into an active state where it
 recurrently establishes a connection to the configured remote endpoint.  Reconnecting continues until you invoke stop().
 
-```python
-    # Create an MQTT5 Client
-    client_options = mqtt5.ClientOptions(
-        host_name = "<endpoint to connect to>",
-        port = <port to use>)
-
-    # Other options in client options can be set but once Client is initialized configuration is immutable
-    # e.g. setting the on_publish_callback_fn to be called
-    # client_options.on_publish_callback_fn = on_publish_received
-
-    client = mqtt5.Client(client_options)
+```swift
+    // Create an MQTT5 Client using a configured Mqtt5ClientBuilder    
+    let client = try clientBuilder.build()
 
     # Use the client
-    client.start();
+    try client.start()
     ...
 ```
 
 Invoking stop() breaks the current connection (if any) and moves the client into an idle state.
 
-```python
-    # Shutdown
-    client.stop();
-
+```swift
+    // Shutdown
+    try client.stop()
+    ...
 ```
 ## **Lifecycle Events**
-The MQTT5 client emits a set of events related to state and network status changes.
+The MQTT5 client emits a set of events related to state and network status changes. 
 
 #### **AttemptingConnect**
 Emitted when the client begins to make a connection attempt.
 
 #### **ConnectionSuccess**
-Emitted when a connection attempt succeeds based on receipt of an affirmative CONNACK packet from the MQTT broker.  A ConnectionSuccess event includes the MQTT broker's CONNACK packet, as well as a structure -- the NegotiatedSettings -- which contains the final values for all variable MQTT session settings (based on protocol defaults, client wishes, and server response).
+Emitted when a connection attempt succeeds based on receipt of an affirmative CONNACK packet from the MQTT broker.  A ConnectionSuccess event includes the MQTT broker's CONNACK packet, as well as a `NegotiatedSettings` which contains the final values for all variable MQTT session settings (based on protocol defaults, client wishes, and server response) within the `LifecycleConnectionSuccessData`.
 
 #### **ConnectionFailure**
-Emitted when a connection attempt fails at any point between DNS resolution and CONNACK receipt.  In addition to an error code, additional data may be present in the event based on the context.  For example, if the remote endpoint sent a CONNACK with a failing reason code, the CONNACK packet will be included in the event data.
+Emitted when a connection attempt fails at any point between DNS resolution and CONNACK receipt.  In addition to an error code, additional data may be present in the event based on the context.  For example, if the remote endpoint sent a CONNACK with a failing reason code, the CONNACK packet will be included within the `LifecycleConnectionFailureData`.
 
 #### **Disconnect**
-Emitted when the client's network connection is shut down, either by a local action, event, or a remote close or reset.  Only emitted after a ConnectionSuccess event: a network connection that is shut down during the connecting process manifests as a ConnectionFailure event.  A Disconnect event will always include an error code.  If the Disconnect event is due to the receipt of a server-sent DISCONNECT packet, the packet will be included with the event data.
+Emitted when the client's network connection is shut down, either by a local action, event, or a remote close or reset.  Only emitted after a ConnectionSuccess event: a network connection that is shut down during the connecting process manifests as a ConnectionFailure event.  A Disconnect event will always include an error code.  If the Disconnect event is due to the receipt of a server-sent DISCONNECT packet, the packet will be included within the `LifecycleDisconnectData`.
 
 #### **Stopped**
 Emitted once the client has shutdown any associated network connection and entered an idle state where it will no longer attempt to reconnect.  Only emitted after an invocation of `stop()` on the client.  A stopped client may always be started again.
@@ -255,49 +249,41 @@ Emitted once the client has shutdown any associated network connection and enter
 There are four basic MQTT operations you can perform with the MQTT5 client.
 
 ### Subscribe
-The Subscribe operation takes a description of the SUBSCRIBE packet you wish to send and returns a future that resolves successfully with the corresponding SUBACK returned by the broker; the future result raises an exception if anything goes wrong before the SUBACK is received.
+The Subscribe operation takes a description of the SUBSCRIBE packet you wish to send and asynchronously returns the corresponding SUBACK returned by the broker; the operation throws an exception if anything goes wrong before the SUBACK is received.
 
-```python
-    subscribe_future = client.subscribe(subscribe_packet = mqtt5.SubscribePacket(
-        subscriptions = [mqtt5.Subscription(
-            topic_filter = "hello/world/qos1",
-            qos = mqtt5.QoS.AT_LEAST_ONCE)]))
-
-    suback = subscribe_future.result()
+```swift
+    let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: "<topic>", qos: <QoS>, payload: <payload>)
+    let subackPacket: SubackPacket = try await client.subscribe(subscribePacket: subscribePacket)
 ```
 
 ### Unsubscribe
-The Unsubscribe operation takes a description of the UNSUBSCRIBE packet you wish to send and returns a future that resolves successfully with the corresponding UNSUBACK returned by the broker; the future result raises an exception if anything goes wrong before the UNSUBACK is received.
+The Unsubscribe operation takes a description of the UNSUBSCRIBE packet you wish to send and asynchronously returns the corresponding UNSUBACK returned by the broker; the operation throws an exception if anything goes wrong before the UNSUBACK is received.
 
-```python
-    unsubscribe_future = client.unsubscribe(unsubscribe_packet = mqtt5.UnsubscribePacket(
-        topic_filters=["hello/world/qos1"]))
-
-    unsuback = unsubscribe_future.result()
+```swift
+    let unsubscribePacket: UnsubscribePacket = UnsubscribePacket(topicFilter: "<topic>")
+    let unsubackPacket: UnsubackPacket = try await client.unsubscribe(unsubscribePacket: unsubscribePacket)
 ```
 
 ### Publish
-The Publish operation takes a description of the PUBLISH packet you wish to send and returns a future of polymorphic value.  The future will result in a PublishCompletionData containing a PUBACK packet. If the PUBLISH was a QoS 0 publish, then the PUBACK packet will be empty with all members set to None and is completed as soon as the packet has been written to the socket.  If the PUBLISH was a QoS 1 publish, then the PUBACK packet will contain a reason_code and potentially a reason_string and user_properties if the broker has assigned them any values and is completed as soon as the PUBACK is received from the broker.  If the operation fails for any reason before these respective completion events, the future result raises an exception.
+The Publish operation takes a description of the PUBLISH packet you wish to send and asynchronously returns a `PublishResult`. If the PUBLISH was a QoS 0 publish, the `PublishResult` will be returned as soon as the PUBLISH packet is written to the socket and will cotain a nil `PubackPacket`. If the PUBLISH was a QoS 1 publish, the `PublishResult` will be returned upon receipt of a PUBACK packet from the broker or when the operation times out. The `PubackPacket` contained within the `PublishResult` will contain a reasonCode and potentialy a reasonString and userProperties if the broker has assigned them any values. If the operation fails for any reason before these respective completion events, the operation will throw an exception.
 
-```python
-    publish_future = client.publish(mqtt5.PublishPacket(
-        topic = "hello/world/qos1",
-        payload = "This is the payload of a QoS 1 publish",
-        qos = mqtt5.QoS.AT_LEAST_ONCE))
+```swift
+    let publishPacket: PublishPacket = PublishPacket(qos: .atLeastOnce, topic: "<topic>", payload: <Data>)
+    let publishResult: PublishResult = try await client.publish(publishPacket: self.publishPacket)
 
-    # on success, the result of publish_future will be a PublishCompletionData
-    publish_completion_data = publish_future.result()
-    puback = publish_completion_data.puback
+    // on success of a QoS1 PUBLISH, the publishResult will contain a `PubackPacket`
+    if pubackPacket: PubackPacket = publishResult.puback {
+        print("PubackPacket received with result \(pubackPacket.reasonCode)")
+    }
 
 ```
 
 ### Disconnect
-The `stop()` API supports a DISCONNECT packet as an optional parameter.  If supplied, the DISCONNECT packet will be sent to the server prior to closing the socket.  There is no future returned by a call to `stop()` but you may listen for the 'stopped' event on the client.
+The `stop()` API supports a DISCONNECT packet as an optional parameter.  If supplied, the DISCONNECT packet will be sent to the server prior to closing the socket.  Nothing is returned by a call to `stop()` but you may listen for the 'stopped' event on the client. The operation throws an exception if anything goes wrong.
 
-```python
-    client.stop(mqtt5.DisconnectPacket(
-        reason_code = mqtt5.DisconnectReasonCode.NORMAL_DISCONNECTION,
-        session_expiry_interval_sec = 3600))
+```swift
+    let disconnectPacket: DisconnectPacket = DisconnectPacket(reasonCode: DisconnectReasonCode.normalDisconnection)
+    try client.stop(disconnectPacket: this.disconnectPacket)
 ```
 
 ## **MQTT5 Best Practices**
@@ -308,4 +294,4 @@ Below are some best practices for the MQTT5 client that are recommended to follo
 * Use the minimum QoS you can get away with for the lowest latency and bandwidth costs. For example, if you are sending data consistently multiple times per second and do not have to have a guarantee the server got each and every publish, using QoS 0 may be ideal compared to QoS 1. Of course, this heavily depends on your use case but generally it is recommended to use the lowest QoS possible.
 * If you are getting unexpected disconnects when trying to connect to AWS IoT Core, make sure to check your IoT Core Thing’s policy and permissions to make sure your device is has the permissions it needs to connect!
 * For **Publish**, **Subscribe**, and **Unsubscribe**, you can check the reason codes in the returned Future to see if the operation actually succeeded.
-* You MUST NOT perform blocking operations on any callback, or you will cause a deadlock. For example: in the `on_publish_received` callback, do not send a publish, and then wait for the future to complete within the callback. The Client cannot do work until your callback returns, so the thread will be stuck.
+* You MUST NOT perform blocking operations on any callback, or you will cause a deadlock. For example: in the `on_publish_received` callback, do not await a publish. The Client cannot do work until your callback returns, so the thread will be stuck.
