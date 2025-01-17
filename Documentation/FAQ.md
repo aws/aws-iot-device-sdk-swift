@@ -3,6 +3,7 @@
 *__Jump To:__*
 * [Where should I start](#where-should-i-start)
 * [How do I enable logging](#how-do-i-enable-logging)
+* [I am getting OSStatus -34018 when adding a certificate](#i-am-getting-osstatus--34018-when-adding-a-certificate)
 * [I keep getting AWS_ERROR_MQTT_UNEXPECTED_HANGUP](#i-keep-getting-aws_error_mqtt_unexpected_hangup)
 * [What certificates do I need?](#what-certificates-do-i-need)
 * [I still have more questions about this sdk?](#i-still-have-more-questions-about-this-sdk)
@@ -17,6 +18,11 @@ If you are just getting started make sure you [install this sdk](https://github.
 try? Logger.initialize(target: .standardOutput, level: .debug)
 ```
 You can also enable [CloudWatch logging](https://docs.aws.amazon.com/iot/latest/developerguide/cloud-watch-logs.html) for IoT which will provide you with additional information that is not available on the client side sdk.
+
+### I am getting OSStatus -34018 when adding a certificate
+
+This is the `errSecMissingEntitlement` [OSStatus error](https://www.osstatus.com/search/results?platform=all&framework=all&search=-34018) indicating that a required entitlement is missing. More information can be found on Apple's developer site [here](https://developer.apple.com/documentation/security/errsecmissingentitlement). You must provide entitelements to the app or binary you are building and running using the SDK to allow it permission to access the Keychain on the device. This entitelment cannot be given directly to the SDK library and must be provided to the application being built using the SDK library.
+
 
 ### I keep getting AWS_ERROR_MQTT_UNEXPECTED_HANGUP
 
