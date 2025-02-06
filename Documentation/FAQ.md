@@ -12,6 +12,9 @@
 
 If you are just getting started make sure you [install this sdk](https://github.com/aws/aws-iot-device-sdk-swift#installation) and then build and run the [basic PubSub](https://github.com/aws/aws-iot-device-sdk-swift/tree/main/samples#pubsub)
 
+### Where can I get the API documentation?
+Load the library in XCode and then go to Product->Build Documentation.
+
 ### How do I enable logging?
 
 ```
