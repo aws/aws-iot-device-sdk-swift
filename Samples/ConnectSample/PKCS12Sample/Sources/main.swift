@@ -37,10 +37,9 @@ struct PKCS12Sample: ParsableCommand {
         /**************************************
          * 1. Init library
          **************************************/
-        CommonRuntimeKit.initialize();
-        AwsIotDeviceSdkSwift.initialize();
+        IoTDeviceSdk.initialize();
         // Uncomment the following line to init debug log to help with debugging.
-        // try? Logger.initialize(target: .standardOutput, level: .debug)
+        try? Logger.initialize(target: .standardOutput, level: .debug)
         
         do {
             /**************************************
@@ -70,11 +69,11 @@ struct PKCS12Sample: ParsableCommand {
             let clientBuilder = try Mqtt5ClientBuilder.MTLSFromPKCS12(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
 
             // Setup callbacks
-            clientBuilder.withCallbacks(onLifecycleEventAttemptingConnect: mqtt5ClientCallbacks.onLifecycleEventAttemptingConnect,
-                                        onLifecycleEventConnectionSuccess: mqtt5ClientCallbacks.onLifecycleEventConnectionSuccess,
-                                        onLifecycleEventConnectionFailure: mqtt5ClientCallbacks.onLifecycleEventConnectionFailure,
-                                        onLifecycleEventDisconnection: mqtt5ClientCallbacks.onLifecycleEventDisconnection,
-                                        onLifecycleEventStopped: mqtt5ClientCallbacks.onLifecycleEventStopped)
+            clientBuilder.withCallbacks(onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
+                                        onLifecycleEventConnectionSuccess: onLifecycleEventConnectionSuccess,
+                                        onLifecycleEventConnectionFailure: onLifecycleEventConnectionFailure,
+                                        onLifecycleEventDisconnection: onLifecycleEventDisconnection,
+                                        onLifecycleEventStopped: onLifecycleEventStopped)
             
             // setup client id if client id is passed as argument
             if let _clientId = self.clientId {
@@ -92,17 +91,15 @@ struct PKCS12Sample: ParsableCommand {
              * 4. Start the connection session
              **************************************/
             try client.start()
-            if sample_context.semaphoreConnectionSuccess.wait(timeout: .now() + 5) == .timedOut {
-                print("Client start failed to connect after 5 seconds")
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                print("This runs after a 2-second delay.")
             }
             
             /**************************************
              * 5. Stop the connection session
              **************************************/
             try client.stop()
-            if sample_context.semaphoreStopped.wait(timeout: .now() + 5) == .timedOut {
-                print("Client stop failed after 5 seconds")
-            }
             
             
         } catch {
