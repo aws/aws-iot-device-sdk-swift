@@ -15,7 +15,7 @@ import AwsIotDeviceSdkSwift
 // 1. Initialize Device Sdk library
 // 2. Create Mqtt5ClientBuilder 
 // 3. Setup Callbacks and other options
-// 4. Create an Mqtt5 Client with MqttClientBuilder
+// 4. Create an Mqtt5 Client with Mqtt5ClientBuilder
 // 5. Start the connection session
 // 6. Stop the connection session
 
