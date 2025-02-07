@@ -60,7 +60,7 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
-            - name: run Basic Connect sample
+            - name: run X509Connect sample
               run: |
                 pwd
                 source .venv/bin/activate
@@ -70,7 +70,7 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_COGNITO_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
-            - name: run Cognito Provider Connect sample
+            - name: run CognitoProviderConnect sample
               run: |
                 pwd
                 source .venv/bin/activate
