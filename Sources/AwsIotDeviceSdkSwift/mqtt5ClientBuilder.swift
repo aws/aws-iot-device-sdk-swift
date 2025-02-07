@@ -23,11 +23,27 @@ fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     }
 }
 
+// Helper function to append parameters to username
+fileprivate func appendToUsernameParameter(inputString: String, parameterValue: String, parameterPretext: String) -> String {
+    var returnString = inputString
+
+    if returnString.contains("?") {
+        returnString += "&"
+    } else {
+        returnString += "?"
+    }
+
+    if parameterValue.contains(parameterPretext) {
+        return returnString + parameterValue
+    } else {
+        return returnString + parameterPretext + parameterValue
+    }
+}
+
 public class Mqtt5ClientBuilder {
 
     private var _endpoint: String? = nil
     private var _port: UInt32 = 8883
-    private var _tlsCtx: TLSContext? = nil
     private var _onWebsocketTransform: OnWebSocketHandshakeIntercept? = nil
     private var _clientId: String? = nil
     private var _username: String? = nil
@@ -42,37 +58,61 @@ public class Mqtt5ClientBuilder {
     private var _onLifecycleEventDisconnection: OnLifecycleEventDisconnection? = nil
     private var _onLifecycleEventStopped: OnLifecycleEventStopped? = nil
     private var _enableMetricsCollection: Bool = true
+    private var _tlsOptions: TLSContextOptions? = nil
+    private var _caPath: String? = nil
+    private var _caFile: String? = nil
+    private var _caData: Data? = nil
+    private var _caDirPath: String? = nil
+    private var _certLabel: String? = nil
+    private var _keyLabel: String? = nil
+    private var _ackTimeout: TimeInterval? = nil
+    private var _connackTimeout: TimeInterval? = nil
+    private var _pingTimeout: TimeInterval? = nil
+    private var _minReconnectDelay: TimeInterval? = nil
+    private var _maxReconnectDelay: TimeInterval? = nil
+    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
+    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
+    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
+    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
+    private var _topicAliasingOptions: TopicAliasingOptions? = nil
+    private var _httpProxyOptions: HTTPProxyOptions? = nil
+    private var _socketOptions: SocketOptions? = nil
+    private var _clientBootstrap: ClientBootstrap? = nil
+    private var _requestResponseInformation: Bool? = nil
+    private var _requestProblemInformation: Bool? = nil
+    private var _receiveMaximum: UInt16? = nil
+    private var _maximumPacketSize: UInt32? = nil
+    private var _willDelayInterval: TimeInterval? = nil
+    private var _will: PublishPacket? = nil
+    private var _userProperties: [UserProperty]? = nil 
 
     // mtlsFromPath
-    init (certPath: String, keyPath: String, endpoint: String, port: UInt32 = 8883) throws {
-        let tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
-        _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+    init (certPath: String, keyPath: String, endpoint: String) throws {
+        _tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
         _endpoint = endpoint
-        _port = port
+        _port = 8883
     }
 
     // mtlsFromData
-    init (certData: Data, keyData: Data, endpoint: String, port: UInt32 = 8883) throws {
-        let tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
-        _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+    init (certData: Data, keyData: Data, endpoint: String) throws {
+        _tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
         _endpoint = endpoint
-        _port = port
+        _port = 8883
     }
 
     // mtlsFromPKCS12
-    init (pkcs12Path: String, pkcs12Password: String, endpoint: String, port: UInt32 = 8883) throws {
-        let tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
-        _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+    init (pkcs12Path: String, pkcs12Password: String, endpoint: String) throws {
+        _tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
         _endpoint = endpoint
-        _port = port
+        _port = 8883
     }
 
     // websocketsWithDefaultAwsSigning
-    init (endpoint: String, port: UInt32 = 443, region: String, credentialsProvider: CredentialsProvider) throws {
-        let tlsOptions = TLSContextOptions.makeDefault()
-        _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
+    init (endpoint: String, region: String, credentialsProvider: CredentialsProvider, bootstrap: ClientBootstrap? = nil) throws {
+        _tlsOptions = TLSContextOptions.makeDefault()
         _endpoint = endpoint
-        _port = port
+        _port = 443
+        _clientBootstrap = bootstrap
             
         let signingConfig = SigningConfig(
             algorithm: SigningAlgorithmType.signingV4,
@@ -97,7 +137,6 @@ public class Mqtt5ClientBuilder {
 
     // Custom Auth
     init (endpoint: String,
-          port: UInt32 = 443,
           authAuthorizerName: String? = nil,
           authPassword: Data? = nil,
           authAuthorizerSignature: String? = nil,
@@ -107,7 +146,7 @@ public class Mqtt5ClientBuilder {
           useWebsocket: Bool = true) throws {
         
         _endpoint = endpoint
-        _port = port
+        _port = 443
 
         var usernameString = ""
         if let authUsernameSet = authUsername {
@@ -141,26 +180,23 @@ public class Mqtt5ClientBuilder {
         _username = usernameString
         _password = authPassword
 
-        let tlsOptions = TLSContextOptions.makeDefault()
+        _tlsOptions = TLSContextOptions.makeDefault()
 
         if (useWebsocket) {
             _onWebsocketTransform = { httpRequest, completeCallback in
                 completeCallback(httpRequest, 0)
             }
         } else {
-            tlsOptions.setAlpnList(["mqtt"])
+            _tlsOptions?.setAlpnList(["mqtt"])
         }
-
-        _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
     }
 
     public static func mtlsFromPath(
         certPath: String, 
         keyPath: String,
-        endpoint: String,
-        port: UInt32 = 8883) throws -> Mqtt5ClientBuilder {
+        endpoint: String) throws -> Mqtt5ClientBuilder {
 
-        return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint, port: port)
+        return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint)
     }
 
     public static func mtlsFromData(
@@ -168,7 +204,7 @@ public class Mqtt5ClientBuilder {
         keyData: Data,
         endpoint: String) throws -> Mqtt5ClientBuilder  {
 
-        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint, port: 8883)
+        return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint)
     }
 
     public static func mtlsFromPKCS12(
@@ -176,35 +212,19 @@ public class Mqtt5ClientBuilder {
         pkcs12Password: String,
         endpoint: String) throws -> Mqtt5ClientBuilder {
         
-        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint, port: 8883)
+        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
     public static func websocketsWithDefaultAwsSigning(endpoint: String,
                                                        region: String, 
-                                                       credentialsProvider: CredentialsProvider) throws -> Mqtt5ClientBuilder {
+                                                       credentialsProvider: CredentialsProvider,
+                                                       bootstrap: ClientBootstrap? = nil) throws -> Mqtt5ClientBuilder {
 
-        return try Mqtt5ClientBuilder(endpoint: endpoint, 
-                                      port: 443, 
+        return try Mqtt5ClientBuilder(endpoint: endpoint,
                                       region: region, 
-                                      credentialsProvider: credentialsProvider)
-    }
-
-    // Helper function to append parameters to username
-    fileprivate func appendToUsernameParameter(inputString: String, parameterValue: String, parameterPretext: String) -> String {
-        var returnString = inputString
-
-        if returnString.contains("?") {
-            returnString += "&"
-        } else {
-            returnString += "?"
-        }
-
-        if parameterValue.contains(parameterPretext) {
-            return returnString + parameterValue
-        } else {
-            return returnString + parameterPretext + parameterValue
-        }
-    }
+                                      credentialsProvider: credentialsProvider,
+                                      bootstrap: bootstrap)
+    }    
 
     public static func websocketsWithCustomAuthorizer(endpoint: String,
                                                       authAuthorizerName: String,
@@ -394,116 +414,100 @@ public class Mqtt5ClientBuilder {
         _extendedValidationAndFlowControlOptions = flowControlOptions
     }
 
-    // DEBUG WIP we need to make sure the CA is being set properly in tls ctx
-    private var _caPath: String? = nil
+    // DEBUG WIP we need to make sure the CA is being set properly in tls ctx    
     public func withCaPath(_ caPath: String) {
         _caPath = caPath
     }
 
-    private var _caDirPath: String? = nil
     public func withCaDirPath(_ caDirPath: String) {
         _caDirPath = caDirPath
     }
 
-    private var _caData: Data? = nil
     public func withCaData(_ caData: Data) {
         _caData = caData
     }
 
-    private var _ackTimeout: TimeInterval? = nil
+    public func withSecitemLabels(certLabel: String? = nil, keyLabel: String? = nil) {
+        _certLabel = certLabel
+        _keyLabel = keyLabel
+    }
+
     public func withAckTimeout(_ ackTimeout: TimeInterval) {
         _ackTimeout = ackTimeout
     }
 
-    private var _connackTimeout: TimeInterval? = nil
     public func withConnackTimeout(_ connackTimeout: TimeInterval) {
         _connackTimeout = connackTimeout
     }
 
-    private var _pingTimeout: TimeInterval? = nil
     public func withPingTimeout(_ pingTimeout: TimeInterval) {
         _pingTimeout = pingTimeout
     }
 
-    private var _minReconnectDelay: TimeInterval? = nil
     public func withMinReconnectDelay(_ minReconnectDelay: TimeInterval) {
         _minReconnectDelay = minReconnectDelay
     }
-    private var _maxReconnectDelay: TimeInterval? = nil
+
     public func withMaxReconnectDelay(_ maxReconnectDelay: TimeInterval) {
         _maxReconnectDelay = maxReconnectDelay
     }
-    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
+
     public func withMinConnectedTimeToResetReconnectDelay(_ minConnectedTimeToResetReconnectDelay: TimeInterval) {
         _minConnectedTimeToResetReconnectDelay = minConnectedTimeToResetReconnectDelay
     }
 
-    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
     public func withRetryJitterMode(_ retryJitterMode: ExponentialBackoffJitterMode) {
         _retryJitterMode = retryJitterMode
     }
 
-    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
     public func withClientOperationQueueBehaviorType(_ clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType) {
         _clientOperationQueueBehaviorType = clientOperationQueueBehaviorType
     }
 
-    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
     public func withClientSessionBehaviorType(_ clientSessionBehaviorType: ClientSessionBehaviorType) {
         _clientSessionBehaviorType = clientSessionBehaviorType
     }
 
-    private var _topicAliasingOptions: TopicAliasingOptions? = nil
     public func withTopicAliasingOptions(_ topicAliasingOptions: TopicAliasingOptions) {
         _topicAliasingOptions = topicAliasingOptions
     }
 
-    private var _httpProxyOptions: HTTPProxyOptions? = nil
     public func withHttyProxyOptions(_ httpProxyOptions: HTTPProxyOptions) {
         _httpProxyOptions = httpProxyOptions
     }
 
-    private var _socketOptions: SocketOptions? = nil
     public func withSocketOptions(_ socketOptions: SocketOptions) {
         _socketOptions = socketOptions
     }
 
-    private var _clientBootstrap: ClientBootstrap? = nil
     public func withBootstrap(_ clientBootstrap: ClientBootstrap){
         _clientBootstrap = clientBootstrap
     }
 
-    private var _requestResponseInformation: Bool? = nil
     public func withRequestResponseInformation(_ requestResponseInformation: Bool) {
         _requestResponseInformation = requestResponseInformation
     }
 
-    private var _requestProblemInformation: Bool? = nil
     public func withRequestProblemInformation(_ requestProblemInformation: Bool){
         _requestProblemInformation = requestProblemInformation
     }
 
-    private var _receiveMaximum: UInt16? = nil
     public func withReceiveMaximum(_ receiveMaximum: UInt16) {
         _receiveMaximum = receiveMaximum
     }
 
-    private var _maximumPacketSize: UInt32? = nil
     public func withMaximumPacketSize(_ maximumPacketSize: UInt32) {
         _maximumPacketSize = maximumPacketSize
     }
 
-    private var _willDelayInterval: TimeInterval? = nil
     public func withWillDelayInterval(_ willDelayInterval: TimeInterval) {
         _willDelayInterval = willDelayInterval
     }
 
-    private var _will: PublishPacket? = nil
     public func withWill(_ will: PublishPacket) {
         _will = will
     }
 
-    private var _userProperties: [UserProperty]? = nil 
     public func withUserProperties(_ userProperties: [UserProperty]) {
         _userProperties = userProperties
     }
@@ -537,6 +541,27 @@ public class Mqtt5ClientBuilder {
             will: _will,
             userProperties: _userProperties
         )
+
+        var _tlsCtx: TLSContext? = nil
+        do {
+            if let tlsOptions = _tlsOptions {
+                // Handle CA override
+                if let caPath = _caPath {
+                    try tlsOptions.overrideDefaultTrustStoreWithPath(caPath: caPath)
+                } else if let caFile = _caFile {
+                    try tlsOptions.overrideDefaultTrustStoreWithFile(caFile: caFile)
+                } else if let caData = _caData {
+                    try tlsOptions.overrideDefaultTrustStoreWithData(caData: caData)
+                }
+
+                // Apply labels if available
+                try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
+                
+                _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+            }
+        } catch {
+            throw CommonRunTimeError.crtError(CRTError.makeFromLastError())
+        }
 
         // Configure client options
         let clientOptions = MqttClientOptions(

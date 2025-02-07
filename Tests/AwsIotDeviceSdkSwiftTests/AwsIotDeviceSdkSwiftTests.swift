@@ -321,6 +321,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
         try connectClient(client: mqttClient, testContext: context)
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
+
     
     func testMqttWebsocketWithCustomAuth() async throws {
         let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
