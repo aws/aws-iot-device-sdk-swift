@@ -37,7 +37,7 @@ struct PKCS12Sample: ParsableCommand {
         /**************************************
          * 1. Init library
          **************************************/
-        IoTDeviceSdk.initialize();
+        IotDeviceSdk.initialize();
         // Uncomment the following line to init debug log to help with debugging.
         try? Logger.initialize(target: .standardOutput, level: .debug)
         

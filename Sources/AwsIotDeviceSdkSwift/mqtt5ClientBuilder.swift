@@ -3,7 +3,6 @@
 
 import Foundation
 @_exported import AwsCommonRuntimeKit
-// import AwsCommonRuntimeKit
 
 fileprivate func getMetricsStr(currentUsername: String = "") -> String {
     // Check if the username being used already has a query

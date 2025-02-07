@@ -37,7 +37,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
         /**************************************
          * 1. Init library
          **************************************/
-        IotDeviceSDK.initialize();
+        IotDeviceSdk.initialize()
         // Uncomment the following line to init debug log to help with debugging.
         // try? Logger.initialize(target: .standardOutput, level: .debug)
         
