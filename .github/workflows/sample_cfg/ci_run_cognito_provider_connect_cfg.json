@@ -1,7 +1,7 @@
 {
     "language": "Swift",
-    "sample_file": "Samples/ConnectSample/CognitoProviderConnectSample",
-    "sample_product_name": "CognitoProviderConnectSample",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/CognitoProviderConnect",
+    "sample_product_name": "CognitoProviderConnect",
     "sample_region": "us-east-1",
     "sample_main_class": "",
     "arguments": [
