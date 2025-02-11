@@ -22,7 +22,7 @@ import AwsIotDeviceSdkSwift
 
 
 @main
-struct PKCS12Sample: ParsableCommand {
+struct CognitoWithWebsocketSample: ParsableCommand {
     /**************************************
     * 0. Sample only: Parse command line arguments
     **************************************/
