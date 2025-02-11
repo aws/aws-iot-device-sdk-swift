@@ -4,14 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "SignedCustomAuthConnect",
+    name: "CustomAuthConnect",
         platforms: [
         .iOS(.v13), 
         .macOS(.v10_15), 
         .tvOS(.v13)
     ],
     products: [
-        .executable(name: "SignedCustomAuthConnect", targets: ["SignedCustomAuthConnect"])
+        .executable(name: "CustomAuthConnect", targets: ["CustomAuthConnect"])
     ],
     dependencies: [
         .package(path: "../../../"), // TODO: DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
@@ -21,7 +21,7 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .executableTarget(
-            name: "SignedCustomAuthConnect",
+            name: "CustomAuthConnect",
             dependencies: [
                 .product(name: "AwsIotDeviceSdkSwift", package: "aws-iot-device-sdk-swift"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),

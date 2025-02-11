@@ -28,23 +28,23 @@ struct SignedCustomAuthSample: ParsableCommand {
     @Argument(help: "The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "Name of Custom Authorizer.")
+    @Argument(help: "Name of the Custom Authorizer.")
     var authroizerName: String
 
-    @Argument(help: "Username to connect with.")
+    @Argument(help: "Value of the username field that should be passed to the authorizer's lambda.")
     var authorizerUsername: String
 
-    @Argument(help: "Authorizer Password.")
+    @Argument(help: "Value of the password field to be passed to the authorizer's lambda.")
     var authorizerPassword: String
 
-    @Argument(help: "Token key name.")
-    var tokenKeyName: String
+    @Option(help: "Optional: Name of the username query param that will contain the token value.")
+    var tokenKeyName: String? = nil
 
-    @Argument(help: "Token key value.")
-    var tokenValue: String
+    @Option(help: "Optional: Value of the username query param that holds the token value that has been signed.")
+    var tokenValue: String? = nil
 
-    @Argument(help: "Authorizer signature.")
-    var authorizerSignature: String
+    @Option(help: "Optional: URI-encoded base64-encoded digital signature of tokenValue.")
+    var tokenSignature: String? = nil
 
     @Argument(help: "Client id to use (optional). Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
@@ -69,16 +69,29 @@ struct SignedCustomAuthSample: ParsableCommand {
             /**************************************
              * 2. Create Mqtt5ClientBuilder 
              **************************************/
-            // Create an Mqtt5ClientBuilder configured to connect using a signed custom authorizer
-            let clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
-                endpoint: endpoint,
-                authAuthorizerName: authroizerName,
-                authAuthorizerSignature: authorizerSignature,
-                authTokenKeyName: tokenKeyName,
-                authTokenValue: tokenValue,
-                authUsername: authorizerUsername,
-                authPassword: authorizerPassword.data(using: .utf8)!)
+            var clientBuilder: Mqtt5ClientBuilder? = nil
 
+            // If a tokenKeyName, tokenValue, and tokenSignature has been provided, initialize an Mqtt5ClientBuilder configured to
+            // connect using a signed custom authorizer.
+            if let _tokenKeyName = tokenKeyName, let _tokenValue = tokenValue, let _tokenSignature = tokenSignature {
+                clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
+                    endpoint: endpoint,
+                    authAuthorizerName: authroizerName,
+                    authAuthorizerSignature: _tokenSignature,
+                    authTokenKeyName: _tokenKeyName,
+                    authTokenValue: _tokenValue,
+                    authUsername: authorizerUsername,
+                    authPassword: authorizerPassword.data(using: .utf8)!)
+            }
+            // If optional token arguments are not provided, initialize an Mqtt5ClientBuilder configured to connect using
+            // an unsigned custom authorizer. 
+            else {
+                clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
+                    endpoint: endpoint,
+                    authAuthorizerName: authroizerName,
+                    authPassword: authorizerPassword.data(using: .utf8),
+                    authUsername: authorizerUsername)
+            }
 
             /**************************************
              * 3. Setup Callbacks and other options
@@ -104,22 +117,22 @@ struct SignedCustomAuthSample: ParsableCommand {
             }                                
 
             // Callbacks can be assigned all at once using `withCallbacks` on the Mqtt5ClientBuilder
-            clientBuilder.withCallbacks(onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
+            clientBuilder!.withCallbacks(onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
                                         onLifecycleEventConnectionSuccess: onLifecycleEventConnectionSuccess,
                                         onLifecycleEventConnectionFailure: onLifecycleEventConnectionFailure,
                                         onLifecycleEventDisconnection: onLifecycleEventDisconnection,
                                         onLifecycleEventStopped: onLifecycleEventStopped)
 
             // They can also be assinged individually
-            clientBuilder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)            
+            clientBuilder!.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)            
             
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
-            clientBuilder.withClientId(clientId);
+            clientBuilder!.withClientId(clientId);
 
             /**********************************************
              * 4. Create an Mqtt5 Client with Mqtt5ClientBuilder
              ***********************************************/
-            let client = try clientBuilder.build()
+            let client = try clientBuilder!.build()
             
             
             /**************************************
