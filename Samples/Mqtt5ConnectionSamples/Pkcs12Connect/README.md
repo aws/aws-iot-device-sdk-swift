@@ -1,0 +1,92 @@
+# PKCS12 Connect Sample
+
+[**Return to main sample list**](./README.md)
+
+This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using a PKCS12 file. 
+
+This sample uses the
+[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
+for AWS IoT to send and receive messages through an MQTT connection.
+
+Using the provided endpoint, PKCS12 file, and the PKCS12 file's password an `MQTT5ClientBuilder` is initialized using the `Mqtt5ClientBuilder.mtlsFromPKCS12()` func. A client id and various callbacks are set using the `MQTT5ClientBuilder`. The `Mqtt5ClientBuilder` is then used to create an `Mqtt5Client`. The client is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
+
+## Before running the sample
+
+* [What is AWS IOT?](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
+
+* Setup AWS account and [create AWS IoT Resource](https://docs.aws.amazon.com/iot/latest/developerguide/create-iot-resources.html): Make sure you download and save the certificate files from the creation.
+   
+* Check AWS IoT Policy
+
+   Your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html) must provide privileges for this sample to connect, subscribe, publish, and receive. Below is a sample policy that can be used on your IoT Core Thing that will allow this sample to run as intended.
+
+    For the purposes of this sample, please make sure your policy allows a client ID of `test-*` to connect or use `--client_id <client ID here>` to send the client ID your policy supports.
+
+   <details>
+    <summary>(see sample policy)</summary>
+    <pre>
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "iot:Connect"
+          ],
+          "Resource": [
+            "arn:aws:iot:<b>region</b>:<b>account</b>:client/test-*"
+          ]
+        }
+      ]
+    }
+    </pre>
+
+    Replace with the following with the data from your AWS account:
+    * `<region>`: The AWS IoT Core region where you created your AWS IoT Core thing you wish to use with this sample. For example `us-east-1`.
+    * `<account>`: Your AWS IoT Core account ID. This is the set of numbers in the top right next to your AWS account name when using the AWS IoT Core website.
+
+    Note that in a real application, you may want to avoid the use of wildcards in your ClientID or use them selectively. Please follow best practices when working with AWS on production applications using the SDK.
+
+    </details>
+
+### Preperation
+* Prepare your PKCS12 file and retreive its file location.
+### Build the sample
+```
+// The sample should be built from the Pkcs12Connect sample folder
+cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/Pkcs12Connect
+swift build
+```
+### Run the sample
+```
+swift run swift run Pkcs12Connect \
+    <endpoint> \
+    <pkcs12 file location> \
+    <pkcs12 password>
+```
+We also provide several extra options
+```
+OPTIONS:
+  --client_id <client_id> Client id to use (optional) (default: test-<UUID>).
+``` 
+Please make sure the client id you provide matches the client id set in your policy.
+
+## Troubleshooting
+### Enable logging in samples
+
+To enable logging in the samples, you need add the following line AFTER `IotDeviceSdk` has been initialized. The logger level has the following options: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, or `none`.
+```swift
+// The IoT Device SDK must be initialized before it is used.
+IotDeviceSdk.initialize();
+
+// This will turn on SDK and underlying CRT logging to assist in troubleshooting.
+Logger.initialize(target: .standardOutput, level: .debug)
+```
+
+### Others
+Please make sure to check out our resources too before opening an DISCUSSION:
+* [FAQ][WIP]
+* [IoT Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
+* Check for similar [Issues](https://github.com/aws/aws-iot-device-sdk-swift/issues)
+* [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
+* [Dev Blog](https://aws.amazon.com/blogs/?awsf.blog-master-iot=category-internet-of-things%23amazon-freertos%7Ccategory-internet-of-things%23aws-greengrass%7Ccategory-internet-of-things%23aws-iot-analytics%7Ccategory-internet-of-things%23aws-iot-button%7Ccategory-internet-of-things%23aws-iot-device-defender%7Ccategory-internet-of-things%23aws-iot-device-management%7Ccategory-internet-of-things%23aws-iot-platform)

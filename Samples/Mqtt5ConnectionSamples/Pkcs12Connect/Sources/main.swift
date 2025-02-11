@@ -49,9 +49,6 @@ struct PKCS12Sample: ParsableCommand {
          **************************************/
         // The IoT Device SDK must be initialized before it is used.
         IotDeviceSdk.initialize();
-
-        // Uncomment the following line to initialize logging to standard output.
-        // try? Logger.initialize(target: .standardOutput, level: .debug)
         
         do {
             /**************************************
