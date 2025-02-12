@@ -2,7 +2,7 @@
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using a Signed Custom Authorizer. 
+This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using a Custom Authorizer. 
 
 This sample uses the
 [Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
@@ -10,7 +10,7 @@ for AWS IoT to send and receive messages through an MQTT connection using MQTT5.
 
 [AWS IoT Core Custom Authentication](https://docs.aws.amazon.com/iot/latest/developerguide/custom-authentication.html) allows you to use a lambda to gate access to IoT Core resources. For this authentication method, you must supply an additional configuration structure containing fields relevant to AWS IoT Core Custom Authentication.
 
-Using the provided arguments an `MQTT5ClientBuilder` is initialized using either `Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer()` or `Mqtt5ClientBuilder.directWithSignedCustomAuthorizer()` func. The `MQTT5ClientBuilder` is used to set various callbacks and a client id. The `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. The `Mqtt5Client` is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
+The provided arguments are used to instantiate an `MQTT5ClientBuilder` with either `Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer()` or `Mqtt5ClientBuilder.directWithSignedCustomAuthorizer()`. The `MQTT5ClientBuilder` is used to set various callbacks and a client id. The `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. The `Mqtt5Client` is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
 
 ## Before running the sample
 
