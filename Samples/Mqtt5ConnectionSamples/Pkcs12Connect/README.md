@@ -29,22 +29,10 @@ swift build
 ```
 ### Run the sample
 ```
-// Unsigned Custom Authorizer
 swift run Pkcs12Connect \
     <endpoint> \
-    <authorizer-name> \
-    <authorizer-username> \
-    <authorizer-password>
-
-// Signed Custom Authorizer
-swift run Pkcs12Connect \
-    <endpoint> \
-    <authorizer-name> \
-    <authorizer-username> \
-    <authorizer-password> \
-    --token-key-name <token-key-name> \
-    --token-value <token-value> \
-    --token-signature <token-signature>
+    <pkcs12-path> \
+    <pkcs12-password>
 
 ```
 
