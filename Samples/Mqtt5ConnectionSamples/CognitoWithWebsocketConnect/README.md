@@ -82,7 +82,7 @@ For the purposes of this sample, please make sure your policy allows a client ID
 
 </details>
 
-### Cognito Identity ID
+### Retreiving Cognito Identity ID
 Once you have a Cognito identity pool, you can run the following CLI command to get the Cognito identity pool ID:
 ```
 aws cognito-identity get-id --identity-pool-id <cognito identity pool id>
