@@ -35,7 +35,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
     @Option(help: "Optional: Use an AWS Access Key ID to obtain credentials.")
     var accessKey: String? = nil
 
-    @Option(help: "Optional: Use use an AWS Secret Access Key to obtain credentials.")
+    @Option(help: "Optional: Use an AWS Secret Access Key to obtain credentials.")
     var secret: String? = nil
 
     @Option(help: "Optional: Use an AWS Session Token to obtain credentials.")
