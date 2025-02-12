@@ -1,6 +1,6 @@
 # PKCS12 Connect Sample
 
-[**Return to main sample list**](./README.md)
+[**Return to main sample list**](../../README.md)
 
 This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using a PKCS12 file. 
 
@@ -45,7 +45,7 @@ To enable logging in the samples, you need add the following line AFTER `IotDevi
 IotDeviceSdk.initialize();
 
 // This will turn on SDK and underlying CRT logging to assist in troubleshooting.
-Logger.initialize(target: .standardOutput, level: .debug)
+try Logger.initialize(target: .standardOutput, level: .debug)
 ```
 ### AWS IoT Policy
 Your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html) must provide privileges for this sample to connect. Below is a sample policy that can be used on your IoT Core Thing that will allow this sample to run as intended.

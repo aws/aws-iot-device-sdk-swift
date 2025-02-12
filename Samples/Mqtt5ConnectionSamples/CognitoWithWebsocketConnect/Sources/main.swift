@@ -13,7 +13,7 @@ import AwsIotDeviceSdkSwift
 // Here are the steps to setup a client and connect.
 // 0. Sample only: Parse command line arguments
 // 1. Initialize Device Sdk library
-// 2. Setup Cognito Provider
+// 2. Setup Credentials Provider
 // 3. Create Mqtt5ClientBuilder 
 // 4. Setup Callbacks and other options
 // 5. Create an Mqtt5 Client with Mqtt5ClientBuilder
@@ -59,7 +59,7 @@ struct CognitoWithWebsocketSample: ParsableCommand {
         
         do {
             /**************************************
-             * 2. Setup Cognito Provider
+             * 2. Setup Credentials Provider
              **************************************/
             let elg = try EventLoopGroup()
             let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
