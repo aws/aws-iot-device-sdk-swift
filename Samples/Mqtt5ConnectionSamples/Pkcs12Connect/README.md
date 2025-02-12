@@ -6,7 +6,7 @@ This sample demonstrates how to establish a Mqtt Connection against AWS IoT serv
 
 This sample uses the
 [Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection.
+for AWS IoT to send and receive messages through an MQTT connection using MQTT5.
 
 Using the provided endpoint, PKCS12 file, and the PKCS12 file's password an `MQTT5ClientBuilder` is initialized using the `Mqtt5ClientBuilder.mtlsFromPKCS12()` func. A client id and various callbacks are set using the `MQTT5ClientBuilder`. The `Mqtt5ClientBuilder` is then used to create an `Mqtt5Client`. The client is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
 
