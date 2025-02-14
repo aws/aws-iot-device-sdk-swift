@@ -76,7 +76,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
              // Create an Mqtt5ClientBuilder configured to connect using a Cognito Provider.
             let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
                 endpoint: self.endpoint, 
-                region: self.region!, 
+                region: self.region, 
                 credentialsProvider: cognitoProvider);
                 
             
