@@ -100,25 +100,20 @@ struct SignedCustomAuthSample: ParsableCommand {
             // The full list of callbacks and their uses can be found in the MQTT5 User Guide
             func onLifecycleEventStopped(_: LifecycleStoppedData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventStopped callback invoked.")
-                fflush(stdout)
                 stoppedSemaphore.signal()
             }
             func onLifecycleEventAttemptingConnect(_: LifecycleAttemptingConnectData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventAttemptingConnect callback invoked.")
-                fflush(stdout)
             }
             func onLifecycleEventConnectionSuccess(_ : LifecycleConnectionSuccessData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventConnectionSuccess callback invoked.")
-                fflush(stdout)
                 connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)")
-                fflush(stdout)
             }
             func onLifecycleEventDisconnection(disconnectionData: LifecycleDisconnectData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventDisconnection callback invoked with Error Code \(disconnectionData.crtError.code): \(disconnectionData.crtError.message)")
-                fflush(stdout)
             }                                
 
             // Callbacks can be assigned all at once using `withCallbacks` on the Mqtt5ClientBuilder
