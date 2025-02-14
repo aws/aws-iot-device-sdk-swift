@@ -30,7 +30,7 @@ struct X509MTLSConnectSample: ParsableCommand {
     var key: String
     
     @Argument(help: "Client id to use (optional). Please make sure the client id matches the policy.")
-    var client_id: String? = "test-" + UUID().uuidString
+    var clientId: String = "test-" + UUID().uuidString
     
     // The main function to run
     mutating func run() throws {
