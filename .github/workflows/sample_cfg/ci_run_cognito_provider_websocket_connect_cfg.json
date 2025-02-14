@@ -1,0 +1,21 @@
+{
+    "language": "Swift",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/CognitoWithWebsocketConnect",
+    "sample_product_name": "CognitoWithWebsocketConnect",
+    "sample_region": "us-east-1",
+    "sample_main_class": "",
+    "arguments": [
+        {
+            "secret": "ci/endpoint"
+        },
+        {
+            "data": "us-east-1"
+        },
+        {
+            "data": "cognito-identity.us-east-1.amazonaws.com"
+        },
+        {
+            "secret": "ci/Cognito/identity_id"
+        }
+    ]
+}
