@@ -12,6 +12,9 @@
             "secret": "ci/CustomAuthorizer/name"
         },
         {
+            "data": "derp"
+        },
+        {
             "secret": "ci/CustomAuthorizer/password"
         }
     ]
