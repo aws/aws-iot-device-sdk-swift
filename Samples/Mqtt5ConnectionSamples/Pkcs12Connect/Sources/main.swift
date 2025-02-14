@@ -29,7 +29,7 @@ struct PKCS12Sample: ParsableCommand {
     var endpoint: String
 
     @Argument(help: "Path to the pkcs12 file.")
-    var pkcs12Path: String
+    var pkcs12File: String
 
     @Argument(help: "Password for the pkcs12 file.")
     var pkcs12Password: String
@@ -55,7 +55,7 @@ struct PKCS12Sample: ParsableCommand {
              * 2. Create Mqtt5ClientBuilder 
              **************************************/
             // Create an Mqtt5ClientBuilder configured to connect using PKCS12
-            let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+            let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(pkcs12Path: pkcs12File, pkcs12Password: pkcs12Password, endpoint: endpoint)
 
 
             /**************************************
