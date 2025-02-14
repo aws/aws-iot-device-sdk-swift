@@ -44,8 +44,6 @@ jobs:
         permissions:
             id-token: write
             contents: read # This is required for actions/checkout
-        env: 
-          NSUnbufferedIO: YES
         steps:
             - name: Checkout Source
               uses: actions/checkout@v4
