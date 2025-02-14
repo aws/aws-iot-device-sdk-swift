@@ -9,11 +9,9 @@
             "secret": "ci/endpoint"
         },
         {
-            "name": "--pkcs12-file",
             "data": "./pkcs12-key.p12"
         },
         {
-            "name": "--pkcs12-password",
             "secret": "ci/PubSub/key_pkcs12_password"
         }
     ]
