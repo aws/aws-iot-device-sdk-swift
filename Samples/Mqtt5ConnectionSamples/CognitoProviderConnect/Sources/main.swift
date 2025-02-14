@@ -27,7 +27,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
     @Argument(help: "The endpoint to connect to.")
     var endpoint: String
         
-    @Option(help: "The signing region used for the websocket signer")
+    @Argument(help: "The signing region used for the websocket signer")
     var region: String
 
     @Argument(help: "The Cognito identity ID to use to connect via Cognito.")
