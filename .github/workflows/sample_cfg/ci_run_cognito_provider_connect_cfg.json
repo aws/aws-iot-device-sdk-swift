@@ -9,6 +9,9 @@
             "secret": "ci/endpoint"
         },
         {
+            "data": "us-east-1"
+        },
+        {
             "secret": "ci/Cognito/identity_id"
         }
     ]

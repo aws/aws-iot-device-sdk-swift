@@ -9,7 +9,7 @@ import Foundation
 import AwsIotDeviceSdkSwift
 
 
-// This sample creates an MQTT5 client and connects using a PKCS12 file.
+// This sample creates an MQTT5 client and connects using a Cognito Provider and a websocket.
 // Here are the steps to setup a client and connect.
 // 0. Sample only: Parse command line arguments
 // 1. Initialize Device Sdk library
@@ -32,9 +32,6 @@ struct CognitoWithWebsocketSample: ParsableCommand {
     @Argument(help: "The signing region used for the websocket signer.")
     var region: String
 
-    @Argument(help: "The Cognito Identity endpoint.")
-    var cognitoEndpoint: String
-
     @Argument(help: "The Cognito identity ID to use to connect via Cognito.")
     var cognitoIdentity: String
     
@@ -53,19 +50,21 @@ struct CognitoWithWebsocketSample: ParsableCommand {
          **************************************/
         // The IoT Device SDK must be initialized before it is used.
         IotDeviceSdk.initialize();
-
-        // Uncomment the following line to initialize logging to standard output.
-        // try? Logger.initialize(target: .standardOutput, level: .debug)
         
         do {
             /**************************************
              * 2. Setup Credentials Provider
              **************************************/
+            // Create bootstrap and tlsContext for the cognito provider
             let elg = try EventLoopGroup()
             let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
             let clientBootstrap = try ClientBootstrap(eventLoopGroup: elg, hostResolver: resolver)
+
             let tlsOptions = TLSContextOptions.makeDefault()
             let tlsContext = try TLSContext(options: tlsOptions, mode: .client)
+
+            let cognitoEndpoint = "cognito-identity." + self.region + ".amazonaws.com";
+            // Create the cognito provider
             let cognitoProvider = try CredentialsProvider(source: .cognito(bootstrap: clientBootstrap, 
                                                                            tlsContext: tlsContext, 
                                                                            endpoint: cognitoEndpoint, 
@@ -75,10 +74,11 @@ struct CognitoWithWebsocketSample: ParsableCommand {
             /**************************************
              * 3. Create Mqtt5ClientBuilder 
              **************************************/
-             // Create an Mqtt5ClientBuilder configured to connect using Cognito over a Websocket
-            let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(endpoint: endpoint, 
-                                                                                       region: region, 
-                                                                                       credentialsProvider: cognitoProvider)                        
+             // Create an Mqtt5ClientBuilder configured to connect using a Cognito Provider over a Websocket.
+            let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
+                endpoint: endpoint, 
+                region: region, 
+                credentialsProvider: cognitoProvider)                        
 
 
             /**************************************

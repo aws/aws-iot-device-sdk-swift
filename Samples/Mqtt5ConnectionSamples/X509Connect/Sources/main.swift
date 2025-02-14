@@ -1,11 +1,15 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0.
 
-import Foundation
-import AwsIotDeviceSdkSwift
+// ArgumentParser is used by the sample to parse arguments.
+// This is not a required import for the MQTT5 Client.
 import ArgumentParser
 
-// This sample shows how to create a mTLS MQTT connection session using the X509 certificate file and key file.
+import Foundation
+import AwsIotDeviceSdkSwift
+
+
+// This sample creates an MQTT5 client and connects using X509 certificate and private key files.
 // Here is the steps to setup a client and connection
 // 0. Sample only: Parse command line arguments
 // 1. Initialize Device Sdk library
@@ -14,12 +18,11 @@ import ArgumentParser
 // 4. Start the connection session
 // 5. Stop the connection session
 
-/**************************************
- * 0. Sample only: Parse command line arguments
- * Setup commandline arguments
- **************************************/
 @main
 struct X509MTLSConnectSample: ParsableCommand {
+    /**************************************
+    * 0. Sample only: Parse command line arguments
+    **************************************/    
     @Argument(help: "The endpoint to connect to.")
     var endpoint: String
     

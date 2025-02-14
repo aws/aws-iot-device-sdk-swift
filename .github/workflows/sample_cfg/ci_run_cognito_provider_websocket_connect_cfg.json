@@ -12,9 +12,6 @@
             "data": "us-east-1"
         },
         {
-            "data": "cognito-identity.us-east-1.amazonaws.com"
-        },
-        {
             "secret": "ci/Cognito/identity_id"
         }
     ]
