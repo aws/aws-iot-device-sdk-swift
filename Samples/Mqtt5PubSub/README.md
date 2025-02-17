@@ -1,14 +1,14 @@
-# Basic Connect Sample
+# Basic MQTT5 PubSub Sample
 
-[**Return to main sample list**](../../README.md)
+[**Return to main sample list**](../README.md)
 
-This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using X509 client certificates. 
+This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using X509 client certificates and then subscribe to and publish to a topic. 
 
 This sample uses the
 [Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
 for AWS IoT to send and receive messages through an MQTT connection.
 
-The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5ClientBuilder.mtlsFromPath()`. The `MQTT5ClientBuilder` is used to set various callbacks and a client id. The `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. The `Mqtt5Client` is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
+The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5ClientBuilder.mtlsFromPath()`. The `MQTT5ClientBuilder` is used to set various callbacks and a client id. The `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. The `Mqtt5Client` is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` subscribes to a topic using `subscribe()`, publishes to the same topic uqing `publish()`, receives and processes the `PublishReceivedData`, and then the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
 
 ## Before running the sample
 
@@ -18,11 +18,13 @@ The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5Cli
 * <b>key</b> - Path to private key file
 ### Optional Arguments:
 * <b>client-id</b> - Mqtt5 client id to use. If not provided, "test-<UUID>" will be used.
+* <b>topic</b> - Topic to subscribe and publish to. If not provided, "test/topic" will be used.
+* <b>payload-message</b> - Payload message to use in the publish packet. If not provided, "Sample payload message." will be used.
 
 ### Build the sample
 ```
 // The sample should be built from the sample's folder
-cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/X509Connect
+cd aws-iot-device-sdk-swift/Samples/Mqtt5PubSub
 
 // build the sample
 swift build
