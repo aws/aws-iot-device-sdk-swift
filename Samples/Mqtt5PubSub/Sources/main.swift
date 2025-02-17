@@ -152,30 +152,30 @@ struct Mqtt5PubSubSample: ParsableCommand {
             * 7. Publish to topic
             **************************************/
 
-            let publishPacket: PublishPacket = PublishPacket(
-                qos: QoS.atLeastOnce, 
-                topic: topic, payload: 
-                payloadMessage.data(using: .utf8))
+            // let publishPacket: PublishPacket = PublishPacket(
+            //     qos: QoS.atLeastOnce, 
+            //     topic: topic, payload: 
+            //     payloadMessage.data(using: .utf8))
             
-            // `publish()` is an async function that returns a `PublishResult``. We use a Task block here for the purpose of
-            // blocking while awaiting the `PublishResult`. The related DispatchSemaphore is signalled in the `onPublishReceived`
-            // callback function. In production you would use the `publish()` func asyncronously.
-            Task {
-                do {
-                    let publishResult: PublishResult = try await client.publish(publishPacket: publishPacket)
-                    if let puback = publishResult.puback {
-                        print("PubackPacket received with result \(puback.reasonCode)")
-                    } else {
-                        print("PublishResult missing.")
-                    }
-                } catch {
-                    print ("Error while publishing")
-                }
-            }
+            // // `publish()` is an async function that returns a `PublishResult``. We use a Task block here for the purpose of
+            // // blocking while awaiting the `PublishResult`. The related DispatchSemaphore is signalled in the `onPublishReceived`
+            // // callback function. In production you would use the `publish()` func asyncronously.
+            // Task {
+            //     do {
+            //         let publishResult: PublishResult = try await client.publish(publishPacket: publishPacket)
+            //         if let puback = publishResult.puback {
+            //             print("PubackPacket received with result \(puback.reasonCode)")
+            //         } else {
+            //             print("PublishResult missing.")
+            //         }
+            //     } catch {
+            //         print ("Error while publishing")
+            //     }
+            // }
 
-            // This DispatchSemaphore is waiting for the Mqtt5 client to receive the publish on the topic it has subscribed
-            // and then pushlished to.
-            publishSemaphore.wait()
+            // // This DispatchSemaphore is waiting for the Mqtt5 client to receive the publish on the topic it has subscribed
+            // // and then pushlished to.
+            // publishSemaphore.wait()
             
             /**************************************
              * 8. Stop the connection session
