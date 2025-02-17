@@ -37,11 +37,10 @@ struct X509MTLSConnectSample: ParsableCommand {
     
     // The main function to run
     mutating func run() throws {
-        // In this sample, we use boolean flags to wait for specific events.
-        // In a production environment, you should use the MQTT5 Client's asynchronous APIs
-        // instead of relying on blocking mechanisms.
-        var isConnected = false
-        var isStopped = false;
+        // We use DispatchSemaphore in the sample to wait for various lifecycle events before proceeding.
+        // You would not typically use them in this manner in your own production code.
+        let connectionSemaphore = DispatchSemaphore(value: 0)
+        let stoppedSemaphore = DispatchSemaphore(value: 0)
 
         /**************************************
          * 1. Initialize Device Sdk library
@@ -63,14 +62,14 @@ struct X509MTLSConnectSample: ParsableCommand {
             // The full list of callbacks and their uses can be found in the MQTT5 User Guide
             func onLifecycleEventStopped(_: LifecycleStoppedData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventStopped callback invoked.")
-                isStopped = true
+                stoppedSemaphore.signal()
             }
             func onLifecycleEventAttemptingConnect(_: LifecycleAttemptingConnectData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventAttemptingConnect callback invoked.")
             }
             func onLifecycleEventConnectionSuccess(_ : LifecycleConnectionSuccessData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventConnectionSuccess callback invoked.")
-                isConnected = true
+                connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)")
@@ -105,9 +104,8 @@ struct X509MTLSConnectSample: ParsableCommand {
             // If an attempt fails, the client will continue to attempt connections until it is instructed to `stop()`.
             try client.start()
 
-            while (!isConnected) {
-                // Awaiting onLifecycleEventConnectionSuccess callback.
-            }
+            // Wait for a successful connection before proceeding with the sample.
+            connectionSemaphore.wait()
             
             /**************************************
              * 5. Stop the connection session
@@ -116,9 +114,8 @@ struct X509MTLSConnectSample: ParsableCommand {
             // will disconnect and not attempt to connect until it is instructed to `start()`.
             try client.stop()
 
-            while (!isStopped) {
-                // Awaiting onLifecycleEventStopped callback.
-            }
+            // Wait for the client to be stopped before exiting the sample.
+            stoppedSemaphore.wait()
 
             print("Sample complete.")
         } catch {
