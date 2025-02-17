@@ -85,7 +85,7 @@ struct X509MTLSConnectSample: ParsableCommand {
                                         onLifecycleEventDisconnection: onLifecycleEventDisconnection,
                                         onLifecycleEventStopped: onLifecycleEventStopped)
 
-            // They can also be assinged individually
+            // They can also be assigned individually
             clientBuilder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)            
             
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
@@ -98,7 +98,7 @@ struct X509MTLSConnectSample: ParsableCommand {
             
             
             /**************************************
-             * 5. Start the connection session
+             * 4. Start the connection session
              **************************************/
             // `start()` will put the Mqtt5 Client in a state that desires to be connected. A connection attempt will be made.
             // If an attempt fails, the client will continue to attempt connections until it is instructed to `stop()`.
@@ -108,7 +108,7 @@ struct X509MTLSConnectSample: ParsableCommand {
             connectionSemaphore.wait()
             
             /**************************************
-             * 6. Stop the connection session
+             * 5. Stop the connection session
              **************************************/
             // `stop()` will put the Mqtt5 Client in a state that desires to be disconnected. If in a connected state, the client
             // will disconnect and not attempt to connect until it is instructed to `start()`.

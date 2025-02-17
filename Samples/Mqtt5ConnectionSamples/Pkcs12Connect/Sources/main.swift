@@ -88,7 +88,7 @@ struct PKCS12Sample: ParsableCommand {
                                         onLifecycleEventDisconnection: onLifecycleEventDisconnection,
                                         onLifecycleEventStopped: onLifecycleEventStopped)
 
-            // They can also be assinged individually
+            // They can also be assigned individually
             clientBuilder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)            
             
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
