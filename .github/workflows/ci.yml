@@ -63,15 +63,15 @@ jobs:
             - name: run X509Connect sample
               run: |
                 source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_x509_cert_connect_cfg.json
-            - name: run Mqtt5PubSub sample
-              run: |
-                source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_pubsub_cfg.json
+                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_x509_cert_connect_cfg.json            
             - name: run Sigv4Auth Sample
               run: |
                 source .venv/bin/activate
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_sigv4_websocket_connect_cfg.json
+            - name: run Mqtt5PubSub sample
+              run: |
+                source .venv/bin/activate
+                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_pubsub_cfg.json
             - name: run CustomAuth Sample
               run: |
                 source .venv/bin/activate
