@@ -127,7 +127,7 @@ struct Mqtt5PubSubSample: ParsableCommand {
             try client.start()
 
             // Wait for a successful connection before proceeding with the sample.
-            connectionSemaphore.wait()
+            // connectionSemaphore.wait()
 
 
             /**************************************
