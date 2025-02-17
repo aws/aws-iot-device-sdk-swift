@@ -1,7 +1,7 @@
 {
     "language": "Swift",
-    "sample_file": "Samples/Mqtt5ConnectionSamples/CognitoWithWebsocketConnect",
-    "sample_product_name": "CognitoWithWebsocketConnect",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/CognitoWebsocketConnect",
+    "sample_product_name": "CognitoWebsocketConnect",
     "sample_region": "us-east-1",
     "sample_main_class": "",
     "arguments": [

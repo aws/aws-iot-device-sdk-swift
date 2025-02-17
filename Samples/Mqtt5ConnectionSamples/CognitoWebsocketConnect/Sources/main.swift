@@ -8,8 +8,9 @@ import ArgumentParser
 import Foundation
 import AwsIotDeviceSdkSwift
 
-// This sample creates an MQTT5 client and connects using a Cognito Provider.
-// Here is the steps to setup a client and connection
+
+// This sample creates an MQTT5 client and connects using a Cognito Provider and a websocket.
+// Here are the steps to setup a client and connect.
 // 0. Sample only: Parse command line arguments
 // 1. Initialize Device Sdk library
 // 2. Setup Credentials Provider
@@ -19,15 +20,16 @@ import AwsIotDeviceSdkSwift
 // 6. Start the connection session
 // 7. Stop the connection session
 
+
 @main
-struct CognitoProviderConnectSample: ParsableCommand {
+struct CognitoWebsocketSample: ParsableCommand {
     /**************************************
     * 0. Sample only: Parse command line arguments
     **************************************/
     @Argument(help: "The endpoint to connect to.")
     var endpoint: String
-        
-    @Argument(help: "The signing region used for the websocket signer")
+
+    @Argument(help: "The signing region used for the websocket signer.")
     var region: String
 
     @Argument(help: "The Cognito identity ID to use to connect via Cognito.")
@@ -42,7 +44,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
         // You would not typically use them in this manner in your own production code.
         let connectionSemaphore = DispatchSemaphore(value: 0)
         let stoppedSemaphore = DispatchSemaphore(value: 0)
-
+        
         /**************************************
          * 1. Initialize Device Sdk library
          **************************************/
@@ -56,30 +58,29 @@ struct CognitoProviderConnectSample: ParsableCommand {
             // Create bootstrap and tlsContext for the cognito provider
             let elg = try EventLoopGroup()
             let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
-            let clientBootstrap = try ClientBootstrap(eventLoopGroup: elg,hostResolver: resolver)
-            
-            let options = TLSContextOptions.makeDefault()
-            let tlsContext = try TLSContext(options: options, mode: .client)
+            let clientBootstrap = try ClientBootstrap(eventLoopGroup: elg, hostResolver: resolver)
+
+            let tlsOptions = TLSContextOptions.makeDefault()
+            let tlsContext = try TLSContext(options: tlsOptions, mode: .client)
 
             let cognitoEndpoint = "cognito-identity." + self.region + ".amazonaws.com";
             // Create the cognito provider
-            let cognitoProvider = try CredentialsProvider(source: .cognito(
-                bootstrap: clientBootstrap, 
-                tlsContext: tlsContext, 
-                endpoint: cognitoEndpoint, 
-                identity: self.cognitoIdentity))     
+            let cognitoProvider = try CredentialsProvider(source: .cognito(bootstrap: clientBootstrap, 
+                                                                           tlsContext: tlsContext, 
+                                                                           endpoint: cognitoEndpoint, 
+                                                                           identity: cognitoIdentity))
 
 
             /**************************************
              * 3. Create Mqtt5ClientBuilder 
              **************************************/
-             // Create an Mqtt5ClientBuilder configured to connect using a Cognito Provider.
+             // Create an Mqtt5ClientBuilder configured to connect using a Cognito Provider over a Websocket.
             let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-                endpoint: self.endpoint, 
-                region: self.region, 
-                credentialsProvider: cognitoProvider);
-                
-            
+                endpoint: endpoint, 
+                region: region, 
+                credentialsProvider: cognitoProvider)                        
+
+
             /**************************************
              * 4. Setup Callbacks and other options
              **************************************/
@@ -115,8 +116,7 @@ struct CognitoProviderConnectSample: ParsableCommand {
             
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
             clientBuilder.withClientId(clientId);
-            
-            
+
             /**********************************************
              * 5. Create an Mqtt5 Client with Mqtt5ClientBuilder
              ***********************************************/
@@ -148,6 +148,5 @@ struct CognitoProviderConnectSample: ParsableCommand {
         } catch {
             print("Failed to setup client.")
         }
-        
     }
 }
