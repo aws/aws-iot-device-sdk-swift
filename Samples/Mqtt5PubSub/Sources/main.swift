@@ -46,6 +46,7 @@ struct Mqtt5PubSubSample: ParsableCommand {
     
     // The main function to run
     mutating func run() throws {
+        print("Starting Mqtt5PubSub Sample.")
         // We use DispatchSemaphore in the sample to wait for various lifecycle events before proceeding.
         // You would not typically use them in this manner in your own production code.
         let connectionSemaphore = DispatchSemaphore(value: 0)
