@@ -361,6 +361,7 @@ def setup_sample_and_launch(parsed_commands):
     return launch_sample()
 
 def main():
+    print("Executing run_sample_ci.py script.")
     argument_parser = argparse.ArgumentParser(
         description="Run Sample in CI")
     argument_parser.add_argument("--file", required=True, help="Configuration file to pull CI data from")
