@@ -1,6 +1,6 @@
 {
     "language": "Swift",
-    "sample_file": "Samples/Mqtt5PubSub/Mqtt5PubSub",
+    "sample_file": "Samples/Mqtt5PubSub",
     "sample_product_name": "Mqtt5PubSub",
     "sample_region": "us-east-1",
     "sample_main_class": "",
