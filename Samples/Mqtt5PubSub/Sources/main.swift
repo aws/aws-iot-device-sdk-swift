@@ -50,9 +50,9 @@ struct Mqtt5PubSubSample: ParsableCommand {
         // In a production environment, you should use the MQTT5 Client's asynchronous APIs
         // instead of relying on blocking mechanisms.
         var isConnected = false
-        var isSubscribed = false;
-        var isPublish = false;
         var isStopped = false;
+        let subscribedSemaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
+        let publishedSempahore: DispatchSemaphore = DispatchSemaphore(value: 0)
 
         /**************************************
          * 1. Initialize Device Sdk library
@@ -95,7 +95,7 @@ struct Mqtt5PubSubSample: ParsableCommand {
                 if let payloadString = publishData.publishPacket.payloadAsString() {
                     print("Publish packet received with payload: \(payloadString)")
                 }
-                isPublish = true
+                publishedSempahore.signal()
             }
 
             // Callbacks can be assigned all at once using `withCallbacks` on the Mqtt5ClientBuilder
@@ -145,12 +145,10 @@ struct Mqtt5PubSubSample: ParsableCommand {
                 } catch {
                     print("Error while subscribing")
                 }
-                isSubscribed = true
+                subscribedSemaphore.signal()
             }
             
-            while (!isSubscribed) {
-                // Awaiting subscription.
-            }
+            subscribedSemaphore.wait()
 
             /**************************************
             * 7. Publish to topic
@@ -177,9 +175,7 @@ struct Mqtt5PubSubSample: ParsableCommand {
                 }
             }
 
-            while (!isPublish) {
-                // Awaiting publish.
-            }
+            publishedSempahore.wait()
             
             /**************************************
              * 8. Stop the connection session
