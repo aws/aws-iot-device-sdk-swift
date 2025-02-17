@@ -50,7 +50,7 @@ struct Mqtt5PubSubSample: ParsableCommand {
         // You would not typically use them in this manner in your own production code.
         let connectionSemaphore = DispatchSemaphore(value: 0)
         let stoppedSemaphore = DispatchSemaphore(value: 0)
-        // let subscribeSemaphore = DispatchSemaphore(value: 0)
+        let subscribeSemaphore = DispatchSemaphore(value: 0)
         let publishSemaphore = DispatchSemaphore(value: 0)
 
         /**************************************
@@ -132,50 +132,50 @@ struct Mqtt5PubSubSample: ParsableCommand {
              * 6. Subscribe to topic
              **************************************/
 
-            // let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: topic, qos: QoS.atLeastOnce)
-            // // `subscribe()` is an async function that returns a `SubackPacket``. We use a Task block here for the purpose of
-            // // blocking while awaiting the `SubackPacket`` and triggering the DispatchSemaphore. In production you would use
-            // // the `subscribe()` func asyncronously.
-            // Task { 
-            //     do {
-            //         let subackPacket: SubackPacket = try await client.subscribe(subscribePacket: subscribePacket)
-            //         print("SubackPacket received with result \(subackPacket.reasonCodes[0])")
-            //     } catch {
-            //         print("Error while subscribing")
-            //     }
-            //     subscribeSemaphore.signal()
-            // }
+            let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: topic, qos: QoS.atLeastOnce)
+            // `subscribe()` is an async function that returns a `SubackPacket``. We use a Task block here for the purpose of
+            // blocking while awaiting the `SubackPacket`` and triggering the DispatchSemaphore. In production you would use
+            // the `subscribe()` func asyncronously.
+            Task { 
+                do {
+                    let subackPacket: SubackPacket = try await client.subscribe(subscribePacket: subscribePacket)
+                    print("SubackPacket received with result \(subackPacket.reasonCodes[0])")
+                } catch {
+                    print("Error while subscribing")
+                }
+                subscribeSemaphore.signal()
+            }
             
-            // subscribeSemaphore.wait()
+            subscribeSemaphore.wait()
 
             /**************************************
             * 7. Publish to topic
             **************************************/
 
-            // let publishPacket: PublishPacket = PublishPacket(
-            //     qos: QoS.atLeastOnce, 
-            //     topic: topic, payload: 
-            //     payloadMessage.data(using: .utf8))
+            let publishPacket: PublishPacket = PublishPacket(
+                qos: QoS.atLeastOnce, 
+                topic: topic, payload: 
+                payloadMessage.data(using: .utf8))
             
-            // // `publish()` is an async function that returns a `PublishResult``. We use a Task block here for the purpose of
-            // // blocking while awaiting the `PublishResult`. The related DispatchSemaphore is signalled in the `onPublishReceived`
-            // // callback function. In production you would use the `publish()` func asyncronously.
-            // Task {
-            //     do {
-            //         let publishResult: PublishResult = try await client.publish(publishPacket: publishPacket)
-            //         if let puback = publishResult.puback {
-            //             print("PubackPacket received with result \(puback.reasonCode)")
-            //         } else {
-            //             print("PublishResult missing.")
-            //         }
-            //     } catch {
-            //         print ("Error while publishing")
-            //     }
-            // }
+            // `publish()` is an async function that returns a `PublishResult``. We use a Task block here for the purpose of
+            // blocking while awaiting the `PublishResult`. The related DispatchSemaphore is signalled in the `onPublishReceived`
+            // callback function. In production you would use the `publish()` func asyncronously.
+            Task {
+                do {
+                    let publishResult: PublishResult = try await client.publish(publishPacket: publishPacket)
+                    if let puback = publishResult.puback {
+                        print("PubackPacket received with result \(puback.reasonCode)")
+                    } else {
+                        print("PublishResult missing.")
+                    }
+                } catch {
+                    print ("Error while publishing")
+                }
+            }
 
-            // // This DispatchSemaphore is waiting for the Mqtt5 client to receive the publish on the topic it has subscribed
-            // // and then pushlished to.
-            // publishSemaphore.wait()
+            // This DispatchSemaphore is waiting for the Mqtt5 client to receive the publish on the topic it has subscribed
+            // and then pushlished to.
+            publishSemaphore.wait()
             
             /**************************************
              * 8. Stop the connection session

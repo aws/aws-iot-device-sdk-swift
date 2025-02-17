@@ -11,7 +11,7 @@ import json
 # Needs to be installed via pip
 import boto3  # - for launching sample
 
-print ("run_sample_ci.py script starting.")
+print ("run_sample_ci.py script starting.", flush=True)
 
 current_folder = os.path.dirname(pathlib.Path(__file__).resolve())
 if sys.platform == "win32" or sys.platform == "cygwin":
@@ -29,7 +29,7 @@ def setup_json_arguments_list(parsed_commands):
     global config_json
     global config_json_arguments_list
 
-    print("Attempting to get credentials from secrets using Boto3...")
+    print("Attempting to get credentials from secrets using Boto3...", flush=True)
     secrets_client = boto3.client("secretsmanager", region_name=config_json['sample_region'])
     print ("Processing arguments...")
 
@@ -267,7 +267,7 @@ def launch_sample():
 
     exit_code = 0
 
-    print("Launching sample...")
+    print("Launching sample...", flush=True)
 
     # Java
     if (config_json['language'] == "Java"):
@@ -359,7 +359,7 @@ def setup_sample_and_launch(parsed_commands):
     if setup_result != 0:
         return setup_result
 
-    print ("About to launch sample...")
+    print ("About to launch sample...", flush=True)
     return launch_sample()
 
 def main():
@@ -369,7 +369,7 @@ def main():
     argument_parser.add_argument("--input_uuid", required=False, help="UUID data to replace '$INPUT_UUID' with. Only works in Data field")
     parsed_commands = argument_parser.parse_args()
 
-    print("Starting to launch sample...")
+    print("Starting to launch sample...", flush=True)
     sample_result = setup_sample_and_launch(parsed_commands)
     sys.exit(sample_result)
 
