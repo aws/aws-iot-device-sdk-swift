@@ -46,20 +46,19 @@ struct Mqtt5PubSubSample: ParsableCommand {
     
     // The main function to run
     mutating func run() throws {
-        print("Starting Mqtt5PubSub Sample.")
-        // We use DispatchSemaphore in the sample to wait for various lifecycle events before proceeding.
-        // You would not typically use them in this manner in your own production code.
-        let connectionSemaphore = DispatchSemaphore(value: 0)
-        let stoppedSemaphore = DispatchSemaphore(value: 0)
-        let subscribeSemaphore = DispatchSemaphore(value: 0)
-        let publishSemaphore = DispatchSemaphore(value: 0)
+        // In this sample, we use boolean flags to wait for specific events.
+        // In a production environment, you should use the MQTT5 Client's asynchronous APIs
+        // instead of relying on blocking mechanisms.
+        var isConnected = false
+        var isSubscribed = false;
+        var isPublish = false;
+        var isStopped = false;
 
         /**************************************
          * 1. Initialize Device Sdk library
          **************************************/
         // The IoT Device SDK must be initialized before it is used.
         IotDeviceSdk.initialize();
-        try Logger.initialize(target: .standardOutput, level: .debug)
         
         do {
             /**************************************
@@ -75,14 +74,14 @@ struct Mqtt5PubSubSample: ParsableCommand {
             // The full list of callbacks and their uses can be found in the MQTT5 User Guide
             func onLifecycleEventStopped(_: LifecycleStoppedData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventStopped callback invoked.")
-                stoppedSemaphore.signal()
+                isStopped = true
             }
             func onLifecycleEventAttemptingConnect(_: LifecycleAttemptingConnectData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventAttemptingConnect callback invoked.")
             }
             func onLifecycleEventConnectionSuccess(_ : LifecycleConnectionSuccessData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventConnectionSuccess callback invoked.")
-                connectionSemaphore.signal()
+                isConnected = true
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)")
@@ -96,7 +95,7 @@ struct Mqtt5PubSubSample: ParsableCommand {
                 if let payloadString = publishData.publishPacket.payloadAsString() {
                     print("Publish packet received with payload: \(payloadString)")
                 }
-                publishSemaphore.signal()
+                isPublish = true
             }
 
             // Callbacks can be assigned all at once using `withCallbacks` on the Mqtt5ClientBuilder
@@ -116,18 +115,19 @@ struct Mqtt5PubSubSample: ParsableCommand {
             /**********************************************
              * 3. Create Mqtt5 Client with Mqtt5ClientBuilder
              ***********************************************/
-            let client = try clientBuilder.build()
-            
-            
+            let client = try clientBuilder.build() 
+
+
             /**************************************
              * 4. Start the connection session
              **************************************/
             // `start()` will put the Mqtt5 Client in a state that desires to be connected. A connection attempt will be made.
             // If an attempt fails, the client will continue to attempt connections until it is instructed to `stop()`.
             try client.start()
-
-            // Wait for a successful connection before proceeding with the sample.
-            // connectionSemaphore.wait()
+            
+            while (!isConnected) {
+                // Awaiting onLifecycleEventConnectionSuccess callback.
+            }
 
 
             /**************************************
@@ -145,10 +145,12 @@ struct Mqtt5PubSubSample: ParsableCommand {
                 } catch {
                     print("Error while subscribing")
                 }
-                subscribeSemaphore.signal()
+                isSubscribed = true
             }
             
-            subscribeSemaphore.wait()
+            while (!isSubscribed) {
+                // Awaiting subscription.
+            }
 
             /**************************************
             * 7. Publish to topic
@@ -175,9 +177,9 @@ struct Mqtt5PubSubSample: ParsableCommand {
                 }
             }
 
-            // This DispatchSemaphore is waiting for the Mqtt5 client to receive the publish on the topic it has subscribed
-            // and then pushlished to.
-            publishSemaphore.wait()
+            while (!isPublish) {
+                // Awaiting publish.
+            }
             
             /**************************************
              * 8. Stop the connection session
@@ -186,8 +188,9 @@ struct Mqtt5PubSubSample: ParsableCommand {
             // will disconnect and not attempt to connect until it is instructed to `start()`.
             try client.stop()
 
-            // Wait for the client to be stopped before exiting the sample.
-            stoppedSemaphore.wait()
+            while (!isStopped) {
+                // Awaiting onLifecycleEventStopped callback.
+            }
 
             print("Sample complete.")
         } catch {
