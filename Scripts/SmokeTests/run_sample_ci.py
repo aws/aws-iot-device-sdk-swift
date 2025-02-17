@@ -11,6 +11,8 @@ import json
 # Needs to be installed via pip
 import boto3  # - for launching sample
 
+print ("run_sample_ci.py script starting.")
+
 current_folder = os.path.dirname(pathlib.Path(__file__).resolve())
 if sys.platform == "win32" or sys.platform == "cygwin":
     current_folder += "\\"
