@@ -12,7 +12,7 @@
             "data": "./pkcs12-key.p12"
         },
         {
-            "secret": "ci/PubSub/key_pkcs12_password"
+            "data": "derp"
         }
     ]
 }
