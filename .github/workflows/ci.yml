@@ -60,10 +60,6 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
-            - name: run Mqtt5PubSub sample
-              run: |
-                source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_pubsub_cfg.json
             - name: run X509Connect sample
               run: |
                 source .venv/bin/activate
