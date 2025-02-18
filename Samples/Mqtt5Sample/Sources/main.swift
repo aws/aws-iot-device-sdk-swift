@@ -26,7 +26,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
     @Argument(help: "Client id to use (optional). Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
-    // Displays available Commands
+    /// Displays available Commands
     func showMenu() {
         print("""
 
@@ -43,25 +43,14 @@ struct Mqtt5Sample: AsyncParsableCommand {
     }
     
     mutating func run() async throws {
-
-        /**************************************
-         * Initialize Device Sdk library
-         **************************************/
         // The IoT Device SDK must be initialized before it is used.
         IotDeviceSdk.initialize();
         
         do {
-            let clientId: String = "test-" + UUID().uuidString
-            /**************************************
-             * Create Mqtt5ClientBuilder 
-             **************************************/
             // Create an Mqtt5ClientBuilder configured to connect using a certificate and private key.
             let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(certPath: self.cert, keyPath: self.key, endpoint: self.endpoint)
 
-            /**************************************
-             * Setup Callbacks and other options
-             **************************************/
-            // Callbacks to be assigned to builder
+            // Callbacks to be assigned to the builder
             // The full list of callbacks and their uses can be found in the MQTT5 User Guide
             func onLifecycleEventStopped(_: LifecycleStoppedData) async -> Void {
                 print("Mqtt5Client: onLifecycleEventStopped callback invoked.")
@@ -103,10 +92,13 @@ struct Mqtt5Sample: AsyncParsableCommand {
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
             clientBuilder.withClientId(clientId);
             
+            // The configured Mqtt5ClientBuilder is used to create an Mqtt5Client.
             let client = try clientBuilder.build() 
             
+            // Display commands.
             showMenu()
 
+            // Enter the interactive loop.
             await interactiveLoop(client: client)
 
         } catch {
@@ -153,31 +145,36 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 switch lowercasedInput {
                 case "help":
                     showMenu()
+
                 case "start":
-                    print("Setting Mqtt5 Client to connect.")
+                    print("Connecting Mqtt5 Client.")
                     do { 
                         try client.start()
                     } catch {
                         print("Failed to start client.")
                     }
+
                 case "stop":
-                    print("Setting Mqtt5 Client to disconnect.")
+                    print("Disconnecting Mqtt5 Client.")
                     do {
                         try client.stop()
                     } catch {
                         print("Failed to stop client.")
                     }
+
                 case "exit":
                     print("Exiting MQTT5 Sample")
                     shouldExit = true
                 case "quit":
                     print("Exiting MQTT5 Sample")
                     shouldExit = true
+
                 default:
+                let tokens = input.split(separator: " ")
+
                 // Check if the command begins with "publish"
                 if lowercasedInput.hasPrefix("publish") {
                     // Expected format: publish <qos> <topic> <payload text>...
-                    let tokens = input.split(separator: " ")
                     guard tokens.count >= 4 else {
                         print("Invalid publish command. Format: publish <qos> <topic> <payload text>")
                         break
@@ -190,6 +187,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     
                     // Parse the qos level (supporting qos0 and qos1 for example)
                     if let qos = getQoS(token: qosToken.lowercased()){
+                        // Create a PublishPacket and use the Mqtt5 Client to publish.
                         Task {
                             do {
                                 let payloadData = Data(payloadString.utf8)
@@ -207,7 +205,6 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 // Check if the command begins with "subscribe"
                 else if lowercasedInput.hasPrefix("subscribe") {
                     // Expected format: subscribe <qos> <topic>
-                    let tokens = input.split(separator: " ")
                     guard tokens.count == 3 else {
                         print("Invalid subscribe command. Format: subscribe <qos> <topic>")
                         break
@@ -218,6 +215,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     let topic = String(tokens[2])
                     // Parse the qos level (supporting qos0 and qos1 for example)
                     if let qos = getQoS(token: qosToken.lowercased()){
+                        // Create a SubscribePacket and use the Mqtt5 Client to subscribe.
                         Task {
                             do {
                                 let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: topic, qos: qos)
@@ -232,7 +230,6 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 // Check if the command begins with "unsubscribe"
                 else if lowercasedInput.hasPrefix("unsubscribe") {
                     // Expected format: unsubscribe <topic>
-                    let tokens = input.split(separator: " ")
                     guard tokens.count == 2 else {
                         print("Invalid unsubscribe command. Formant: unsubscribe <topic>")
                         break
@@ -240,6 +237,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
 
                     // tokens[0] is "unsubscribe", tokens[1] is the topic.
                     let topic = String(tokens[1])
+                    // Create an UnsubscribePacket and use the Mqtt5 Client to unsubscribe.
                     Task {
                         do {
                             let unsubscribePacket: UnsubscribePacket = UnsubscribePacket(topicFilter: topic)
