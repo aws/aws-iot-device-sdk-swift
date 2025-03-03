@@ -7,7 +7,7 @@
  * Initializes the library.
  * `IotDeviceSdk.initialize` must be called before using any other functionality.
  */
-public struct IoTDeviceSdk {
+public struct IotDeviceSdk {
 
     /// Initializes the library.
     /// Must be called before using any other functionality.
