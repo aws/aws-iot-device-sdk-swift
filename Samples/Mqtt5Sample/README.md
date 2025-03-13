@@ -12,6 +12,12 @@ The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5Cli
 
 ## Before running the sample
 
+### Setup an AWS Account:
+If you do not have an AWS account, complete [these steps](https://docs.aws.amazon.com/iot/latest/developerguide/setting-up.html) to create one. This will provide you an account specific endpoint.
+
+### Understand IoT:
+The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
+
 ### Required Arguments:
 * <b>endpoint</b> - account specific endpoint
 * <b>cert</b> - Path to certificate file
@@ -31,15 +37,15 @@ swift build
 ```
 ### Run the sample
 ```
-swift run X509Connect \
+swift run Mqtt5Sample \
     <endpoint> \
     <certificate path> \
     <private key path>
 ```
 
 ### Available Commands
-* <b>start</b> - Instructs the Mqtt5 Client to connect.
-* <b>stop</b> - Instructs the Mqtt5 Client to disconnect.
+* <b>start</b> - Instructs the Mqtt5 Client to start a session.
+* <b>stop</b> - Instructs the Mqtt5 Client to stop a session.
 * <b>subscribe</b> - format: `subscribe <qos> <topic>` Subscribes to a topic.
 * <b>unsubscribe</b> - format: `unsubscribe <topic>` Unsubscribes from a topic.
 * <b>publish</b> - format: `publish <qos> <topic> <payload text>` Publishes to a topic.
@@ -48,7 +54,7 @@ swift run X509Connect \
 #### Exmaple
 ```
 start
-// Client attempts to connect and emits lifecycle events reporting its progress.
+// Client attempts to start a session. It will try to connect and emit lifecycle events reporting its progress.
 
 subscribe qos1 test/topic
 // Client subscribes to topic "test/topic" with QoS1. A Suback packet will be logged if available.
@@ -62,7 +68,7 @@ unsubscribe test/topic
 // Client unsubscribes from topic "test/topic". An Unsuback packet will be logged if available.
 
 stop
-// Client will disconnect and emit lifecycle events reporting its progress
+// Client will end its session. It will disconnect and emit lifecycle events reporting its progress
 ```
 
 ## Troubleshooting
@@ -76,8 +82,8 @@ IotDeviceSdk.initialize();
 // This will turn on SDK and underlying CRT logging to assist in troubleshooting.
 try Logger.initialize(target: .standardOutput, level: .debug)
 ```
-### AWS IoT Policy
-Your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html) must provide privileges for this sample to connect. Below is a sample policy that can be used on your IoT Core Thing that will allow this sample to run as intended.
+### I'm getting Error code 5134: AWS_ERROR_MQTT_UNEXPECTED_HANGUP
+This error is most likely due to your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html) must provide privileges for this sample to connect. Below is a sample policy that can be used on your IoT Core Thing that will allow this sample to run as intended.
 
 For the purposes of this sample, please make sure your policy allows all IoT actions when running the sample. Wildcard resource permission is not recommended in production.
 

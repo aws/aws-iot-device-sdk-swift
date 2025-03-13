@@ -5,5 +5,4 @@
     * [Direct MQTT with PKCS12](./Mqtt5ConnectionSamples/Pkcs12Connect/README.md)
     * [MQTT over Websockets with Sigv4 Authentication](./Mqtt5ConnectionSamples/Sigv4WebsocketConnect/README.md)
     * [Direct MQTT with Custom Authentication](./Mqtt5ConnectionSamples/CustomAuthConnect/README.md)
-    * [MQTT with Cognito](./Mqtt5ConnectionSamples/CognitoProviderConnect/README.md)
-    * [MQTT over Websockets with Cognito](./Mqtt5ConnectionSamples/CognitoWithWebsocketConnect/README.md)
+    * [MQTT over Websockets with Cognito](./Mqtt5ConnectionSamples/CognitoWebsocketConnect/README.md)
