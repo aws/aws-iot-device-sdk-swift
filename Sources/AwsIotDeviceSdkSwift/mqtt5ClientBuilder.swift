@@ -23,6 +23,7 @@ private func appendToUsernameParameter(
     }
 }
 
+///A utility class used to build an MQTT5 Client configured for use with AWS IoT Core.
 public class Mqtt5ClientBuilder {
 
     private var _endpoint: String? = nil
@@ -108,7 +109,6 @@ public class Mqtt5ClientBuilder {
         _endpoint = endpoint
         _port = 443
         _clientBootstrap = bootstrap
-
         let signingConfig = SigningConfig(
             algorithm: SigningAlgorithmType.signingV4,
             signatureType: SignatureType.requestQueryParams,
@@ -218,6 +218,14 @@ public class Mqtt5ClientBuilder {
         }
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key file paths.
+    ///
+    /// - Parameters:
+    ///   - certPath: Path to certificate file.
+    ///   - keyPath: Path to private key file.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromPath(
         certPath: String,
         keyPath: String,
@@ -227,6 +235,14 @@ public class Mqtt5ClientBuilder {
         return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key data.
+    ///
+    /// - Parameters:
+    ///   - certData: Certificate file bytes.
+    ///   - keyData: Private key bytes.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromData(
         certData: Data,
         keyData: Data,
@@ -236,6 +252,14 @@ public class Mqtt5ClientBuilder {
         return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using a PKCS12 file.
+    ///
+    /// - Parameters:
+    ///   - pkcs12Path: Path to the PKCS12 file to use
+    ///   - pkcs12Password: The password for the PKCS12 file.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromPKCS12(
         pkcs12Path: String,
         pkcs12Password: String,
@@ -355,7 +379,7 @@ public class Mqtt5ClientBuilder {
     ///
     /// - Parameters:
     ///   - onPublishReceived: Callback invoked for all publish packets received by client.
-    ///   - onLifecycleEventConnectionAttempt : Callback invoked for Lifecycle Event Attempting Connect.
+    ///   - onLifecycleEventAttemptingConnect : Callback invoked for Lifecycle Event Attempting Connect.
     ///   - onLifecycleEventConnectionSuccess: Callback invoked for Lifecycle Event Connection Success.
     ///   - onLifecycleEventConnectionFailure: Callback invoked for Lifecycle Event Connection Failure.
     ///   - onLifecycleEventDisconnection: Callback invoked for Lifecycle Event Disconnection.
@@ -377,34 +401,52 @@ public class Mqtt5ClientBuilder {
         withOnLifecycleEventStopped(onLifecycleEventStopped)
     }
 
+    /// Set callback invoked for all publish packets received by client.
+    ///
+    /// - Parameter onPublishReceived: Callback invoked for all publish packets received by client.
     public func withOnPublishReceived(_ onPublishReceived: OnPublishReceived?) {
         _onPublishReceived = onPublishReceived
     }
 
+    /// Set callback invoked for Lifecycle Event Attempting Connect.
+    ///
+    /// - Parameter onLifecycleEventAttemptingConnect: Callback invoked for Lifecycle Event Attempting Connect.
     public func withOnLifecycleEventAttemptingConnect(
         _ onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect?
     ) {
         _onLifecycleEventAttemptingConnect = onLifecycleEventAttemptingConnect
     }
 
+    /// Set callback invoked for Lifecycle Event Connection Success.
+    ///
+    /// - Parameter onLifecycleEventConnectionSuccess: Callback invoked for Lifecycle Event Connection Success.
     public func withOnLifecycleEventConnectionSuccess(
         _ onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess?
     ) {
         _onLifecycleEventConnectionSuccess = onLifecycleEventConnectionSuccess
     }
 
+    /// Set callback invoked for Lifecycle Event Connection Failure.
+    ///
+    /// - Parameter onLifecycleEventConnectionFailure: Callback invoked for Lifecycle Event Connection Failure.
     public func withOnLifecycleEventConnectionFailure(
         _ onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure?
     ) {
         _onLifecycleEventConnectionFailure = onLifecycleEventConnectionFailure
     }
 
+    /// Set callback invoked for Lifecycle Event Disconnection.
+    ///
+    /// - Parameter onLifecycleEventDisconnection: Callback invoked for Lifecycle Event Disconnection.
     public func withOnLifecycleEventDisconnection(
         _ onLifecycleEventDisconnection: OnLifecycleEventDisconnection?
     ) {
         _onLifecycleEventDisconnection = onLifecycleEventDisconnection
     }
 
+    /// Set callback invoked for Lifecycle Event Stopped.
+    ///
+    /// - Parameter onLifecycleEventStopped: Callback invoked for Lifecycle Event Stopped.
     public func withOnLifecycleEventStopped(_ onLifecycleEventStopped: OnLifecycleEventStopped?) {
         _onLifecycleEventStopped = onLifecycleEventStopped
     }
