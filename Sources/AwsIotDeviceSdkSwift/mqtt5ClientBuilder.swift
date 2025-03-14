@@ -4,26 +4,6 @@
 @_exported import AwsCommonRuntimeKit
 import Foundation
 
-// import AwsCommonRuntimeKit
-
-private func getMetricsStr(currentUsername: String = "") -> String {
-    // Check if the username being used already has a query
-    var usernameHasQuery = false
-    if currentUsername.contains("?") {
-        usernameHasQuery = true
-    }
-
-    let metricsStr = "SDK=Swift&Version=\(packageVersion)"
-
-    // Based on whether username already had a query, we are adding to the query
-    // or beginning one.
-    if usernameHasQuery {
-        return "&" + metricsStr
-    } else {
-        return "?" + metricsStr
-    }
-}
-
 // Helper function to append parameters to username
 private func appendToUsernameParameter(
     inputString: String, parameterValue: String, parameterPretext: String
@@ -163,21 +143,48 @@ public class Mqtt5ClientBuilder {
         _endpoint = endpoint
         _port = 443
 
+        _authorizerName = authAuthorizerName
+        _password = authPassword
+        _authorizerSiganture = authAuthorizerSignature
+        _authTokenKeyName = authTokenKeyName
+        _authTokenValue = authTokenValue
+        _authUsername = authUsername
+
+        _tlsOptions = TLSContextOptions.makeDefault()
+
+        if useWebsocket {
+            _onWebsocketTransform = { httpRequest, completeCallback in
+                completeCallback(httpRequest, 0)
+            }
+        } else {
+            _tlsOptions?.setAlpnList(["mqtt"])
+        }
+    }
+
+    private func buildUsername() {
         var usernameString = ""
-        if let authUsernameSet = authUsername {
-            usernameString += authUsernameSet
-            _authUsername = authUsernameSet
+
+        if let username = _username {
+            usernameString += username
         }
 
-        if let authorizerName = authAuthorizerName {
+        if let authUsernameSet = _authUsername {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: authUsernameSet,
+                parameterPretext: "")
+
+            usernameString += authUsernameSet
+        }
+
+        if let authorizerName = _authorizerName {
             usernameString = appendToUsernameParameter(
                 inputString: usernameString,
                 parameterValue: authorizerName,
                 parameterPretext: "x-amz-customauthorizer-name=")
-            _authorizerName = authorizerName
         }
 
-        if let authAuthorizerSignature = authAuthorizerSignature {
+        if let authAuthorizerSignature = _authorizerSiganture {
             var encodedSignature = authAuthorizerSignature
             if !encodedSignature.contains("%") {
                 encodedSignature =
@@ -188,29 +195,26 @@ public class Mqtt5ClientBuilder {
                 inputString: usernameString,
                 parameterValue: encodedSignature,
                 parameterPretext: "x-amz-customauthorizer-signature=")
-            _authorizerSiganture = encodedSignature
         }
 
-        if let tokenKeyName = authTokenKeyName, let tokenValue = authTokenValue {
+        if let tokenKeyName = _authTokenKeyName, let tokenValue = _authTokenValue {
             usernameString = appendToUsernameParameter(
                 inputString: usernameString,
                 parameterValue: tokenValue,
                 parameterPretext: "\(tokenKeyName)=")
-            _authTokenKeyName = tokenKeyName
-            _authTokenValue = tokenValue
         }
 
-        _username = usernameString
-        _password = authPassword
+        if _enableMetricsCollection {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: "SDK=Swift&Version=\(packageVersion)",
+                parameterPretext: "")
+        }
 
-        _tlsOptions = TLSContextOptions.makeDefault()
-
-        if useWebsocket {
-            _onWebsocketTransform = { httpRequest, completeCallback in
-                completeCallback(httpRequest, 0)
-            }
+        if !usernameString.isEmpty {
+            _username = usernameString
         } else {
-            _tlsOptions?.setAlpnList(["mqtt"])
+            _username = nil
         }
     }
 
@@ -427,46 +431,7 @@ public class Mqtt5ClientBuilder {
     ///
     /// - Parameter username: (String)
     public func withUsername(_ username: String) {
-
-        var usernameString = username
-
-        if let authUsernameSet = _authUsername {
-            usernameString = appendToUsernameParameter(
-                inputString: usernameString,
-                parameterValue: authUsernameSet,
-                parameterPretext: "")
-
-            usernameString += authUsernameSet
-        }
-
-        if let authorizerName = _authAuthorizerName {
-            usernameString = appendToUsernameParameter(
-                inputString: usernameString,
-                parameterValue: authorizerName,
-                parameterPretext: "x-amz-customauthorizer-name=")
-        }
-
-        if let authAuthorizerSignature = _authAuthorizerSignature {
-            var encodedSignature = authAuthorizerSignature
-            if !encodedSignature.contains("%") {
-                encodedSignature =
-                    encodedSignature.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
-                    ?? encodedSignature
-            }
-            usernameString = appendToUsernameParameter(
-                inputString: usernameString,
-                parameterValue: encodedSignature,
-                parameterPretext: "x-amz-customauthorizer-signature=")
-        }
-
-        if let tokenKeyName = _authTokenKeyName, let tokenValue = _authTokenValue {
-            usernameString = appendToUsernameParameter(
-                inputString: usernameString,
-                parameterValue: tokenValue,
-                parameterPretext: "\(tokenKeyName)=")
-        }
-
-        _username = usernameString
+        _username = username
     }
 
     /// Password to connect with.
@@ -726,12 +691,8 @@ public class Mqtt5ClientBuilder {
                 parameterName: "Mqtt5ClientBuilder requires endpoint to build client.")
         }
 
-        var metricsUsername: String? = _username ?? nil
-        if _enableMetricsCollection {
-            metricsUsername = ""
-            let baseUsername = _username ?? ""
-            metricsUsername = baseUsername + getMetricsStr(currentUsername: baseUsername)
-        }
+        // Builds _username with one set by user, custom auth, and metrics
+        buildUsername()
 
         _extendedValidationAndFlowControlOptions = .awsIotCoreDefaults
 
@@ -739,7 +700,7 @@ public class Mqtt5ClientBuilder {
         let connectOptions = MqttConnectOptions(
             keepAliveInterval: _keepAliveInterval,
             clientId: _clientId,
-            username: metricsUsername,
+            username: _username,
             password: _password,
             sessionExpiryInterval: _sessionExpiryInterval,
             requestResponseInformation: _requestResponseInformation,
