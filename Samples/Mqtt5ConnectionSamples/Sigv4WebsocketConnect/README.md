@@ -21,7 +21,7 @@ The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what
 ### Sigv4
 Sigv4-based authentication requires a credentials provider capable of sourcing valid AWS credentials. Sourced credentials will sign the websocket upgrade request made by the client while connecting. The default credentials provider chain supported by the SDK is capable of resolving credentials in a variety of environments according to a chain of priorities:
 ```
-Environment -> Provilde (local file system) -> STS Web Identity -> IMDS (ec2) or ECS
+Environment -> Profile (local file system) -> STS Web Identity -> IMDS (ec2) or ECS
 ```
 ### Required Arguments:
 * <b>endpoint</b> - account specific endpoint

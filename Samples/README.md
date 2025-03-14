@@ -6,3 +6,4 @@
     * [MQTT over Websockets with Sigv4 Authentication](./Mqtt5ConnectionSamples/Sigv4WebsocketConnect/README.md)
     * [Direct MQTT with Custom Authentication](./Mqtt5ConnectionSamples/CustomAuthConnect/README.md)
     * [MQTT over Websockets with Cognito](./Mqtt5ConnectionSamples/CognitoWebsocketConnect/README.md)
+    * [MQTT Sandbox Command Line Sample](./Mqtt5Sample/README.md)

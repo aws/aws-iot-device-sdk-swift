@@ -84,6 +84,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     """
                     Publish Packet Received
                         QoS: \(packet.qos)
+                        Topic: \(packet.topic)
                         Payload: \(payload)
                     """)
             }

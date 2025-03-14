@@ -13,8 +13,9 @@ import Foundation
 // 1. Initialize Device Sdk library
 // 2. Create Mqtt5ClientBuilder
 // 3. Setup Callbacks and other options
-// 4. Start the connection session
-// 5. Stop the connection session
+// 4. Create an Mqtt5 Client with Mqtt5ClientBuilder
+// 5. Start the connection session
+// 6. Stop the connection session
 
 @main
 struct X509MTLSConnectSample: ParsableCommand {
@@ -99,12 +100,12 @@ struct X509MTLSConnectSample: ParsableCommand {
             clientBuilder.withClientId(clientId)
 
             /**********************************************
-             * 3. Create Mqtt5 Client with Mqtt5ClientBuilder
+             * 4. Create Mqtt5 Client with Mqtt5ClientBuilder
              ***********************************************/
             let client = try clientBuilder.build()
 
             /**************************************
-             * 4. Start the connection session
+             * 5. Start the connection session
              **************************************/
             // `start()` will put the Mqtt5 Client in a state that desires to be connected. A connection attempt will be made.
             // If an attempt fails, the client will continue to attempt connections until it is instructed to `stop()`.
@@ -114,7 +115,7 @@ struct X509MTLSConnectSample: ParsableCommand {
             connectionSemaphore.wait()
 
             /**************************************
-             * 5. Stop the connection session
+             * 6. Stop the connection session
              **************************************/
             // `stop()` will put the Mqtt5 Client in a state that desires to be disconnected. If in a connected state, the client
             // will disconnect and not attempt to connect until it is instructed to `start()`.
