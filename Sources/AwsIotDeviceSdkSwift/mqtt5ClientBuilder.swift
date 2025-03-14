@@ -50,6 +50,11 @@ public class Mqtt5ClientBuilder {
     private var _onWebsocketTransform: OnWebSocketHandshakeIntercept? = nil
     private var _clientId: String? = nil
     private var _username: String? = nil
+    private var _authUsername: String? = nil
+    private var _authorizerName: String? = nil
+    private var _authorizerSiganture: String? = nil
+    private var _authTokenKeyName: String? = nil
+    private var _authTokenValue: String? = nil
     private var _password: Data? = nil
     private var _keepAliveInterval: TimeInterval = 1200
     private var _sessionExpiryInterval: TimeInterval? = nil
@@ -161,6 +166,7 @@ public class Mqtt5ClientBuilder {
         var usernameString = ""
         if let authUsernameSet = authUsername {
             usernameString += authUsernameSet
+            _authUsername = authUsernameSet
         }
 
         if let authorizerName = authAuthorizerName {
@@ -168,6 +174,7 @@ public class Mqtt5ClientBuilder {
                 inputString: usernameString,
                 parameterValue: authorizerName,
                 parameterPretext: "x-amz-customauthorizer-name=")
+            _authorizerName = authorizerName
         }
 
         if let authAuthorizerSignature = authAuthorizerSignature {
@@ -181,6 +188,7 @@ public class Mqtt5ClientBuilder {
                 inputString: usernameString,
                 parameterValue: encodedSignature,
                 parameterPretext: "x-amz-customauthorizer-signature=")
+            _authorizerSiganture = encodedSignature
         }
 
         if let tokenKeyName = authTokenKeyName, let tokenValue = authTokenValue {
@@ -188,6 +196,8 @@ public class Mqtt5ClientBuilder {
                 inputString: usernameString,
                 parameterValue: tokenValue,
                 parameterPretext: "\(tokenKeyName)=")
+            _authTokenKeyName = tokenKeyName
+            _authTokenValue = tokenValue
         }
 
         _username = usernameString
@@ -417,7 +427,46 @@ public class Mqtt5ClientBuilder {
     ///
     /// - Parameter username: (String)
     public func withUsername(_ username: String) {
-        _username = username
+
+        var usernameString = username
+
+        if let authUsernameSet = _authUsername {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: authUsernameSet,
+                parameterPretext: "")
+
+            usernameString += authUsernameSet
+        }
+
+        if let authorizerName = _authAuthorizerName {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: authorizerName,
+                parameterPretext: "x-amz-customauthorizer-name=")
+        }
+
+        if let authAuthorizerSignature = _authAuthorizerSignature {
+            var encodedSignature = authAuthorizerSignature
+            if !encodedSignature.contains("%") {
+                encodedSignature =
+                    encodedSignature.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+                    ?? encodedSignature
+            }
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: encodedSignature,
+                parameterPretext: "x-amz-customauthorizer-signature=")
+        }
+
+        if let tokenKeyName = _authTokenKeyName, let tokenValue = _authTokenValue {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: tokenValue,
+                parameterPretext: "\(tokenKeyName)=")
+        }
+
+        _username = usernameString
     }
 
     /// Password to connect with.
