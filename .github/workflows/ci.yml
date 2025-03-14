@@ -16,6 +16,14 @@ env:
     CI_CUSTOM_AUTHORIZER_ROLE: arn:aws:iam::180635532705:role/CI_CustomAuthorizer_Role
     CI_MQTT5_ROLE: arn:aws:iam::180635532705:role/CI_MQTT5_Role
     CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
+    CI_UTILS_FOLDER:  "./Scripts"
+    CI_SAMPLES_CFG_FOLDER: ".github/workflows/sample_cfg"
+    CI_PUBSUB_ROLE: arn:aws:iam::180635532705:role/CI_PubSub_Role
+    CI_COGNITO_ROLE: arn:aws:iam::180635532705:role/CI_Cognito_Role
+    CI_X509_ROLE: arn:aws:iam::180635532705:role/CI_X509_Role
+    CI_CUSTOM_AUTHORIZER_ROLE: arn:aws:iam::180635532705:role/CI_CustomAuthorizer_Role
+    CI_MQTT5_ROLE: arn:aws:iam::180635532705:role/CI_MQTT5_Role
+    CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
 
 jobs:
     osx:

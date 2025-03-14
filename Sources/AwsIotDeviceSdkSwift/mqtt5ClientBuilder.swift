@@ -1,30 +1,13 @@
 ///  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 ///  SPDX-License-Identifier: Apache-2.0.
 
-import Foundation
 @_exported import AwsCommonRuntimeKit
-// import AwsCommonRuntimeKit
-
-fileprivate func getMetricsStr(currentUsername: String = "") -> String {
-    // Check if the username being used already has a query
-    var usernameHasQuery = false
-    if currentUsername.contains("?") {
-        usernameHasQuery = true
-    }
-
-    let metricsStr = "SDK=Swift&Version=\(packageVersion)"
-
-    // Based on whether username already had a query, we are adding to the query
-    // or beginning one.
-    if usernameHasQuery {
-        return "&" + metricsStr
-    } else {
-        return "?" + metricsStr
-    }
-}
+import Foundation
 
 // Helper function to append parameters to username
-fileprivate func appendToUsernameParameter(inputString: String, parameterValue: String, parameterPretext: String) -> String {
+private func appendToUsernameParameter(
+    inputString: String, parameterValue: String, parameterPretext: String
+) -> String {
     var returnString = inputString
 
     if returnString.contains("?") {
@@ -40,6 +23,7 @@ fileprivate func appendToUsernameParameter(inputString: String, parameterValue: 
     }
 }
 
+///A utility class used to build an MQTT5 Client configured for use with AWS IoT Core.
 public class Mqtt5ClientBuilder {
 
     private var _endpoint: String? = nil
@@ -47,10 +31,16 @@ public class Mqtt5ClientBuilder {
     private var _onWebsocketTransform: OnWebSocketHandshakeIntercept? = nil
     private var _clientId: String? = nil
     private var _username: String? = nil
+    private var _authUsername: String? = nil
+    private var _authorizerName: String? = nil
+    private var _authorizerSiganture: String? = nil
+    private var _authTokenKeyName: String? = nil
+    private var _authTokenValue: String? = nil
     private var _password: Data? = nil
     private var _keepAliveInterval: TimeInterval = 1200
     private var _sessionExpiryInterval: TimeInterval? = nil
-    private var _extendedValidationAndFlowControlOptions: ExtendedValidationAndFlowControlOptions? = .awsIotCoreDefaults
+    private var _extendedValidationAndFlowControlOptions: ExtendedValidationAndFlowControlOptions? =
+        .awsIotCoreDefaults
     private var _onPublishReceived: OnPublishReceived? = nil
     private var _onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect? = nil
     private var _onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess? = nil
@@ -84,36 +74,41 @@ public class Mqtt5ClientBuilder {
     private var _maximumPacketSize: UInt32? = nil
     private var _willDelayInterval: TimeInterval? = nil
     private var _will: PublishPacket? = nil
-    private var _userProperties: [UserProperty]? = nil 
+    private var _userProperties: [UserProperty]? = nil
 
     // mtlsFromPath
-    init (certPath: String, keyPath: String, endpoint: String) throws {
-        _tlsOptions = try TLSContextOptions.makeMTLS(certificatePath: certPath, privateKeyPath: keyPath)
+    init(certPath: String, keyPath: String, endpoint: String) throws {
+        _tlsOptions = try TLSContextOptions.makeMTLS(
+            certificatePath: certPath, privateKeyPath: keyPath)
         _endpoint = endpoint
         _port = 8883
     }
 
     // mtlsFromData
-    init (certData: Data, keyData: Data, endpoint: String) throws {
-        _tlsOptions = try TLSContextOptions.makeMTLS(certificateData: certData, privateKeyData: keyData)
+    init(certData: Data, keyData: Data, endpoint: String) throws {
+        _tlsOptions = try TLSContextOptions.makeMTLS(
+            certificateData: certData, privateKeyData: keyData)
         _endpoint = endpoint
         _port = 8883
     }
 
     // mtlsFromPKCS12
-    init (pkcs12Path: String, pkcs12Password: String, endpoint: String) throws {
-        _tlsOptions = try TLSContextOptions.makeMTLS(pkcs12Path: pkcs12Path, password: pkcs12Password)
+    init(pkcs12Path: String, pkcs12Password: String, endpoint: String) throws {
+        _tlsOptions = try TLSContextOptions.makeMTLS(
+            pkcs12Path: pkcs12Path, password: pkcs12Password)
         _endpoint = endpoint
         _port = 8883
     }
 
     // websocketsWithDefaultAwsSigning
-    init (endpoint: String, region: String, credentialsProvider: CredentialsProvider, bootstrap: ClientBootstrap? = nil) throws {
+    init(
+        endpoint: String, region: String, credentialsProvider: CredentialsProvider,
+        bootstrap: ClientBootstrap? = nil
+    ) throws {
         _tlsOptions = TLSContextOptions.makeDefault()
         _endpoint = endpoint
         _port = 443
         _clientBootstrap = bootstrap
-            
         let signingConfig = SigningConfig(
             algorithm: SigningAlgorithmType.signingV4,
             signatureType: SignatureType.requestQueryParams,
@@ -123,66 +118,41 @@ public class Mqtt5ClientBuilder {
             omitSessionToken: true)
 
         _onWebsocketTransform = { httpRequest, completCallback in
-                do
-                {
-                    let returnedHttpRequest = try await Signer.signRequest(request: httpRequest, config:signingConfig)
-                    completCallback(returnedHttpRequest, 0)// DEBUG WIP need to return AWS_OP_SUCCESS)
-                }
-                catch
-                {
-                    completCallback(httpRequest, -1)// DEBUG WIP need to return Int32(AWS_ERROR_UNSUPPORTED_OPERATION.rawValue))
-                }
+            do {
+                let returnedHttpRequest = try await Signer.signRequest(
+                    request: httpRequest, config: signingConfig)
+                completCallback(returnedHttpRequest, 0)
+            } catch {
+                completCallback(httpRequest, -1)
             }
+        }
     }
 
     // Custom Auth
-    init (endpoint: String,
-          authAuthorizerName: String? = nil,
-          authPassword: Data? = nil,
-          authAuthorizerSignature: String? = nil,
-          authTokenKeyName: String? = nil,
-          authTokenValue: String? = nil,
-          authUsername: String? = nil,
-          useWebsocket: Bool = true) throws {
-        
+    init(
+        endpoint: String,
+        authAuthorizerName: String? = nil,
+        authPassword: Data? = nil,
+        authAuthorizerSignature: String? = nil,
+        authTokenKeyName: String? = nil,
+        authTokenValue: String? = nil,
+        authUsername: String? = nil,
+        useWebsocket: Bool = true
+    ) throws {
+
         _endpoint = endpoint
         _port = 443
 
-        var usernameString = ""
-        if let authUsernameSet = authUsername {
-            usernameString += authUsernameSet
-        } else if let existingUsername = _username { 
-            usernameString += existingUsername
-        }
-
-        if let authorizerName = authAuthorizerName {
-            usernameString = appendToUsernameParameter(inputString: usernameString, 
-                                                        parameterValue: authorizerName, 
-                                                        parameterPretext: "x-amz-customauthorizer-name=")
-        }
-
-        if let authAuthorizerSignature = authAuthorizerSignature {
-            var encodedSignature = authAuthorizerSignature
-            if !encodedSignature.contains("%") {
-                encodedSignature = encodedSignature.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? encodedSignature
-            }
-            usernameString = appendToUsernameParameter(inputString: usernameString, 
-                                                       parameterValue: encodedSignature, 
-                                                       parameterPretext: "x-amz-customauthorizer-signature=")
-        }
-
-        if let tokenKeyName = authTokenKeyName, let tokenValue = authTokenValue {
-            usernameString = appendToUsernameParameter(inputString: usernameString, 
-                                                       parameterValue: tokenValue, 
-                                                       parameterPretext: "\(tokenKeyName)=")
-        }
-
-        _username = usernameString
+        _authorizerName = authAuthorizerName
         _password = authPassword
+        _authorizerSiganture = authAuthorizerSignature
+        _authTokenKeyName = authTokenKeyName
+        _authTokenValue = authTokenValue
+        _authUsername = authUsername
 
         _tlsOptions = TLSContextOptions.makeDefault()
 
-        if (useWebsocket) {
+        if useWebsocket {
             _onWebsocketTransform = { httpRequest, completeCallback in
                 completeCallback(httpRequest, 0)
             }
@@ -191,133 +161,238 @@ public class Mqtt5ClientBuilder {
         }
     }
 
+    private func buildUsername() {
+        var usernameString = ""
+
+        if let username = _username {
+            usernameString += username
+        }
+
+        if let authUsernameSet = _authUsername {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: authUsernameSet,
+                parameterPretext: "")
+
+            usernameString += authUsernameSet
+        }
+
+        if let authorizerName = _authorizerName {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: authorizerName,
+                parameterPretext: "x-amz-customauthorizer-name=")
+        }
+
+        if let authAuthorizerSignature = _authorizerSiganture {
+            var encodedSignature = authAuthorizerSignature
+            if !encodedSignature.contains("%") {
+                encodedSignature =
+                    encodedSignature.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+                    ?? encodedSignature
+            }
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: encodedSignature,
+                parameterPretext: "x-amz-customauthorizer-signature=")
+        }
+
+        if let tokenKeyName = _authTokenKeyName, let tokenValue = _authTokenValue {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: tokenValue,
+                parameterPretext: "\(tokenKeyName)=")
+        }
+
+        if _enableMetricsCollection {
+            usernameString = appendToUsernameParameter(
+                inputString: usernameString,
+                parameterValue: "SDK=Swift&Version=\(packageVersion)",
+                parameterPretext: "")
+        }
+
+        if !usernameString.isEmpty {
+            _username = usernameString
+        } else {
+            _username = nil
+        }
+    }
+
+    /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key file paths.
+    ///
+    /// - Parameters:
+    ///   - certPath: Path to certificate file.
+    ///   - keyPath: Path to private key file.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromPath(
-        certPath: String, 
+        certPath: String,
         keyPath: String,
-        endpoint: String) throws -> Mqtt5ClientBuilder {
+        endpoint: String
+    ) throws -> Mqtt5ClientBuilder {
 
         return try Mqtt5ClientBuilder(certPath: certPath, keyPath: keyPath, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key data.
+    ///
+    /// - Parameters:
+    ///   - certData: Certificate file bytes.
+    ///   - keyData: Private key bytes.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromData(
-        certData: Data, 
+        certData: Data,
         keyData: Data,
-        endpoint: String) throws -> Mqtt5ClientBuilder  {
+        endpoint: String
+    ) throws -> Mqtt5ClientBuilder {
 
         return try Mqtt5ClientBuilder(certData: certData, keyData: keyData, endpoint: endpoint)
     }
 
+    /// Create an Mqtt5ClientBuilder configured to connect using a PKCS12 file.
+    ///
+    /// - Parameters:
+    ///   - pkcs12Path: Path to the PKCS12 file to use
+    ///   - pkcs12Password: The password for the PKCS12 file.
+    ///   - endpoint: Host name of AWS IoT server.
+    /// - Throws: `CommonRuntimeError.crtError`
+    /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
     public static func mtlsFromPKCS12(
-        pkcs12Path: String, 
+        pkcs12Path: String,
         pkcs12Password: String,
-        endpoint: String) throws -> Mqtt5ClientBuilder {
-        
-        return try Mqtt5ClientBuilder(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+        endpoint: String
+    ) throws -> Mqtt5ClientBuilder {
+
+        return try Mqtt5ClientBuilder(
+            pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
     }
 
-    public static func websocketsWithDefaultAwsSigning(endpoint: String,
-                                                       region: String, 
-                                                       credentialsProvider: CredentialsProvider,
-                                                       bootstrap: ClientBootstrap? = nil) throws -> Mqtt5ClientBuilder {
+    public static func websocketsWithDefaultAwsSigning(
+        endpoint: String,
+        region: String,
+        credentialsProvider: CredentialsProvider,
+        bootstrap: ClientBootstrap? = nil
+    ) throws -> Mqtt5ClientBuilder {
 
-        return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      region: region, 
-                                      credentialsProvider: credentialsProvider,
-                                      bootstrap: bootstrap)
-    }    
-
-    public static func websocketsWithCustomAuthorizer(endpoint: String,
-                                                      authAuthorizerName: String,
-                                                      authPassword: Data,
-                                                      authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
-        
-        return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      authAuthorizerName: authAuthorizerName,
-                                      authPassword: authPassword,
-                                      authUsername: authUsername,
-                                      useWebsocket: true)
+        return try Mqtt5ClientBuilder(
+            endpoint: endpoint,
+            region: region,
+            credentialsProvider: credentialsProvider,
+            bootstrap: bootstrap)
     }
 
-    public static func websocketsWithUnsignedCustomAuthorizer(endpoint: String,
-                                                              authAuthorizerName: String,
-                                                              authPassword: Data? = nil,
-                                                              authTokenKeyName: String,
-                                                              authTokenValue: String,
-                                                              authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
-        
-        return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      authAuthorizerName: authAuthorizerName,
-                                      authPassword: authPassword,
-                                      authTokenKeyName: authTokenKeyName,
-                                      authTokenValue:authTokenValue,
-                                      authUsername: authUsername,
-                                      useWebsocket: true)
+    public static func websocketsWithCustomAuthorizer(
+        endpoint: String,
+        authAuthorizerName: String,
+        authPassword: Data,
+        authUsername: String? = nil
+    ) throws -> Mqtt5ClientBuilder {
+
+        return try Mqtt5ClientBuilder(
+            endpoint: endpoint,
+            authAuthorizerName: authAuthorizerName,
+            authPassword: authPassword,
+            authUsername: authUsername,
+            useWebsocket: true)
     }
 
-    public static func websocketsWithSignedCustomAuthorizer(endpoint: String,
-                                                            authAuthorizerName: String,
-                                                            authPassword: Data? = nil,
-                                                            authAuthorizerSignature: String,
-                                                            authTokenKeyName: String,
-                                                            authTokenValue: String,
-                                                            authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
-        
-        return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      authAuthorizerName: authAuthorizerName,
-                                      authPassword: authPassword,
-                                      authAuthorizerSignature: authAuthorizerSignature,
-                                      authTokenKeyName: authTokenKeyName,
-                                      authTokenValue:authTokenValue,
-                                      authUsername: authUsername,
-                                      useWebsocket: true)
+    public static func websocketsWithUnsignedCustomAuthorizer(
+        endpoint: String,
+        authAuthorizerName: String,
+        authPassword: Data? = nil,
+        authTokenKeyName: String,
+        authTokenValue: String,
+        authUsername: String? = nil
+    ) throws -> Mqtt5ClientBuilder {
+
+        return try Mqtt5ClientBuilder(
+            endpoint: endpoint,
+            authAuthorizerName: authAuthorizerName,
+            authPassword: authPassword,
+            authTokenKeyName: authTokenKeyName,
+            authTokenValue: authTokenValue,
+            authUsername: authUsername,
+            useWebsocket: true)
     }
 
-    public static func directWithUnsignedCustomAuthorizer(endpoint: String,
-                                                          authAuthorizerName: String? = nil,
-                                                          authPassword: Data? = nil,
-                                                          authUsername: String? = nil) throws -> Mqtt5ClientBuilder {
-    
-        return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      authAuthorizerName: authAuthorizerName,
-                                      authPassword: authPassword,
-                                      authUsername: authUsername,
-                                      useWebsocket: false)
+    public static func websocketsWithSignedCustomAuthorizer(
+        endpoint: String,
+        authAuthorizerName: String,
+        authPassword: Data? = nil,
+        authAuthorizerSignature: String,
+        authTokenKeyName: String,
+        authTokenValue: String,
+        authUsername: String? = nil
+    ) throws -> Mqtt5ClientBuilder {
+
+        return try Mqtt5ClientBuilder(
+            endpoint: endpoint,
+            authAuthorizerName: authAuthorizerName,
+            authPassword: authPassword,
+            authAuthorizerSignature: authAuthorizerSignature,
+            authTokenKeyName: authTokenKeyName,
+            authTokenValue: authTokenValue,
+            authUsername: authUsername,
+            useWebsocket: true)
     }
 
-    public static func directWithSignedCustomAuthorizer(endpoint: String,
-                                                        authAuthorizerName: String,
-                                                        authAuthorizerSignature: String,
-                                                        authTokenKeyName: String,
-                                                        authTokenValue: String,
-                                                        authUsername: String? = nil,
-                                                        authPassword: Data? = nil) throws -> Mqtt5ClientBuilder {
-        
-        return try Mqtt5ClientBuilder(endpoint: endpoint,
-                                      authAuthorizerName: authAuthorizerName,
-                                      authPassword: authPassword,
-                                      authAuthorizerSignature: authAuthorizerSignature,
-                                      authTokenKeyName: authTokenKeyName,
-                                      authTokenValue:authTokenValue,
-                                      authUsername: authUsername,
-                                      useWebsocket: false)
+    public static func directWithUnsignedCustomAuthorizer(
+        endpoint: String,
+        authAuthorizerName: String? = nil,
+        authPassword: Data? = nil,
+        authUsername: String? = nil
+    ) throws -> Mqtt5ClientBuilder {
+
+        return try Mqtt5ClientBuilder(
+            endpoint: endpoint,
+            authAuthorizerName: authAuthorizerName,
+            authPassword: authPassword,
+            authUsername: authUsername,
+            useWebsocket: false)
     }
 
-    /// Set callbacks for MQTT5 Client. 
+    public static func directWithSignedCustomAuthorizer(
+        endpoint: String,
+        authAuthorizerName: String,
+        authAuthorizerSignature: String,
+        authTokenKeyName: String,
+        authTokenValue: String,
+        authUsername: String? = nil,
+        authPassword: Data? = nil
+    ) throws -> Mqtt5ClientBuilder {
+
+        return try Mqtt5ClientBuilder(
+            endpoint: endpoint,
+            authAuthorizerName: authAuthorizerName,
+            authPassword: authPassword,
+            authAuthorizerSignature: authAuthorizerSignature,
+            authTokenKeyName: authTokenKeyName,
+            authTokenValue: authTokenValue,
+            authUsername: authUsername,
+            useWebsocket: false)
+    }
+
+    /// Set callbacks for MQTT5 Client.
     ///
     /// - Parameters:
     ///   - onPublishReceived: Callback invoked for all publish packets received by client.
-    ///   - onLifecycleEventConnectionAttempt : Callback invoked for Lifecycle Event Attempting Connect.
+    ///   - onLifecycleEventAttemptingConnect : Callback invoked for Lifecycle Event Attempting Connect.
     ///   - onLifecycleEventConnectionSuccess: Callback invoked for Lifecycle Event Connection Success.
     ///   - onLifecycleEventConnectionFailure: Callback invoked for Lifecycle Event Connection Failure.
     ///   - onLifecycleEventDisconnection: Callback invoked for Lifecycle Event Disconnection.
     ///   - onLifecycleEventStopped: Callback invoked for Lifecycle Event Stopped.
-    public func withCallbacks(onPublishReceived: OnPublishReceived? = nil,
-                              onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect? = nil,
-                              onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess? = nil,
-                              onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure? = nil,
-                              onLifecycleEventDisconnection: OnLifecycleEventDisconnection? = nil,
-                              onLifecycleEventStopped: OnLifecycleEventStopped? = nil) {
-        
+    public func withCallbacks(
+        onPublishReceived: OnPublishReceived? = nil,
+        onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect? = nil,
+        onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess? = nil,
+        onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure? = nil,
+        onLifecycleEventDisconnection: OnLifecycleEventDisconnection? = nil,
+        onLifecycleEventStopped: OnLifecycleEventStopped? = nil
+    ) {
+
         withOnPublishReceived(onPublishReceived)
         withOnLifecycleEventAttemptingConnect(onLifecycleEventAttemptingConnect)
         withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
@@ -326,26 +401,52 @@ public class Mqtt5ClientBuilder {
         withOnLifecycleEventStopped(onLifecycleEventStopped)
     }
 
+    /// Set callback invoked for all publish packets received by client.
+    ///
+    /// - Parameter onPublishReceived: Callback invoked for all publish packets received by client.
     public func withOnPublishReceived(_ onPublishReceived: OnPublishReceived?) {
         _onPublishReceived = onPublishReceived
     }
 
-    public func withOnLifecycleEventAttemptingConnect(_ onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect?) {
+    /// Set callback invoked for Lifecycle Event Attempting Connect.
+    ///
+    /// - Parameter onLifecycleEventAttemptingConnect: Callback invoked for Lifecycle Event Attempting Connect.
+    public func withOnLifecycleEventAttemptingConnect(
+        _ onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect?
+    ) {
         _onLifecycleEventAttemptingConnect = onLifecycleEventAttemptingConnect
     }
 
-    public func withOnLifecycleEventConnectionSuccess(_ onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess?) {
+    /// Set callback invoked for Lifecycle Event Connection Success.
+    ///
+    /// - Parameter onLifecycleEventConnectionSuccess: Callback invoked for Lifecycle Event Connection Success.
+    public func withOnLifecycleEventConnectionSuccess(
+        _ onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess?
+    ) {
         _onLifecycleEventConnectionSuccess = onLifecycleEventConnectionSuccess
     }
 
-    public func withOnLifecycleEventConnectionFailure(_ onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure?) {
+    /// Set callback invoked for Lifecycle Event Connection Failure.
+    ///
+    /// - Parameter onLifecycleEventConnectionFailure: Callback invoked for Lifecycle Event Connection Failure.
+    public func withOnLifecycleEventConnectionFailure(
+        _ onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure?
+    ) {
         _onLifecycleEventConnectionFailure = onLifecycleEventConnectionFailure
     }
 
-    public func withOnLifecycleEventDisconnection(_ onLifecycleEventDisconnection: OnLifecycleEventDisconnection?) {
+    /// Set callback invoked for Lifecycle Event Disconnection.
+    ///
+    /// - Parameter onLifecycleEventDisconnection: Callback invoked for Lifecycle Event Disconnection.
+    public func withOnLifecycleEventDisconnection(
+        _ onLifecycleEventDisconnection: OnLifecycleEventDisconnection?
+    ) {
         _onLifecycleEventDisconnection = onLifecycleEventDisconnection
     }
 
+    /// Set callback invoked for Lifecycle Event Stopped.
+    ///
+    /// - Parameter onLifecycleEventStopped: Callback invoked for Lifecycle Event Stopped.
     public func withOnLifecycleEventStopped(_ onLifecycleEventStopped: OnLifecycleEventStopped?) {
         _onLifecycleEventStopped = onLifecycleEventStopped
     }
@@ -382,10 +483,10 @@ public class Mqtt5ClientBuilder {
         _password = password
     }
 
-    /// The maximum time interval, in seconds, that is permitted to elapse between the point at which the 
+    /// The maximum time interval, in seconds, that is permitted to elapse between the point at which the
     /// client finishes transmitting one MQTT packet and the point it starts sending the next.
-    /// The client will use PINGREQ packets to maintain this property. If the responding CONNACK contains 
-    /// a keep alive property value, then that is the negotiated keep alive value. Otherwise, the keep 
+    /// The client will use PINGREQ packets to maintain this property. If the responding CONNACK contains
+    /// a keep alive property value, then that is the negotiated keep alive value. Otherwise, the keep
     /// alive sent by the client is the negotiated value. keep_alive_interval_sec must be set to at least
     /// 1 second greater than ping_timeout_ms (default 30,000 ms) or it will fail validation.
     ///
@@ -394,10 +495,10 @@ public class Mqtt5ClientBuilder {
         _keepAliveInterval = keepAliveInterval
     }
 
-    /// A time interval, in seconds, that the client requests the server to persist this connection's MQTT 
-    /// session state for.  Has no meaning if the client has not been configured to rejoin sessions. 
-    /// Must be non-zero in order to successfully rejoin a session. If the responding CONNACK contains 
-    /// a session expiry property value, then that is the negotiated session expiry value.  Otherwise, 
+    /// A time interval, in seconds, that the client requests the server to persist this connection's MQTT
+    /// session state for.  Has no meaning if the client has not been configured to rejoin sessions.
+    /// Must be non-zero in order to successfully rejoin a session. If the responding CONNACK contains
+    /// a session expiry property value, then that is the negotiated session expiry value.  Otherwise,
     /// the session expiry sent by the client is the negotiated value.
     ///
     /// - Parameter sessionExpiryInterval: (TimeInterval)
@@ -410,119 +511,230 @@ public class Mqtt5ClientBuilder {
     /// then set to AWS_IOT_CORE_DEFAULTS.
     ///
     /// - Parameter flowControlOptions: (ExtendedValidationAndFlowControlOptions)
-    public func withExtendedValidationAndFlowControlOptions(_ flowControlOptions: ExtendedValidationAndFlowControlOptions) {
+    public func withExtendedValidationAndFlowControlOptions(
+        _ flowControlOptions: ExtendedValidationAndFlowControlOptions
+    ) {
         _extendedValidationAndFlowControlOptions = flowControlOptions
     }
 
-    // DEBUG WIP we need to make sure the CA is being set properly in tls ctx    
+    /// Overrides the default system trust store.
+    ///
+    /// - Parameter caPath: Single file containing all trust CAs in PEM format
     public func withCaPath(_ caPath: String) {
         _caPath = caPath
     }
 
+    /// Overrides the default system trust store.
+    ///
+    /// - Parameter caDirPath: Only used on Unix-style systems where all trust anchors are stored in a directory
+    /// (e.g. /etc/ssl/certs).
     public func withCaDirPath(_ caDirPath: String) {
         _caDirPath = caDirPath
     }
 
+    /// Overrides the default system trust store.
+    ///
+    /// - Parameter caData: Data containing all trust CAs, in PEM format
     public func withCaData(_ caData: Data) {
         _caData = caData
     }
 
+    /// Provide specific human readable labels for the certificate and private key being stored in the
+    /// Apple keychain. Only used with secitem.
+    ///
+    /// - Parameters:
+    ///   - certLabel: Human readable label to use with certificate
+    ///   - keyLabel: Human readable label to be used with private key
     public func withSecitemLabels(certLabel: String? = nil, keyLabel: String? = nil) {
         _certLabel = certLabel
         _keyLabel = keyLabel
     }
 
+    /// Overrides the time interval to wait for an ack after sending a QoS 1+ PUBLISH, SUBSCRIBE, or UNSUBSCRIBE before
+    /// failing the operation.  Defaults to no timeout.
+    ///
+    /// - Parameter ackTimeout:time interval to wait for an ack after sending a QoS 1+ PUBLISH, SUBSCRIBE,
+    /// or UNSUBSCRIBE before failing the operation
     public func withAckTimeout(_ ackTimeout: TimeInterval) {
         _ackTimeout = ackTimeout
     }
 
+    /// Overrides the time interval to wait after sending a CONNECT request for a CONNACK to arrive.  If one does not
+    /// arrive, the connection will be shut down.
+    ///
+    /// - Parameter connackTimeout: time interval to wait after sending a CONNECT request for a CONNACK to arrive
     public func withConnackTimeout(_ connackTimeout: TimeInterval) {
         _connackTimeout = connackTimeout
     }
 
+    /// Overrides the time interval to wait after sending a PINGREQ for a PINGRESP to arrive.  If one does not arrive,
+    /// the client will close the current connection.
+    ///
+    /// - Parameter pingTimeout: time interval to wait after sending a PINGREQ for a PINGRESP to arrive
     public func withPingTimeout(_ pingTimeout: TimeInterval) {
         _pingTimeout = pingTimeout
     }
 
+    /// Overrides the minimum amount of time to wait to reconnect after a disconnect.  Exponential backoff is performed
+    /// with controllable jitter after each connection failure.
+    ///
+    /// - Parameter minReconnectDelay: minimum amount of time to wait to reconnect after a disconnect
     public func withMinReconnectDelay(_ minReconnectDelay: TimeInterval) {
         _minReconnectDelay = minReconnectDelay
     }
 
+    /// Overrides the maximum amount of time to wait to reconnect after a disconnect.  Exponential backoff is performed
+    /// with controllable jitter after each connection failure.
+    ///
+    /// - Parameter maxReconnectDelay: maximum amount of time to wait to reconnect after a disconnect
     public func withMaxReconnectDelay(_ maxReconnectDelay: TimeInterval) {
         _maxReconnectDelay = maxReconnectDelay
     }
 
-    public func withMinConnectedTimeToResetReconnectDelay(_ minConnectedTimeToResetReconnectDelay: TimeInterval) {
+    /// Overrides the amount of time that must elapse with an established connection before the reconnect delay is
+    /// reset to the minimum.  This helps alleviate bandwidth-waste in fast reconnect cycles due to permission
+    /// failures on operations.
+    ///
+    /// - Parameter minConnectedTimeToResetReconnectDelay: the amount of time that must elapse with an established
+    /// connection before the reconnect delay is reset to the minimum
+    public func withMinConnectedTimeToResetReconnectDelay(
+        _ minConnectedTimeToResetReconnectDelay: TimeInterval
+    ) {
         _minConnectedTimeToResetReconnectDelay = minConnectedTimeToResetReconnectDelay
     }
 
+    /// Overrides how the reconnect delay is modified in order to smooth out the distribution of reconnection attempt
+    /// timepoints for a large set of reconnecting clients.
+    ///
+    /// - Parameter retryJitterMode: controls how the reconnect delay is modified in order to smooth out the distribution of
+    /// reconnection attempt timepoints for a large set of reconnecting clients.
     public func withRetryJitterMode(_ retryJitterMode: ExponentialBackoffJitterMode) {
         _retryJitterMode = retryJitterMode
     }
 
-    public func withClientOperationQueueBehaviorType(_ clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType) {
+    /// Overrides how disconnects affect the queued and in-progress operations tracked by the client.  Also controls
+    /// how new operations are handled while the client is not connected.  In particular, if the client is not connected,
+    /// then any operation that would be failed on disconnect (according to these rules) will also be rejected.
+    ///
+    /// - Parameter clientOperationQueueBehaviorType: how disconnects affect the queued and in-progress operations tracked by the client
+    public func withClientOperationQueueBehaviorType(
+        _ clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType
+    ) {
         _clientOperationQueueBehaviorType = clientOperationQueueBehaviorType
     }
 
-    public func withClientSessionBehaviorType(_ clientSessionBehaviorType: ClientSessionBehaviorType) {
+    /// Overrides how the MQTT5 client should behave with respect to MQTT sessions.
+    ///
+    /// - Parameter clientSessionBehaviorType: how the MQTT5 client should behave with respect to MQTT sessions
+    public func withClientSessionBehaviorType(
+        _ clientSessionBehaviorType: ClientSessionBehaviorType
+    ) {
         _clientSessionBehaviorType = clientSessionBehaviorType
     }
 
+    /// Overrides how the MQTT5 client should behave with respect to topic aliasing.
+    ///
+    /// - Parameter topicAliasingOptions: how the MQTT5 client should behave with respect to topic aliasing
     public func withTopicAliasingOptions(_ topicAliasingOptions: TopicAliasingOptions) {
         _topicAliasingOptions = topicAliasingOptions
     }
 
+    /// Overrides (tunneling) HTTP proxy usage when establishing MQTT connections.
+    ///
+    /// - Parameter httpProxyOptions: HTTP proxy options to use when establishing MQTT connections
     public func withHttyProxyOptions(_ httpProxyOptions: HTTPProxyOptions) {
         _httpProxyOptions = httpProxyOptions
     }
 
+    /// Overrides the socket properties of the underlying MQTT connections made by the client.  Leave undefined to use
+    /// defaults (no TCP keep alive, 10 second socket timeout).
+    ///
+    /// - Parameter socketOptions: socket properties of the underlying MQTT connections made by the client
     public func withSocketOptions(_ socketOptions: SocketOptions) {
         _socketOptions = socketOptions
     }
 
-    public func withBootstrap(_ clientBootstrap: ClientBootstrap){
+    /// Set the client bootstrap used to establish connection.
+    ///
+    /// - Parameter clientBootstrap: client bootstrap used to establish connection.
+    public func withBootstrap(_ clientBootstrap: ClientBootstrap) {
         _clientBootstrap = clientBootstrap
     }
 
+    /// If true, requests that the server send response information in the subsequent CONNACK.  This response
+    /// information may be used to set up request-response implementations over MQTT, but doing so is outside
+    /// the scope of the MQTT5 spec and client.
+    ///
+    /// - Parameter requestResponseInformation: requests that the server send response information in the subsequent CONNACK
     public func withRequestResponseInformation(_ requestResponseInformation: Bool) {
         _requestResponseInformation = requestResponseInformation
     }
 
-    public func withRequestProblemInformation(_ requestProblemInformation: Bool){
+    /// If true, requests that the server send additional diagnostic information (via response string or user properties)
+    /// in DISCONNECT or CONNACK packets from the server.
+    ///
+    /// - Parameter requestProblemInformation: requests that the server send additional diagnostic information in
+    /// DISCONNECT or CONNACK packets from the server
+    public func withRequestProblemInformation(_ requestProblemInformation: Bool) {
         _requestProblemInformation = requestProblemInformation
     }
 
+    /// Notifies the server of the maximum number of in-flight QoS 1 and 2 messages the
+    /// client is willing to handle.  If omitted or null, then no limit is requested.
+    ///
+    /// - Parameter receiveMaximum: maximum number of in-flight QoS 1 and 2 messages the
+    /// client is willing to handle
     public func withReceiveMaximum(_ receiveMaximum: UInt16) {
         _receiveMaximum = receiveMaximum
     }
 
+    /// Notifies the server of the maximum packet size the client is willing to handle.
+    /// If omitted or null, then no limit beyond the natural limits of MQTT packet size is requested.
+    ///
+    /// - Parameter maximumPacketSize: maximum packet size the client is willing to handle
     public func withMaximumPacketSize(_ maximumPacketSize: UInt32) {
         _maximumPacketSize = maximumPacketSize
     }
 
+    /// A time interval, in seconds, that the server should wait (for a session reconnection) before sending
+    /// the will message associated with the connection's session.  If omitted, the server will send the will
+    /// when the associated session is destroyed.  If the session is destroyed before a will delay interval has
+    /// elapsed, then the will must be sent at the time of session destruction.
+    ///
+    /// - Parameter willDelayInterval: time interval that the server should wait (for a session reconnection)
+    /// before sending the will message associated with the connection's session
     public func withWillDelayInterval(_ willDelayInterval: TimeInterval) {
         _willDelayInterval = willDelayInterval
     }
 
+    /// The definition of a message to be published when the connection's session is destroyed by the server or
+    /// when the will delay interval has elapsed, whichever comes first. If omitted, then nothing will be sent.
+    ///
+    /// - Parameter will: the definition of a message to be published when the connection's session is destroyed
+    /// by the server or when the will delay interval has elapsed
     public func withWill(_ will: PublishPacket) {
         _will = will
     }
 
+    /// Array of MQTT5 user properties included with the connect packet.
+    ///
+    /// - Parameter userProperties: user properties to include with the connect packet
     public func withUserProperties(_ userProperties: [UserProperty]) {
         _userProperties = userProperties
     }
 
+    /// Builds an `Mqtt5Client` using the configuration set within.
+    ///
+    /// - Throws: CommonRuntimeError.crtError
+    /// - Returns: `Mqtt5Client`
     public func build() throws -> Mqtt5Client {
         guard let unwrappedEndpoint = _endpoint else {
-            throw AwsIotDeviceSdkError.missingParameter(parameterName: "Mqtt5ClientBuilder requires endpoint to build client.")
+            throw AwsIotDeviceSdkError.missingParameter(
+                parameterName: "Mqtt5ClientBuilder requires endpoint to build client.")
         }
 
-        var metricsUsername: String? = _username ?? nil
-        if _enableMetricsCollection {
-            metricsUsername = ""
-            let baseUsername = _username ?? ""
-            metricsUsername = baseUsername + getMetricsStr(currentUsername: baseUsername)
-        }
+        // Builds _username with one set by user, custom auth, and metrics
+        buildUsername()
 
         _extendedValidationAndFlowControlOptions = .awsIotCoreDefaults
 
@@ -530,7 +742,7 @@ public class Mqtt5ClientBuilder {
         let connectOptions = MqttConnectOptions(
             keepAliveInterval: _keepAliveInterval,
             clientId: _clientId,
-            username: metricsUsername,
+            username: _username,
             password: _password,
             sessionExpiryInterval: _sessionExpiryInterval,
             requestResponseInformation: _requestResponseInformation,
@@ -556,8 +768,8 @@ public class Mqtt5ClientBuilder {
 
                 // Apply labels if available
                 try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
-                
-                _tlsCtx = try TLSContext(options:tlsOptions, mode: .client)
+
+                _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
             }
         } catch {
             throw CommonRunTimeError.crtError(CRTError.makeFromLastError())
