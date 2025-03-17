@@ -1,0 +1,15 @@
+{
+    "language": "Swift",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/Sigv4WebsocketConnect",
+    "sample_product_name": "Sigv4WebsocketConnect",
+    "sample_region": "us-east-1",
+    "sample_main_class": "",
+    "arguments": [
+        {
+            "secret": "ci/endpoint"
+        },
+        {
+            "data": "us-east-1"
+        }
+    ]
+}

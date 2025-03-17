@@ -1,0 +1,18 @@
+{
+    "language": "Swift",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/Pkcs12Connect",
+    "sample_product_name": "Pkcs12Connect",
+    "sample_region": "us-east-1",
+    "sample_main_class": "",
+    "arguments": [
+        {
+            "secret": "ci/endpoint"
+        },
+        {
+            "data": "./pkcs12-key.p12"
+        },
+        {
+            "data": "derp"
+        }
+    ]
+}
