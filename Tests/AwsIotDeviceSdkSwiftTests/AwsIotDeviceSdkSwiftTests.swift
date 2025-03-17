@@ -393,7 +393,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttWebsocketWithUnignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")  // "AWS_TEST_MQTT5_IOT_CORE_HOST")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
         let customAuthUsername = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_USERNAME")
         let customAuthName = try getEnvironmentVarOrSkipTest(
@@ -431,7 +432,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttWebsocketWithSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")  // "AWS_TEST_MQTT5_IOT_CORE_HOST")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
         let customAuthUsername = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
         let customAuthName = try getEnvironmentVarOrSkipTest(
@@ -472,7 +474,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttWebsocketWithUnencodedSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")  // "AWS_TEST_MQTT5_IOT_CORE_HOST")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
         let customAuthUsername = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
         let customAuthName = try getEnvironmentVarOrSkipTest(
@@ -558,7 +561,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttDirectWithUnsignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
         let customAuthUsername = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_USERNAME")
         let customAuthName = try getEnvironmentVarOrSkipTest(
@@ -590,7 +594,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttDirectWithSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
         let customAuthUsername = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
         let customAuthName = try getEnvironmentVarOrSkipTest(
@@ -631,7 +636,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttDirectWithUnencodedSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
         let customAuthUsername = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
         let customAuthName = try getEnvironmentVarOrSkipTest(
