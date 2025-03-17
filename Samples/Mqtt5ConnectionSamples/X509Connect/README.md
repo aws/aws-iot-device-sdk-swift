@@ -1,4 +1,4 @@
-# Basic Connect Sample
+# X509 Connect Sample
 
 [**Return to main sample list**](../../README.md)
 

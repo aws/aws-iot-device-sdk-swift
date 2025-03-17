@@ -5,7 +5,7 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 *__Jump To:__*
 * [Build the Library](#build-the-library)
 * [Use the SDK as a Dependency](#use-the-sdk-as-a-dependency)
-* [Samples](samples)
+* [Samples](./Samples/README.md)
 * [Mac-Only TLS Behavior](#mac-only-tls-behavior)
 * [Getting Help](#getting-help)
 * [FAQ](./Documentation/FAQ.md)
@@ -37,10 +37,6 @@ dependencies: [
 ```
 * If you are integrating into an Xcode project, you can add the Swift package directly in Xcode by going to File > Add Packages... and providing the AWS IoT Device SDK Swift Git URL.
 
-## Samples
-
-[Samples README](samples)
-
 ### Mac-Only TLS Behavior
 
 Please note that on Mac, once a private key is used with a certificate, that certificate-key pair is imported into the Mac Keychain.  All subsequent uses of that certificate will use the stored private key and ignore anything passed in programmatically.  When a stored private key from the Keychain is used, the following will be logged at the "info" log level:
@@ -60,10 +56,6 @@ Please make sure to check out our resources too before opening an issue:
 * Check for similar [Issues](https://github.com/aws/aws-iot-device-swift/issues)
 * [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
 * [Dev Blog](https://aws.amazon.com/blogs/?awsf.blog-master-iot=category-internet-of-things%23amazon-freertos%7Ccategory-internet-of-things%23aws-greengrass%7Ccategory-internet-of-things%23aws-iot-analytics%7Ccategory-internet-of-things%23aws-iot-button%7Ccategory-internet-of-things%23aws-iot-device-defender%7Ccategory-internet-of-things%23aws-iot-device-management%7Ccategory-internet-of-things%23aws-iot-platform)
-* Integration with AWS IoT Services such as
-[Device Shadow](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html)
-and [Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html)
-is provided by code that been generated from a model of the service.
 * [Contributions Guidelines](./Documentation/CONTRIBUTING.md)
 
 ## License
