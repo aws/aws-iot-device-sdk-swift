@@ -1,0 +1,15 @@
+{
+    "language": "Swift",
+    "sample_file": "Samples/ConnectSample/CognitoProviderConnectSample",
+    "sample_product_name": "CognitoProviderConnectSample",
+    "sample_region": "us-east-1",
+    "sample_main_class": "",
+    "arguments": [
+        {
+            "secret": "ci/endpoint"
+        },
+        {
+            "secret": "ci/Cognito/identity_id"
+        }
+    ]
+}
