@@ -56,10 +56,6 @@ Please make sure to check out our resources too before opening an issue:
 * Check for similar [Issues](https://github.com/aws/aws-iot-device-swift/issues)
 * [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
 * [Dev Blog](https://aws.amazon.com/blogs/?awsf.blog-master-iot=category-internet-of-things%23amazon-freertos%7Ccategory-internet-of-things%23aws-greengrass%7Ccategory-internet-of-things%23aws-iot-analytics%7Ccategory-internet-of-things%23aws-iot-button%7Ccategory-internet-of-things%23aws-iot-device-defender%7Ccategory-internet-of-things%23aws-iot-device-management%7Ccategory-internet-of-things%23aws-iot-platform)
-* Integration with AWS IoT Services such as
-[Device Shadow](https://docs.aws.amazon.com/iot/latest/developerguide/iot-device-shadows.html)
-and [Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html)
-is provided by code that been generated from a model of the service.
 * [Contributions Guidelines](./Documentation/CONTRIBUTING.md)
 
 ## License
