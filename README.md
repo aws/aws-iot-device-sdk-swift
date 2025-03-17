@@ -5,7 +5,7 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 *__Jump To:__*
 * [Build the Library](#build-the-library)
 * [Use the SDK as a Dependency](#use-the-sdk-as-a-dependency)
-* [Samples](samples)
+* [Samples](./Samples/README.md)
 * [Mac-Only TLS Behavior](#mac-only-tls-behavior)
 * [Getting Help](#getting-help)
 * [FAQ](./Documentation/FAQ.md)
@@ -36,10 +36,6 @@ dependencies: [
 ],
 ```
 * If you are integrating into an Xcode project, you can add the Swift package directly in Xcode by going to File > Add Packages... and providing the AWS IoT Device SDK Swift Git URL.
-
-## Samples
-
-[Samples README](samples)
 
 ### Mac-Only TLS Behavior
 
