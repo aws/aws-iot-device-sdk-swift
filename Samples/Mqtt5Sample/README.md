@@ -1,4 +1,4 @@
-# Basic MQTT5 Sample
+# MQTT5 Sandbox Sample
 
 [**Return to main sample list**](../README.md)
 
