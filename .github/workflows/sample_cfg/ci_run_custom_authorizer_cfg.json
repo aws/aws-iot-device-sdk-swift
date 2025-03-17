@@ -1,0 +1,21 @@
+{
+    "language": "Swift",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/CustomAuthConnect",
+    "sample_product_name": "CustomAuthConnect",
+    "sample_region": "us-east-1",
+    "sample_main_class": "",
+    "arguments": [
+        {
+            "secret": "ci/endpoint"
+        },
+        {
+            "secret": "ci/CustomAuthorizer/name"
+        },
+        {
+            "data": "derp"
+        },
+        {
+            "secret": "ci/CustomAuthorizer/password"
+        }
+    ]
+}

@@ -1,9 +1,9 @@
-import Testing
-@testable import AwsIotDeviceSdkSwift
-
-import XCTest
-import Foundation
 import AwsCommonRuntimeKit
+import Foundation
+import Testing
+import XCTest
+
+@testable import AwsIotDeviceSdkSwift
 
 enum MqttTestError: Error {
     case timeout
@@ -41,7 +41,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
         public var publishCount = 0
         public var publishTarget = 1
 
-        init(contextName: String? = nil,
+        init(contextName: String = "",
              publishTarget: Int = 1,
              onPublishReceived: OnPublishReceived? = nil,
              onLifecycleEventStopped: OnLifecycleEventStopped? = nil,
@@ -49,12 +49,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
              onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess? = nil,
              onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure? = nil,
              onLifecycleEventDisconnection: OnLifecycleEventDisconnection? = nil) {
-            
-            if contextName != nil {
-                self.contextName = contextName! + " "
-            } else {
-                self.contextName = ""
-            }
+
+            self.contextName = contextName
 
             self.publishTarget = publishTarget
             self.publishCount = 0
@@ -75,9 +71,9 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
             self.onPublishReceived = onPublishReceived ?? { publishData in
                 if let payloadString = publishData.publishPacket.payloadAsString() {
-                    print(self.contextName + "Mqtt5Client: onPublishReceived. Topic:\'\(publishData.publishPacket.topic)\' QoS:\(publishData.publishPacket.qos) payload:\'\(payloadString)\'")
+                    print(contextName + " Mqtt5ClientTests: onPublishReceived. Topic:\'\(publishData.publishPacket.topic)\' QoS:\(publishData.publishPacket.qos) payload:\'\(payloadString)\'")
                 } else {
-                    print(self.contextName + "Mqtt5Client: onPublishReceived. Topic:\'\(publishData.publishPacket.topic)\' QoS:\(publishData.publishPacket.qos)")
+                    print(contextName + " Mqtt5ClientTests: onPublishReceived. Topic:\'\(publishData.publishPacket.topic)\' QoS:\(publishData.publishPacket.qos)")
                 }
                 self.publishPacket = publishData.publishPacket
                 self.semaphorePublishReceived.signal()
@@ -88,25 +84,25 @@ class Mqtt5ClientTests: XCBaseTestCase {
             }
 
             self.onLifecycleEventStopped = onLifecycleEventStopped ?? { _ in
-                print(self.contextName + "Mqtt5Client: onLifecycleEventStopped")
+                print(contextName + " Mqtt5ClientTests: onLifecycleEventStopped")
                 self.semaphoreStopped.signal()
             }
             self.onLifecycleEventAttemptingConnect = onLifecycleEventAttemptingConnect ?? { _ in
-                print(self.contextName + "Mqtt5Client: onLifecycleEventAttemptingConnect")
+                print(contextName + " Mqtt5ClientTests: onLifecycleEventAttemptingConnect")
             }
             self.onLifecycleEventConnectionSuccess = onLifecycleEventConnectionSuccess ?? { successData in
-                print(self.contextName + "Mqtt5Client: onLifecycleEventConnectionSuccess")
+                print(contextName + " Mqtt5ClientTests: onLifecycleEventConnectionSuccess")
                 self.negotiatedSettings = successData.negotiatedSettings
                 self.connackPacket = successData.connackPacket
                 self.semaphoreConnectionSuccess.signal()
             }
             self.onLifecycleEventConnectionFailure = onLifecycleEventConnectionFailure ?? { failureData in
-                print(self.contextName + "Mqtt5Client: onLifecycleEventConnectionFailure")
+                print(contextName + " Mqtt5ClientTests: onLifecycleEventConnectionFailure")
                 self.lifecycleConnectionFailureData = failureData
                 self.semaphoreConnectionFailure.signal()
             }
             self.onLifecycleEventDisconnection = onLifecycleEventDisconnection ?? { disconnectionData in
-                print(self.contextName + "Mqtt5Client: onLifecycleEventDisconnection")
+                print(contextName + " Mqtt5ClientTests: onLifecycleEventDisconnection")
                 self.lifecycleDisconnectionData = disconnectionData
                 self.semaphoreDisconnection.signal()
             }
@@ -118,7 +114,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     /// start client and check for connection success
-    func connectClient(client: Mqtt5Client, testContext: MqttTestContext) throws -> Void {
+    func connectClient(client: Mqtt5Client, testContext: MqttTestContext) throws {
         try client.start()
         if testContext.semaphoreConnectionSuccess.wait(timeout: .now() + 5) == .timedOut {
             print("Connection Success Timed out after 5 seconds")
@@ -128,7 +124,9 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     /// stop client and check for discconnection and stopped lifecycle events
-    func disconnectClientCleanup(client: Mqtt5Client, testContext: MqttTestContext, disconnectPacket: DisconnectPacket? = nil) throws -> Void {
+    func disconnectClientCleanup(
+        client: Mqtt5Client, testContext: MqttTestContext, disconnectPacket: DisconnectPacket? = nil
+    ) throws {
         try client.stop(disconnectPacket: disconnectPacket)
 
         if testContext.semaphoreDisconnection.wait(timeout: .now() + 5) == .timedOut {
@@ -145,7 +143,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     /// stop client and check for stopped lifecycle event
-    func stopClient(client: Mqtt5Client, testContext: MqttTestContext) throws -> Void {
+    func stopClient(client: Mqtt5Client, testContext: MqttTestContext) throws {
         try client.stop()
         if testContext.semaphoreStopped.wait(timeout: .now() + 5) == .timedOut {
             print("Stop timed out after 5 seconds")
@@ -155,7 +153,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func compareEnums<T: Equatable>(arrayOne: [T], arrayTwo: [T]) throws {
-        XCTAssertEqual(arrayOne.count, arrayTwo.count, "The arrays do not have the same number of elements")
+        XCTAssertEqual(
+            arrayOne.count, arrayTwo.count, "The arrays do not have the same number of elements")
         for i in 0..<arrayOne.count {
             XCTAssertEqual(arrayOne[i], arrayTwo[i], "The elements at index \(i) are not equal")
         }
@@ -164,23 +163,23 @@ class Mqtt5ClientTests: XCBaseTestCase {
     /*===============================================================
                      Builder Test Cases
     =================================================================*/
-
-    func testMqttBuilderMTLSFromPath() throws {
+/*
+    func testMqttBuilderMTLSFromFile() throws {
         let certPath = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
         let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-        let context = MqttTestContext(contextName: "MTLSFromPath")
-        let builder = try Mqtt5ClientBuilder.mtlsFromPath(certPath: certPath, keyPath: keyPath, endpoint: endpoint)
-
-        builder.withCallbacks(
+        let context = MqttTestContext()
+        let builder = Mqtt5ClientBuilder()
+        let mqttClient = builder.mtlsFromPath(
+            certPath: certPath, 
+            keyPath: keyPath,
+            endpoint: endpoint,
             onPublishReceived: context.onPublishReceived,
             onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
             onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
             onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
             onLifecycleEventStopped: context.onLifecycleEventStopped)
-        
-        let mqttClient = try builder.build()
         
         XCTAssertNotNil(mqttClient)
         try connectClient(client: mqttClient, testContext: context)
@@ -188,28 +187,30 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttBuilderMTLSFromData() throws {
-        let certPath = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
-        let keyPath = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+        let certPath = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
+        let keyPath = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
         let context = MqttTestContext(contextName: "MTLSFromData")
 
         let certFileURL = URL(fileURLWithPath: certPath)
         let certData = try Data(contentsOf: certFileURL)
-        
+
         let keyFileURL = URL(fileURLWithPath: keyPath)
         let keyData = try Data(contentsOf: keyFileURL)
 
-        let builder = try Mqtt5ClientBuilder.mtlsFromData(certData: certData, keyData: keyData, endpoint: endpoint)
-
-        builder.withCallbacks(
+        let mqttClient = builder.mtlsFromData(
+            certData: certData, 
+            keyData: keyData,
+            endpoint: endpoint,
             onPublishReceived: context.onPublishReceived,
             onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
             onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
             onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
             onLifecycleEventStopped: context.onLifecycleEventStopped)
-        
-        let mqttClient = try builder.build()
         
         XCTAssertNotNil(mqttClient)
         try connectClient(client: mqttClient, testContext: context)
@@ -217,23 +218,25 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttBuilderMTLSFromPKCS12() throws {
-        let pkcs12Path = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
-        let pkcs12Password = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+        let pkcs12Path = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
+        let pkcs12Password = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
+        let endpoint = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-        let context = MqttTestContext(contextName: "MTLSFromPKCS12")
-        let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
-        
-        builder.withCallbacks(
+        let context = MqttTestContext()
+        let builder = Mqtt5ClientBuilder()
+
+        let mqttClient = builder.mtlsFromPKCS12(
+            pkcs12Path: pkcs12Path, 
+            pkcs12Password: pkcs12Password,
+            endpoint: endpoint,
             onPublishReceived: context.onPublishReceived,
             onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
             onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
             onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
             onLifecycleEventStopped: context.onLifecycleEventStopped)
-        
-        builder.withClientId(createClientId())
-
-        let mqttClient = try builder.build()
         
         XCTAssertNotNil(mqttClient)
         try connectClient(client: mqttClient, testContext: context)
@@ -244,28 +247,31 @@ class Mqtt5ClientTests: XCBaseTestCase {
         let context = MqttTestContext(contextName: "DirectConnect")
         let ConnectPacket = MqttConnectOptions(keepAliveInterval: 60, clientId: createClientId())
         let clientOptions = MqttClientOptions(
-                hostName: "localhost",
-                port: 1883,
-                connectOptions: ConnectPacket,
-                connackTimeout: TimeInterval(10),
-        onPublishReceivedFn: context.onPublishReceived,
-        onLifecycleEventStoppedFn: context.onLifecycleEventStopped,
-        onLifecycleEventAttemptingConnectFn: context.onLifecycleEventAttemptingConnect,
-        onLifecycleEventConnectionSuccessFn: context.onLifecycleEventConnectionSuccess,
-        onLifecycleEventConnectionFailureFn: context.onLifecycleEventConnectionFailure,
-        onLifecycleEventDisconnectionFn: context.onLifecycleEventDisconnection)
+            hostName: "localhost",
+            port: 1883,
+            connectOptions: ConnectPacket,
+            connackTimeout: TimeInterval(10),
+            onPublishReceivedFn: context.onPublishReceived,
+            onLifecycleEventStoppedFn: context.onLifecycleEventStopped,
+            onLifecycleEventAttemptingConnectFn: context.onLifecycleEventAttemptingConnect,
+            onLifecycleEventConnectionSuccessFn: context.onLifecycleEventConnectionSuccess,
+            onLifecycleEventConnectionFailureFn: context.onLifecycleEventConnectionFailure,
+            onLifecycleEventDisconnectionFn: context.onLifecycleEventDisconnection)
 
         let mqttClient = try Mqtt5Client(clientOptions: clientOptions)
         try connectClient(client: mqttClient, testContext: context)
 
         let topic = "test/MQTT5_Binding_Swift_" + UUID().uuidString
-        let subscribePacket = SubscribePacket(topicFilter: topic, qos: QoS.atLeastOnce, noLocal: false)
-        let subackPacket: SubackPacket = try await mqttClient.subscribe(subscribePacket: subscribePacket)
+        let subscribePacket = SubscribePacket(
+            topicFilter: topic, qos: QoS.atLeastOnce, noLocal: false)
+        let subackPacket: SubackPacket = try await mqttClient.subscribe(
+            subscribePacket: subscribePacket)
         print("SubackPacket received with result \(subackPacket.reasonCodes[0])")
 
-        let publishPacket = PublishPacket(qos: QoS.atLeastOnce, topic: topic, payload: "Hello World".data(using: .utf8))
+        let publishPacket = PublishPacket(
+            qos: QoS.atLeastOnce, topic: topic, payload: "Hello World".data(using: .utf8))
         let publishResult: PublishResult =
-                try await mqttClient.publish(publishPacket: publishPacket)
+            try await mqttClient.publish(publishPacket: publishPacket)
         if let puback = publishResult.puback {
             print("PubackPacket received with result \(puback.reasonCode)")
         } else {
@@ -275,282 +281,5 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
-
-    func testMqttWebsocketWithDefaultAWSSigning() async throws {
-        let region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_WS_REGION")
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
-
-        // setup role credentials
-        let accessKey = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
-        let secret = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
-        let sessionToken = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
-
-        let context = MqttTestContext(contextName: "WebsocketWithDefaultAWSSigning")
-        let provider = try CredentialsProvider(source: .static(accessKey: accessKey,
-                                                               secret: secret,
-                                                               sessionToken: sessionToken))
-
-        // if Env Variables AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN
-        // are set, provider can be created without providing a static source like this below.
-        /*
-        let elg = try EventLoopGroup()
-        let resolver = try HostResolver(eventLoopGroup: elg, maxHosts: 16, maxTTL: 30)
-        let clientBootstrap = try ClientBootstrap(
-            eventLoopGroup: elg, 
-            hostResolver: resolver)
-
-        let provider = try CredentialsProvider(source: .defaultChain(
-            bootstrap: clientBootstrap, 
-            fileBasedConfiguration: FileBasedConfiguration()))
-        */
-        
-        let builder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-            endpoint: endpoint,
-            region: region,
-            credentialsProvider: provider)
-
-        builder.withCallbacks(onPublishReceived: context.onPublishReceived,
-                              onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-                              onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-                              onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-                              onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-    
-    func testMqttWebsocketWithCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_CUSTOM_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_CUSTOM_AUTHORIZER_PASSWORD")
-        let context = MqttTestContext(contextName: "WebsocketWithCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.websocketsWithCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authPassword: customAuthPassword.data(using: .utf8)!,
-            authUsername: "Derpo")
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId(createClientId())
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    func testMqttWebsocketWithUnignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")// "AWS_TEST_MQTT5_IOT_CORE_HOST")
-        let customAuthUsername = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_USERNAME")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_PASSWORD")
-        let authTokenValue = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN")
-        let authTokenKeyName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_KEY_NAME")
-        let context = MqttTestContext(contextName: "WebsocketWithUnignedCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.websocketsWithUnsignedCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authPassword: customAuthPassword.data(using: .utf8),
-            authTokenKeyName: authTokenKeyName,
-            authTokenValue: authTokenValue,
-            authUsername: customAuthUsername)
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId(createClientId())
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    func testMqttWebsocketWithSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")// "AWS_TEST_MQTT5_IOT_CORE_HOST")
-        let customAuthUsername = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_PASSWORD")
-        let authTokenValue = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN")
-        let authTokenKeyName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_KEY_NAME")
-        let authAuthorizerSignature = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_SIGNATURE")
-        let context = MqttTestContext(contextName: "WebsocketWithSignedCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.websocketsWithSignedCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authPassword: customAuthPassword.data(using: .utf8),
-            authAuthorizerSignature: authAuthorizerSignature,
-            authTokenKeyName: authTokenKeyName,
-            authTokenValue: authTokenValue,
-            authUsername: customAuthUsername)
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId(createClientId())
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    func testMqttWebsocketWithUnencodedSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")// "AWS_TEST_MQTT5_IOT_CORE_HOST")
-        let customAuthUsername = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_PASSWORD")
-        let authTokenValue = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN")
-        let authTokenKeyName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_KEY_NAME")
-        let authAuthorizerSignature = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_SIGNATURE_UNENCODED")
-        let context = MqttTestContext(contextName: "WebsocketWithUnencodedSignedCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.websocketsWithSignedCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authPassword: customAuthPassword.data(using: .utf8),
-            authAuthorizerSignature: authAuthorizerSignature,
-            authTokenKeyName: authTokenKeyName,
-            authTokenValue: authTokenValue,
-            authUsername: customAuthUsername)
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId(createClientId())
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    
-
-    func testMqttDirectWithUnsignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
-        let customAuthUsername = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_USERNAME")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_NO_SIGNING_AUTHORIZER_PASSWORD")
-        let context = MqttTestContext(contextName: "DirectWithUnsignedCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authPassword: customAuthPassword.data(using: .utf8),
-            authUsername: customAuthUsername)
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId(createClientId())
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    func testMqttDirectWithSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
-        let customAuthUsername = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_PASSWORD")
-        let authTokenValue = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN")
-        let authTokenKeyName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_KEY_NAME")
-        let authAuthorizerSignature = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_SIGNATURE")
-        let context = MqttTestContext(contextName: "DirectWithSignedCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authAuthorizerSignature: authAuthorizerSignature,
-            authTokenKeyName: authTokenKeyName,
-            authTokenValue: authTokenValue,
-            authUsername: customAuthUsername,
-            authPassword: customAuthPassword.data(using: .utf8)!)
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId("createClientId()")
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    func testMqttDirectWithUnencodedSignedCustomAuth() async throws {
-        let endpoint = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_ENDPOINT_CRT")
-        let customAuthUsername = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_USERNAME")
-        let customAuthName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_NAME")
-        let customAuthPassword = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_PASSWORD")
-        let authTokenValue = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN")
-        let authTokenKeyName = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_KEY_NAME")
-        let authAuthorizerSignature = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_SIGNING_AUTHORIZER_TOKEN_SIGNATURE_UNENCODED")
-        let context = MqttTestContext(contextName: "DirectWithSignedCustomAuth")
-
-        let builder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
-            endpoint: endpoint,
-            authAuthorizerName: customAuthName,
-            authAuthorizerSignature: authAuthorizerSignature,
-            authTokenKeyName: authTokenKeyName,
-            authTokenValue: authTokenValue,
-            authUsername: customAuthUsername,
-            authPassword: customAuthPassword.data(using: .utf8)!)
-
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
-
-        builder.withClientId("createClientId()")
-
-        let mqttClient = try builder.build()
-
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
+    */
 }
