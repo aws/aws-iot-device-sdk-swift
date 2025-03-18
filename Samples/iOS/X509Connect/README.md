@@ -1,4 +1,4 @@
-# iOS PubSub Sample
+# iOS X509Connect Sample
 
 [**Return to main sample list**](./README.md)
 
@@ -69,14 +69,14 @@ On startup, the device connects to the server, subscribes to a topic, and begins
 3. [Install the SDK][TODO: SDK README IS IN WIP]
 
 ## How to run the sample (with XCode)
-0. Prepare your certificates: Download your certificate files into `PubSub\MqttClient` folder. Save the certificate files as `.\PubSub\MqttClient\cert.pem`, and the private key file as `.\PubSub\MqttClient\privatekey.pem`.
-1. Launch the `PubSub\MqttClient.xcodeproject` with XCode
-2. Setup your endpoint in `PubSub\MqttClient\ContentView.swift`: Replace "<your-endpoint>" in the source with your IoT endpoint value.
+0. Prepare your certificates: Download your certificate files into `X509Connect\MqttClient` folder. Save the certificate files as `.\X509Connect\MqttClient\cert.pem`, and the private key file as `.\X509Connect\MqttClient\privatekey.pem`.
+1. Launch the `X509Connect\MqttClient.xcodeproject` with XCode
+2. Setup your endpoint in `X509Connect\MqttClient\ContentView.swift`: Replace "<your-endpoint>" in the source with your IoT endpoint value.
 ```
 let TEST_HOST = "<your-endpoint>"
 ```
 3. Run the project. You should see the the following screen
-![image](./PubSubScreenshot.png)
+![image](./iOSAppScreenshot.png)
 4. Click "Setup Client and Start" to start connection
 
 ## Trouble Shoot
