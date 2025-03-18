@@ -6,7 +6,7 @@ This sample uses the
 [Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
 for AWS IoT to send and receive messages through an MQTT connection.
 
-On startup, the device connects to the server, subscribes to a topic, and begins publishing messages to that topic. The device should receive those same messages back from the message broker, since it is subscribed to that same topic. Status updates are continually printed to the console. This sample demonstrates how to send and receive messages on designated IoT Core topics, an essential task that is the backbone of many IoT applications that need to send data over the internet. This sample simply subscribes and publishes to a topic, printing the messages it just sent as it is received from AWS IoT Core, but this can be used as a reference point for more complex Pub-Sub applications.
+On startup, the device connects to the server, subscribes to a topic, and begins publishing messages to that topic. This sample demonstrates how to send and receive messages on designated IoT Core topics, an essential task that is the backbone of many IoT applications that need to send data over the internet. This sample simply subscribes and publishes to a topic, printing the messages it just sent as it is received from AWS IoT Core, but this can be used as a reference point for more complex Pub-Sub applications.
 
 ## Before running the sample
 
@@ -29,7 +29,12 @@ let TEST_HOST = "<your-endpoint>"
 
 ![image](./iOSAppScreenshot.png)
 
-4. Click "Setup Client and Start" to start connection
+4. Test the operation: 
+
+* Click "Setup Client and Start" to start a connection session. 
+* Click "Publish A Message" to send a publish message.
+* Click "Stop Connection" to stop a connection session. 
+
 
 ## Trouble Shoot
 ### Enable logging in samples

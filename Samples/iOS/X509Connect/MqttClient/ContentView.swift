@@ -12,6 +12,7 @@ let MESSAGE_NUMBER = 10;
 
 var mqttTestContext = MqttTestContext()
 var client: Mqtt5Client?
+var messageCount = 0
 
 struct ContentView: View {
     @ObservedObject var testContext = mqttTestContext
@@ -20,6 +21,16 @@ struct ContentView: View {
             Button("Setup Client and Start") {
                 Task {
                     await setupClientAndStart()
+                }
+            }
+            Button("Publish A Message") {
+                Task {
+                    await PublishAMessage()
+                }
+            }
+            Button("Stop Connection") {
+                Task {
+                    await stopClient()
                 }
             }
             NavigationView {
@@ -78,23 +89,23 @@ public var onPublishReceived: OnPublishReceived = { publishData in
     }
 }
 public var onLifecycleEventStopped: OnLifecycleEventStopped = { _ in
-    mqttTestContext.printView("Mqtt5ClientTests: onLifecycleEventStopped")
+    mqttTestContext.printView("Lifecycle Event Stopped")
     semaphoreStopped.signal()
 }
 
 public var onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect = { _ in
-    mqttTestContext.printView("Mqtt5ClientTests: onLifecycleEventAttemptingConnect")
+    mqttTestContext.printView("Lifecycle Event Attempting Connect")
 }
 public var onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { _ in
-    mqttTestContext.printView("Mqtt5ClientTests: onLifecycleEventConnectionSuccess")
+    mqttTestContext.printView("Lifecycle Event Connection Success")
     semaphoreConnectionSuccess.signal()
 }
 public var onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure = { failureData in
-    mqttTestContext.printView("Mqtt5ClientTests: onLifecycleEventConnectionFailure")
+    mqttTestContext.printView("Lifecycle Event Connection Failure")
     semaphoreConnectionFailure.signal()
 }
 public var onLifecycleEventDisconnection: OnLifecycleEventDisconnection = { disconnectionData in
-    mqttTestContext.printView("Mqtt5ClientTests: onLifecycleEventDisconnection:  \(disconnectionData.crtError.code)")
+    mqttTestContext.printView("Lifecycle Event Disconnection:  (\(disconnectionData.crtError.code)) \(disconnectionData.crtError.message) ")
     semaphoreDisconnection.signal()
 }
 
@@ -107,62 +118,83 @@ public var onLifecycleEventDisconnection: OnLifecycleEventDisconnection = { disc
 // 4. Publish Messages
 // 5. Stop session
 func setupClientAndStart() async {
-    
-    // 0. Initialize the library
-    // Init the library
-    CommonRuntimeKit.initialize()
-    // Optional init debug log to help with debugging.
-    try? Logger.initialize(target: .standardOutput, level: .debug)
 
-    // 1.Setup Connect Options & Create a Mqtt Client
-    // 1.1 Grab credential data from file
+    // Optional init debug log to help with debugging.
+    // try? Logger.initialize(target: .standardOutput, level: .debug)
+
+    // Grab credential data from file
     let certData = try! Data(contentsOf: Bundle.main.url(forResource: "cert", withExtension: "pem")!)
     let keyData = try! Data(contentsOf: Bundle.main.url(forResource: "privatekey", withExtension: "pem")!)
     
     do {
-        // 1.2 Create and config a client builder to access credentials from data
-        let clientBuilder = try Mqtt5ClientBuilder.mtlsFromData(certData: certData, keyData: keyData, endpoint: TEST_HOST)
-        // 1.3 Setup callbacks and other client options
-        clientBuilder.withCallbacks(onPublishReceived: onPublishReceived,
-                                    onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
-                                    onLifecycleEventConnectionSuccess: onLifecycleEventConnectionSuccess,
-                                    onLifecycleEventConnectionFailure: onLifecycleEventConnectionFailure,
-                                    onLifecycleEventDisconnection: onLifecycleEventDisconnection,
-                                    onLifecycleEventStopped: onLifecycleEventStopped)
-        // 1.4 use the builder to create the Mqtt5 Client
-        client = try clientBuilder.build()
+            
+
+        if client == nil {
+            // 0. Initialize the library
+            // Init the library
+            CommonRuntimeKit.initialize()
+        
+            // 1. Setup Connect Options & Create a Mqtt Client
+            // 1.1 Create and config a client builder to access credentials from data
+            let clientBuilder = try Mqtt5ClientBuilder.mtlsFromData(certData: certData, keyData: keyData, endpoint: TEST_HOST)
+            // 1.2 Setup callbacks and other client options
+            clientBuilder.withCallbacks(onPublishReceived: onPublishReceived,
+                                        onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
+                                        onLifecycleEventConnectionSuccess: onLifecycleEventConnectionSuccess,
+                                        onLifecycleEventConnectionFailure: onLifecycleEventConnectionFailure,
+                                        onLifecycleEventDisconnection: onLifecycleEventDisconnection,
+                                        onLifecycleEventStopped: onLifecycleEventStopped)
+            // 1.3 use the builder to create the Mqtt5 Client
+            client = try clientBuilder.build()
+        }
         
         if let _client  = client {
             // 2. Start a connection session
             try _client.start()
             if semaphoreConnectionSuccess.wait(timeout: .now() + 5) == .timedOut {
-                print("Client failed to connect after 5 seconds")
+                mqttTestContext.printView("Client failed to connect after 5 seconds")
             }
             
             // 3. Subscribe to topic
              async let _ = try await client!.subscribe(subscribePacket: SubscribePacket(
                 subscription: Subscription(topicFilter: TEST_TOPIC, qos: QoS.atLeastOnce)))
             
-            // 4. Publish Messages
-            Task{
-                var index = 0;
-                while(index < MESSAGE_NUMBER){
-                    let _: PublishResult = try! await _client.publish(publishPacket: PublishPacket(qos: QoS.atLeastOnce, topic: TEST_TOPIC, payload: ("Hello World \(index)".data(using: .utf8))))
-                    index += 1;
-                }
-            }
-            
-            // Wait for all message get received
-            semaphorePublishReceived.wait()
-            
-            // 5. Disconnect
-            try _client.stop()
-            if semaphoreDisconnection.wait(timeout: .now() + 5) == .timedOut {
-                print("Client stop Failed after 5 seconds")
-            }
-            
         }
-    } catch {
-        mqttTestContext.printView("Failed to setup client.")
+    } catch let err  {
+        mqttTestContext.printView("Failed to setup client: \(err)")
     }
+}
+
+func PublishAMessage() async {
+    if let _client  = client {
+        do{
+            // 4. Publish Messages
+            let _: PublishResult = try await _client.publish(publishPacket: PublishPacket(qos: QoS.atLeastOnce, topic: TEST_TOPIC, payload: ("Hello World \(messageCount)".data(using: .utf8))))
+            messageCount += 1
+        }
+        catch let err  {
+            mqttTestContext.printView("Publish Message Failed: \(err)")
+        }
+    }else{
+        mqttTestContext.printView("Client is not started, please \"Setup Client and Start\" first.");
+    }
+}
+
+func stopClient() async {
+    
+    if let _client  = client {
+        // 5. Disconnect
+        do{
+            try _client.stop()
+            if semaphoreStopped.wait(timeout: .now() + 5) == .timedOut {
+                mqttTestContext.printView("Client stop Failed after 5 seconds")
+            }
+        }catch let err  {
+            mqttTestContext.printView("Failed to stop the client: \(err)")
+        }
+    }else{
+        mqttTestContext.printView("Client is not started, please \"Setup Client and Start\" first.");
+    }
+    
+
 }
