@@ -106,7 +106,6 @@ struct X509MTLSConnectSample: ParsableCommand {
             /**********************************************
              * 4. Create Mqtt5 Client with Mqtt5ClientBuilder
              ***********************************************/
-            print("Building Mqtt5 Client")
             let client = try clientBuilder.build()
 
             /**************************************
@@ -114,7 +113,6 @@ struct X509MTLSConnectSample: ParsableCommand {
              **************************************/
             // `start()` will put the Mqtt5 Client in a state that desires to be connected. A connection attempt will be made.
             // If an attempt fails, the client will continue to attempt connections until it is instructed to `stop()`.
-            print("Starting Mqtt5 Client")
             try client.start()
 
             // Wait for a successful connection before proceeding with the sample.
@@ -125,7 +123,6 @@ struct X509MTLSConnectSample: ParsableCommand {
              **************************************/
             // `stop()` will put the Mqtt5 Client in a state that desires to be disconnected. If in a connected state, the client
             // will disconnect and not attempt to connect until it is instructed to `start()`.
-            print("Stopping Mqtt5 Client")
             try client.stop()
 
             // Wait for the client to be stopped before exiting the sample.
