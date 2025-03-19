@@ -767,8 +767,8 @@ public class Mqtt5ClientBuilder {
                 }
 
                 // Apply labels if available
-                if let certLabel = _certLabel, let keyLabel = _keyLabel {
-                    try tlsOptions.setSecitemLabels(certLabel: certLabel, keyLabel: keyLabel)
+                if _certLabel != nil || _keyLabel != nil {
+                    try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
                 }
 
                 _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
