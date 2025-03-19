@@ -104,7 +104,6 @@ Please make sure to check out our resources too before opening an DISCUSSION:
 * [FAQ](../../../Documentation/FAQ.md)
 * [MQTT5 User Guide](../../../Documentation/MQTT5_Userguide.md)
 * [What is AWS IOT?](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
-* [IoT Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
 * [Check for similar issues](https://github.com/aws/aws-iot-device-sdk-swift/issues)
 * [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
 * [Dev Blog](https://aws.amazon.com/blogs/?awsf.blog-master-iot=category-internet-of-things%23amazon-freertos%7Ccategory-internet-of-things%23aws-greengrass%7Ccategory-internet-of-things%23aws-iot-analytics%7Ccategory-internet-of-things%23aws-iot-button%7Ccategory-internet-of-things%23aws-iot-device-defender%7Ccategory-internet-of-things%23aws-iot-device-management%7Ccategory-internet-of-things%23aws-iot-platform)
