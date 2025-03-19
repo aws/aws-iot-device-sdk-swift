@@ -3,20 +3,17 @@
 
 import SwiftUI
 
-
 @main
 struct MqttClientAppWrapper {
     static func main() {
         if #available(iOS 14.0, *) {
             MqttClientApp.main()
-        }
-        else {
+        } else {
             // The main actor only exists for 14.0 and above.
             UIApplicationMain(CommandLine.argc, CommandLine.unsafeArgv, nil, NSStringFromClass(SceneDelegate.self))
         }
     }
 }
-
 
 @available(iOS 14.0, *)
 struct MqttClientApp: App {
