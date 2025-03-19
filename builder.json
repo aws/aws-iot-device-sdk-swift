@@ -1,0 +1,48 @@
+{
+  "name": "aws-iot-device-sdk-swift",
+  "enabled": true,
+  "needs_compiler": false,
+  "build_steps": [
+    "swift --version",
+    "swift build -c release"
+  ],
+  "run_tests": true,
+  "test_steps": [
+    "crt-ci-prep-xcodebuild",
+    "xcode-tests"
+  ],
+  "hosts": {
+    "al2012": {
+      "enabled": false
+    },
+    "alpine": {
+      "enabled": false
+    },
+    "windows": {
+      "enabled": false
+    }
+  },
+  "targets": {
+    "ios": {
+      "!build_steps": [
+        "xcodebuild -scheme AwsCommonRuntimeKit -destination 'generic/platform=iOS'"
+      ]
+    },
+    "tvos": {
+      "!build_steps": [
+        "xcodebuild -scheme AwsCommonRuntimeKit -destination 'generic/platform=tvOS'"
+      ]
+    },
+    "watchos": {
+      "!build_steps": [
+        "xcodebuild -scheme AwsCommonRuntimeKit -destination 'generic/platform=watchOS'"
+      ]
+    },
+    "linux":{
+      "!test_steps":[
+        "crt-ci-prep",
+        "swift test"
+      ]
+    }
+  }
+}
