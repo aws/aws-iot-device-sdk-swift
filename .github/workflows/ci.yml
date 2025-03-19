@@ -70,7 +70,7 @@ jobs:
                 # Unlock the new keychain.
                 security unlock-keychain -p "" ci.keychain
                 # Adjust the key partition list so that tools can access keys in the keychain.
-                security set-key-partition-list -S apple-tool:,apple: -s -k "" ci.keychain
+                security set-key-partition-list -S apple-tool:,apple: -s -k "" ci.keychain || true
             - name: run X509Connect sample
               run: |
                 source .venv/bin/activate
