@@ -23,6 +23,10 @@ struct Sigv4WebsocketSample: ParsableCommand {
     /**************************************
     * 0. Sample only: Parse command line arguments
     **************************************/
+    enum SampleError: Error {
+        case clientSetupFailed
+    }
+
     @Argument(help: "The endpoint to connect to.")
     var endpoint: String
 
@@ -161,7 +165,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
             print("Sample complete.")
         } catch {
             print("Failed to setup client.")
-            exit(-1)
+            throw SampleError.clientSetupFailed
         }
     }
 }
