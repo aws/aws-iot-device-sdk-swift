@@ -127,6 +127,7 @@ struct X509MTLSConnectSample: ParsableCommand {
             print("Sample complete.")
         } catch {
             print("Failed to setup client.")
+            exit(-1)
         }
     }
 }
