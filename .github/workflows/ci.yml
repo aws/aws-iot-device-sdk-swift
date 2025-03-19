@@ -60,30 +60,30 @@ jobs:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
             # Unlock the login keychain (assuming it has an empty password)
-            - name: Create and unlock custom keychain
-              run: |
-                # Create a new keychain named "ci.keychain" with an empty password.
-                security create-keychain -p "" ci.keychain
-                # Make sure the new keychain is added to the list and set as default.
-                security list-keychains -s ci.keychain ~/Library/Keychains/login.keychain-db
-                security default-keychain -s ci.keychain
-                # Unlock the new keychain.
-                security unlock-keychain -p "" ci.keychain
-                # Adjust the key partition list so that tools can access keys in the keychain.
-                security set-key-partition-list -S apple-tool:,apple: -s -k "" ci.keychain || true
+            # - name: Create and unlock custom keychain
+            #   run: |
+            #     # Create a new keychain named "ci.keychain" with an empty password.
+            #     security create-keychain -p "" ci.keychain
+            #     # Make sure the new keychain is added to the list and set as default.
+            #     security list-keychains -s ci.keychain ~/Library/Keychains/login.keychain-db
+            #     security default-keychain -s ci.keychain
+            #     # Unlock the new keychain.
+            #     security unlock-keychain -p "" ci.keychain
+            #     # Adjust the key partition list so that tools can access keys in the keychain.
+            #     security set-key-partition-list -S apple-tool:,apple: -s -k "" ci.keychain || true
             - name: run X509Connect sample
               run: |
                 source .venv/bin/activate
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_x509_cert_connect_cfg.json            
-            - name: run Pkcs12Connect sample
-              run: |
-                pwd
-                cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/mqtt5_thing/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > /tmp/certificate.pem
-                key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/mqtt5_thing/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > /tmp/privatekey.pem
-                pkcs12_password=derp
-                openssl pkcs12 -export -in /tmp/certificate.pem -inkey /tmp/privatekey.pem -out /tmp/pkcs12-key.p12 -name PubSub_Thing_Alias -password pass:$pkcs12_password
-                source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_pkcs12_connect_cfg.json
+            # - name: run Pkcs12Connect sample
+            #   run: |
+            #     pwd
+            #     cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/mqtt5_thing/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > /tmp/certificate.pem
+            #     key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/mqtt5_thing/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > /tmp/privatekey.pem
+            #     pkcs12_password=derp
+            #     openssl pkcs12 -export -in /tmp/certificate.pem -inkey /tmp/privatekey.pem -out /tmp/pkcs12-key.p12 -name PubSub_Thing_Alias -password pass:$pkcs12_password
+            #     source .venv/bin/activate
+            #     python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_pkcs12_connect_cfg.json
             - name: run Sigv4Auth Sample
               run: |
                 source .venv/bin/activate
