@@ -24,11 +24,11 @@ env:
 
 jobs:
     lint:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: GitHub Action for SwiftLint
-        uses: norio-nomura/action-swiftlint@3.2.1
+      runs-on: ubuntu-24.04
+      steps:
+        - uses: actions/checkout@v4
+        - name: GitHub Action for SwiftLint
+          uses: norio-nomura/action-swiftlint@3.2.1
 
     linux:
       runs-on: ubuntu-24.04
