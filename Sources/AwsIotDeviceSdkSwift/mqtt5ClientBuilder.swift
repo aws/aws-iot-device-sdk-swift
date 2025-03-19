@@ -767,7 +767,9 @@ public class Mqtt5ClientBuilder {
                 }
 
                 // Apply labels if available
-                try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
+                if _certLabel != nil || _keyLabel != nil {
+                    try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
+                }
 
                 _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
             }
