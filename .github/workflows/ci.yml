@@ -59,6 +59,11 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
+            # Unlock the login keychain (assuming it has an empty password)
+            - name: Unlock keychain
+              run: |
+                security unlock-keychain -p "" ~/Library/Keychains/login.keychain
+                security set-key-partition-list -S apple-tool:,apple: -s -k "" ~/Library/Keychains/login.keychain
             - name: run X509Connect sample
               run: |
                 source .venv/bin/activate
