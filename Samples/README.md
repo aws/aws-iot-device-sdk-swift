@@ -11,4 +11,8 @@ Samples that show how to connect to AWS IoT Core using various connection method
 Sample that can be used to perform MQTT5 operations from command line
 * [MQTT Sandbox Command Line Sample](./Mqtt5Sample/README.md)
 
+## MQTT5 iOS Sample
+Sample on iOS platform
+* [Direct MQTT with X509 on iOS](./iOS/X509Connect/README.md)
+
 [Back to main README](../README.md)
