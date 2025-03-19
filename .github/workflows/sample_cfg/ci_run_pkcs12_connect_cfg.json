@@ -9,7 +9,7 @@
             "secret": "ci/endpoint"
         },
         {
-            "data": "./pkcs12-key.p12"
+            "data": "/tmp/pkcs12-key.p12"
         },
         {
             "data": "derp"
