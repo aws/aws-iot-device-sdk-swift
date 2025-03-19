@@ -121,6 +121,9 @@ jobs:
               xcode: Xcode_14.1
             - target: { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'}
               xcode: Xcode_14.1
+      permissions:
+        id-token: write
+        contents: read # This is required for actions/checkout
       steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
