@@ -2,7 +2,7 @@
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish an MQTT connection with an AWS IoT service using X509 client certificates.
+This sample demonstrates how to establish an MQTT connection with an AWS IoT service using X509 client certificate files.
 
 You will uses the
 [message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
@@ -19,26 +19,26 @@ If you don't have an AWS account, complete [these steps](https://docs.aws.amazon
 See the [AWS IoT Developer Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) to learn about AWS IoT.
 
 ### Required Arguments:
-* <b>endpoint</b> - Account specific endpoint
-* <b>cert</b> - Path to certificate file
-* <b>key</b> - Path to private key file
+* <b>--endpoint</b> - Account specific endpoint
+* <b>--cert</b> - Path to certificate file
+* <b>--key</b> - Path to private key file
 ### Optional Arguments:
-* <b>client-id</b> - The MQTT 5 client ID the sample use. If an ID isn't provided, "test-\<UUID\>" will be used.
+* <b>--client-id</b> - The MQTT 5 client ID the sample use. If an ID isn't provided, "test-\<UUID\>" will be used.
 
 ### Build the sample
 ```
 // The sample should be built from the sample's folder
-cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/X509Connect
+cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/CertAndKeyFileConnect
 
 // build the sample
 swift build
 ```
 ### Run the sample
 ```
-swift run X509Connect \
-    <endpoint> \
-    <certificate path> \
-    <private key path>
+swift run CertAndKeyFileConnect \
+    --endpoint <endpoint> \
+    --cert <certificate path> \
+    --key <private key path>
 
 ```
 
