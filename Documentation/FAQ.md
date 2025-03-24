@@ -66,7 +66,7 @@ After getting it working make sure to only allow the actions and resources that 
         * When using samples you only need the private key and it will look like this: `--key abcde12345-private.pem.key`
 
 
-### Permission Denied on s2n
+### Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied
 s2n is a Unix-specific library, and if you encounter a "Permission Denied" error, it is most likely because you are attempting to use it on an unsupported platform. The AWS IoT Device SDK for Swift supports the following platforms: macOS, iOS, tvOS, and Linux. 
 
 ### I still have more questions about this sdk?
