@@ -11,7 +11,7 @@ let package = Package(
         .tvOS(.v13)
     ],
     products: [
-        .executable(name: "CertAndKeyFileConnect", targets: ["X509Connect"])
+        .executable(name: "CertAndKeyFileConnect", targets: ["CertAndKeyFileConnect"])
     ],
     dependencies: [
         .package(path: "../../../"), // TODO: DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
