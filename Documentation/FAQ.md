@@ -11,7 +11,7 @@
 
 ### Where should I start?
 
-If you are just getting started make sure you [build this sdk](https://github.com/aws/aws-iot-device-sdk-swift#build-the-library) and then build and run the [X509 Connect Sample](https://github.com/aws/aws-iot-device-sdk-swift/tree/main/Samples/Mqtt5ConnectionSamples/X509Connect)
+If you are just getting started make sure you [build this sdk](https://github.com/aws/aws-iot-device-sdk-swift#build-the-library) and then build and run the [Certificate and Key File Connect Sample](https://github.com/aws/aws-iot-device-sdk-swift/tree/main/Samples/Mqtt5ConnectionSamples/CertAndKeyFileConnect)
 
 ### Where can I get the API documentation?
 Load the library in XCode and then go to Product->Build Documentation.

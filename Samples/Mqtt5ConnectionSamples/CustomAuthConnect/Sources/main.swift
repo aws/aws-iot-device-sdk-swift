@@ -39,16 +39,16 @@ struct SignedCustomAuthSample: ParsableCommand {
     var authorizerPassword: String
 
     @Option(help: "Optional: Name of the username query param that will contain the token value.")
-    var tokenKeyName: String? = nil
+    var tokenKeyName: String?
 
     @Option(
         help:
             "Optional: Value of the username query param that holds the token value that has been signed."
     )
-    var tokenValue: String? = nil
+    var tokenValue: String?
 
     @Option(help: "Optional: URI-encoded base64-encoded digital signature of tokenValue.")
-    var tokenSignature: String? = nil
+    var tokenSignature: String?
 
     @Argument(
         help: "Client id to use (optional). Please make sure the client id matches the policy.")
@@ -74,13 +74,12 @@ struct SignedCustomAuthSample: ParsableCommand {
             /**************************************
              * 2. Create Mqtt5ClientBuilder
              **************************************/
-            var clientBuilder: Mqtt5ClientBuilder? = nil
+            var clientBuilder: Mqtt5ClientBuilder?
 
             // If a tokenKeyName, tokenValue, and tokenSignature has been provided, initialize an Mqtt5ClientBuilder configured to
             // connect using a signed custom authorizer.
             if let _tokenKeyName = tokenKeyName, let _tokenValue = tokenValue,
-                let _tokenSignature = tokenSignature
-            {
+                let _tokenSignature = tokenSignature {
                 clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
                     endpoint: endpoint,
                     authAuthorizerName: authroizerName,
@@ -117,8 +116,7 @@ struct SignedCustomAuthSample: ParsableCommand {
                 connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async
-            {
+                async {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )

@@ -1,7 +1,7 @@
 {
     "language": "Swift",
-    "sample_file": "Samples/Mqtt5ConnectionSamples/X509Connect",
-    "sample_product_name": "X509Connect",
+    "sample_file": "Samples/Mqtt5ConnectionSamples/CertAndKeyFileConnect",
+    "sample_product_name": "CertAndKeyFileConnect",
     "sample_region": "us-east-1",
     "sample_main_class": "",
     "arguments": [

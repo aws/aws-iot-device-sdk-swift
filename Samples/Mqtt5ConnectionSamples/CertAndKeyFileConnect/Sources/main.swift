@@ -18,7 +18,7 @@ import Foundation
 // 6. Stop the connection session
 
 @main
-struct X509MTLSConnectSample: ParsableCommand {
+struct CertAndKeyFileConnectSample: ParsableCommand {
     /**************************************
     * 0. Sample only: Parse command line arguments
     **************************************/
@@ -26,16 +26,16 @@ struct X509MTLSConnectSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "The path to the certificate file.")
+    @Option(help: "The path to the certificate file.")
     var cert: String
 
-    @Argument(help: "The path to the private key file.")
+    @Option(help: "The path to the private key file.")
     var key: String
 
-    @Argument(
+    @Option(
         help: "Client id to use (optional). Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
@@ -77,8 +77,7 @@ struct X509MTLSConnectSample: ParsableCommand {
                 connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async
-            {
+                async {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )

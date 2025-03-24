@@ -22,7 +22,6 @@ class XCBaseTestCase: XCTestCase {
     }
 }
 
-
 extension XCTestCase {
     func skipTest(message: String) throws {
        throw XCTSkip(message)

@@ -1,7 +1,7 @@
 # Sample Applications for the AWS IoT Device SDK for Swift
 ## MQTT5 Connection Samples
 Samples that show how to connect to AWS IoT Core using various connection methods
-* [Direct MQTT with X509](./Mqtt5ConnectionSamples/X509Connect/README.md)
+* [Direct MQTT with X509 Certificate and Key File](./Mqtt5ConnectionSamples/CertAndKeyFileConnect/README.md)
 * [Direct MQTT with PKCS12](./Mqtt5ConnectionSamples/Pkcs12Connect/README.md)
 * [Direct MQTT with Custom Authentication](./Mqtt5ConnectionSamples/CustomAuthConnect/README.md)
 * [MQTT over Websockets with Sigv4 Authentication](./Mqtt5ConnectionSamples/Sigv4WebsocketConnect/README.md)

@@ -60,10 +60,10 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
-            - name: run X509Connect sample
+            - name: run CertAndKeyFileConnectSample sample
               run: |
                 source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_x509_cert_connect_cfg.json            
+                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cert_key_file_connect_cfg.json            
             # The Pkcs12Connect sample on macOS requires keychain access. This codepath is tested in aws-iot-device-sdk-cpp-v2 as we are able to codesign the binary there.
             # - name: run Pkcs12Connect sample
             #   run: |

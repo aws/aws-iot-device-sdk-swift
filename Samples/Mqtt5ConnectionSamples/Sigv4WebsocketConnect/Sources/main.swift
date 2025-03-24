@@ -34,13 +34,13 @@ struct Sigv4WebsocketSample: ParsableCommand {
     var region: String
 
     @Option(help: "Optional: Use an AWS Access Key ID to obtain credentials.")
-    var accessKey: String? = nil
+    var accessKey: String?
 
     @Option(help: "Optional: Use an AWS Secret Access Key to obtain credentials.")
-    var secret: String? = nil
+    var secret: String?
 
     @Option(help: "Optional: Use an AWS Session Token to obtain credentials.")
-    var sessionToken: String? = nil
+    var sessionToken: String?
 
     @Argument(
         help: "Client id to use (optional). Please make sure the client id matches the policy.")
@@ -66,7 +66,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
             /**************************************
              * 2. Setup Credentials Provider
              **************************************/
-            var provider: CredentialsProvider? = nil
+            var provider: CredentialsProvider?
 
             // If an access key, secret access key, and session token were provided, those static credentials
             // will be used by the credentials provider
@@ -111,8 +111,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
                 connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async
-            {
+                async {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )
