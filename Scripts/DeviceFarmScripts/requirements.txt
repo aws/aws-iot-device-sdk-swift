@@ -1,5 +1,6 @@
 packaging==24.0
 attrs==23.2.0
+iniconfig==2.0.0
 Appium-Python-Client==2.11.0
 pytest==7.4.3
 boto3==1.28.1

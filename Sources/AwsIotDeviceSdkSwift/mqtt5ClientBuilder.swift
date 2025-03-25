@@ -74,7 +74,7 @@ public class Mqtt5ClientBuilder {
     private var _maximumPacketSize: UInt32?
     private var _willDelayInterval: TimeInterval?
     private var _will: PublishPacket?
-    private var _userProperties: [UserProperty]?
+    private var _userProperties: [UserProperty] = []
 
     // mtlsFromPath
     init(certPath: String, keyPath: String, endpoint: String) throws {
