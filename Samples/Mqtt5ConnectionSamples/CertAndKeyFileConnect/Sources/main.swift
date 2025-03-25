@@ -26,17 +26,17 @@ struct CertAndKeyFileConnectSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Option(help: "The endpoint to connect to.")
+    @Option(help: "(Required) The endpoint to connect to.")
     var endpoint: String
 
-    @Option(help: "The path to the certificate file.")
+    @Option(help: "(Required) The path to the certificate file.")
     var cert: String
 
-    @Option(help: "The path to the private key file.")
+    @Option(help: "(Required) The path to the private key file.")
     var key: String
 
     @Option(
-        help: "Client id to use (optional). Please make sure the client id matches the policy.")
+        help: "(Optional) Client id to use. Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
     // The main function to run
