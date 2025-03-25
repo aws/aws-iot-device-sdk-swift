@@ -15,15 +15,15 @@ The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5Cli
 ### Setup an AWS Account:
 If you don't have an AWS account, complete [these steps](https://docs.aws.amazon.com/iot/latest/developerguide/setting-up.html) to create one. This will provide you with an account specific endpoint.
 
-### Understand AWS IoT:
-See the [AWS IoT Developer Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) to learn about AWS IoT.
+### Understand IoT:
+The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
 
 ### Required Arguments:
-* <b>--endpoint</b> - Account specific endpoint
-* <b>--cert</b> - Path to certificate file
-* <b>--key</b> - Path to private key file
+* <b>endpoint</b> - Account specific endpoint
+* <b>cert</b> - Path to certificate file
+* <b>key</b> - Path to private key file
 ### Optional Arguments:
-* <b>--client-id</b> - The MQTT 5 client ID the sample use. If an ID isn't provided, "test-\<UUID\>" will be used.
+* <b>client-id</b> - The MQTT 5 client ID the sample use. If an ID isn't provided, "test-\<UUID\>" will be used.
 
 ### Build the sample
 ```

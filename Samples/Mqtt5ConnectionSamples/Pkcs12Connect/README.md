@@ -2,18 +2,18 @@
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish a Mqtt Connection against AWS IoT service using a PKCS12 file. 
+This sample demonstrates how to establish an MQTT connection with an AWS IoT service using a PKCS12 file. 
 
-This sample uses the
-[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection using MQTT5.
+You will uses the
+[message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
+for AWS IoT to send and receive messages through an MQTT connection.
 
 The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5ClientBuilder.mtlsFromPKCS12()`. `MQTT5ClientBuilder` is used to set various callbacks and a client id. Once configured, the `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. The `Mqtt5Client` is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
 
-## Before running the sample
+## Before Running the Sample
 
 ### Setup an AWS Account:
-If you do not have an AWS account, complete [these steps](https://docs.aws.amazon.com/iot/latest/developerguide/setting-up.html) to create one. This will provide you an account specific endpoint.
+If you don't have an AWS account, complete [these steps](https://docs.aws.amazon.com/iot/latest/developerguide/setting-up.html) to create one. This will provide you with an account specific endpoint.
 
 ### Understand IoT:
 The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
@@ -36,16 +36,16 @@ swift build
 ### Run the sample
 ```
 swift run Pkcs12Connect \
-    <endpoint> \
-    <pkcs12-path> \
-    <pkcs12-password>
+    --endpoint <endpoint> \
+    --pkcs12-path <pkcs12-path> \
+    --pkcs12-password <pkcs12-password>
 
 ```
 
 ## Troubleshooting
 ### Enable logging in samples
 
-To enable logging in the samples, you need add the following line AFTER `IotDeviceSdk` has been initialized. The logger level has the following options: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, or `none`.
+To enable logging in the samples, you must add the following line *after* initializing `IotDeviceSdk`. The logger level has the following options: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, or `none`.
 ```swift
 // The IoT Device SDK must be initialized before it is used.
 IotDeviceSdk.initialize();
@@ -53,10 +53,10 @@ IotDeviceSdk.initialize();
 // This will turn on SDK and underlying CRT logging to assist in troubleshooting.
 try Logger.initialize(target: .standardOutput, level: .debug)
 ```
-### I'm getting Error code 5134: AWS_ERROR_MQTT_UNEXPECTED_HANGUP
-This error is most likely due to your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html) must provide privileges for this sample to connect. Below is a sample policy that can be used on your IoT Core Thing that will allow this sample to run as intended.
+### I'm getting error code 5134: AWS_ERROR_MQTT_UNEXPECTED_HANGUP
+This error is most likely due to your AWS IoT Core thing's [policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html). The policy must provide privileges for this sample to connect. The following is a sample policy that can be used on your AWS IoT Core thing that allows this sample to run as intended.
 
-For the purposes of this sample, please make sure your policy allows a client ID of `test-*` to connect or use the `--client_id <client ID here>` argument when running the sample to use a client ID your policy supports.
+For the purposes of this sample, make sure your policy allows a client ID of `test-*` to connect or use the `--client_id <client ID here>` argument to use a client ID that your policy supports.
 
 <details>
 <summary>(see sample policy)</summary>
@@ -78,18 +78,21 @@ For the purposes of this sample, please make sure your policy allows a client ID
 }
 ```
 
-  Replace with the following with the data from your AWS account:
-  * `<region>`: The AWS IoT Core region where you created your AWS IoT Core thing you wish to use with this sample. For example`us-east-1`.
-  * `<account>`: Your AWS IoT Core account ID. This is the set of numbers in the top right next to your AWS account name whenusing the AWS IoT Core website.
+  Replace the following with the data from your AWS account:
+  * `<region>`: The AWS Region where you created the AWS IoT Core thing you wish to use with this sample. For example, `us-east-1`. For more information, see [AWS IoT Core endpoints](https://docs.aws.amazon.com/general/latest/gr/iot-core.html).
+  * `<account>`: Your AWS account ID. For more information, see [View AWS account identifiers](https://docs.aws.amazon.com/accounts/latest/reference/manage-acct-identifiers.html)
 
-  Note that in a real application, you may want to avoid the use of wildcards in your ClientID or use them selectively. Please follow best practices when working with AWS on production applications using the SDK.
+  Note: In a real application, you might want to avoid the use of wildcards in your policy or use them selectively. Follow best practices when using the SDK to work with AWS on production applications.
 
 </details>
 
+### Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied
+s2n is a Unix-specific library, and if you encounter a "Permission Denied" error, it is most likely because you are attempting to use it on an unsupported platform. The AWS IoT Device SDK for Swift supports the following platforms: macOS, iOS, tvOS, and Linux.
+
 ### Other Resources
-Please make sure to check out our resources too before opening an DISCUSSION:
+Check out our resources to learn more:
 * [FAQ](../../../Documentation/FAQ.md)
-* [MQTT5 User Guide](../../../Documentation/MQTT5_Userguide.md)
+* [MQTT 5 User Guide](../../../Documentation/MQTT5_Userguide.md)
 * [What is AWS IOT?](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
 * [Check for similar issues](https://github.com/aws/aws-iot-device-sdk-swift/issues)
 * [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
