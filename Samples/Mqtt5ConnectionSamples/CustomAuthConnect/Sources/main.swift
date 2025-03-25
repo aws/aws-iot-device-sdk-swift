@@ -26,16 +26,16 @@ struct SignedCustomAuthSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "Required: The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "Name of the Custom Authorizer.")
+    @Option(help: "Required: Name of the Custom Authorizer.")
     var authroizerName: String
 
-    @Argument(help: "Value of the username field that should be passed to the authorizer's lambda.")
+    @Option(help: "Required: Value of the username field that should be passed to the authorizer's lambda.")
     var authorizerUsername: String
 
-    @Argument(help: "Value of the password field to be passed to the authorizer's lambda.")
+    @Option(help: "Required: Value of the password field to be passed to the authorizer's lambda.")
     var authorizerPassword: String
 
     @Option(help: "Optional: Name of the username query param that will contain the token value.")

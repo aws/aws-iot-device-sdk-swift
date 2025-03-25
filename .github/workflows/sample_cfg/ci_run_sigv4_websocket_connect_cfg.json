@@ -6,9 +6,11 @@
     "sample_main_class": "",
     "arguments": [
         {
+            "name": "--endpoint",
             "secret": "ci/endpoint"
         },
         {
+            "--region": "us-east-1",
             "data": "us-east-1"
         }
     ]

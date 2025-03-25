@@ -27,17 +27,17 @@ struct CognitoWebsocketSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "Required: The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "The signing region used for the websocket signer.")
+    @Option(help: "Required: The signing region used for the websocket signer.")
     var region: String
 
-    @Argument(help: "The Cognito identity ID to use to connect via Cognito.")
+    @Option(help: "Required: The Cognito identity ID to use to connect via Cognito.")
     var cognitoIdentity: String
 
-    @Argument(
-        help: "Client id to use (optional). Please make sure the client id matches the policy.")
+    @Option(
+        help: "Optional: Client id to use. Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
     // The main function to run

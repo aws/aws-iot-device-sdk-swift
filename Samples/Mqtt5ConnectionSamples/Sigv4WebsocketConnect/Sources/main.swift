@@ -27,10 +27,10 @@ struct Sigv4WebsocketSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "Required: The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "The signing region used for the websocket signer.")
+    @Option(help: "Required: The signing region used for the websocket signer.")
     var region: String
 
     @Option(help: "Optional: Use an AWS Access Key ID to obtain credentials.")
@@ -42,8 +42,8 @@ struct Sigv4WebsocketSample: ParsableCommand {
     @Option(help: "Optional: Use an AWS Session Token to obtain credentials.")
     var sessionToken: String?
 
-    @Argument(
-        help: "Client id to use (optional). Please make sure the client id matches the policy.")
+    @Option(
+        help: "Optional: Client id to use. Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
     // The main function to run

@@ -26,17 +26,17 @@ struct PKCS12Sample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "Required: The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "Path to the pkcs12 file.")
+    @Option(help: "Required: Path to the pkcs12 file.")
     var pkcs12File: String
 
-    @Argument(help: "Password for the pkcs12 file.")
+    @Option(help: "Required: Password for the pkcs12 file.")
     var pkcs12Password: String
 
-    @Argument(
-        help: "Client id to use (optional). Please make sure the client id matches the policy.")
+    @Option(
+        help: "Optional: Client id to use. Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
     // The main function to run

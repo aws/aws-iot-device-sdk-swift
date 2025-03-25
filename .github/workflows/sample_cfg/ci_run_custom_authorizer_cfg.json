@@ -6,15 +6,19 @@
     "sample_main_class": "",
     "arguments": [
         {
+            "name": "--endpoint",
             "secret": "ci/endpoint"
         },
         {
+            "name": "--authroizer-name",
             "secret": "ci/CustomAuthorizer/name"
         },
         {
+            "name": "--authorizer-username",
             "data": "derp"
         },
         {
+            "name": "--authorizer-password",
             "secret": "ci/CustomAuthorizer/password"
         }
     ]
