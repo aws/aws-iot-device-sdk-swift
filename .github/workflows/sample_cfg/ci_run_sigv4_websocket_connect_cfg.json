@@ -10,7 +10,7 @@
             "secret": "ci/endpoint"
         },
         {
-            "--region": "us-east-1",
+            "name": "--region",
             "data": "us-east-1"
         }
     ]
