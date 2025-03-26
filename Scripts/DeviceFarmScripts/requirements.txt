@@ -4,7 +4,7 @@ iniconfig==2.0.0
 Appium-Python-Client==2.11.0
 pytest==7.4.3
 boto3==1.28.1
-urllib3==1.26.18
+urllib3==1.26.19
 requests==2.28.0
 PyYAML==6.0.1
 pytest-metadata==3.0.0
