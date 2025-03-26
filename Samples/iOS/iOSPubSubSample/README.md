@@ -2,17 +2,15 @@
 
 [**Return to main sample list**](./README.md)
 
-This sample uses the
-[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection.
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) and execute MQTT operations using the MQTT 5 Client in iOS Application.
 
-This sample demonstrates how to send and receive messages on designated IoT Core topics. The sample would perform the following actions: 
+The sample would perform the following actions: 
 1. Initializes the Device SDK library
-2. Sets up the MQTT 5 Client
-3. Starts the connection session
-4. Subscribe to test topics
-5. Publish to test topics
-4. Stops the connection session
+2. Sets up the MQTT Client
+3. Opens the MQTT connection 
+4. Subscribes to test topics
+5. Publishes to test topics
+6. Closes the MQTT connection
 
 ## Before Running the Sample
 
@@ -22,10 +20,10 @@ If you don't have an AWS account, complete [these steps](https://docs.aws.amazon
 ### Understand IoT:
 The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
 
-### Prepare your IoT Thing certificates
+### Prepare Your IoT Thing certificates
 While you create an IoT thing, please download the certificate files into `iOSPubSubSample\MqttClient` folder. Save the certificate files as `.\iOSPubSubSample\MqttClient\cert.pem`, and the private key file as `.\iOSPubSubSample\MqttClient\privatekey.pem`.
 
-## How to run the sample (with XCode)
+## How to Run the Sample (with XCode)
 1. Launch the `iOSPubSubSample\MqttClient.xcodeproject` with XCode
 2. Setup your endpoint in `iOSPubSubSample\MqttClient\ContentView.swift`: Replace "<your-endpoint>" in the source with your IoT endpoint value.
 ```

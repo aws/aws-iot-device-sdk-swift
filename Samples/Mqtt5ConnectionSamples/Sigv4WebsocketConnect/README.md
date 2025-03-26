@@ -1,18 +1,8 @@
-# Websocket with Sigv4a Connect Sample
+# WebSocket with Sigv4a Connect Sample
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish an MQTT connection with an AWS IoT service through a websocket using Sigv4-based authentication. 
-
-You will uses the
-[message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection.
-
-The sample performs the following actions:
-1. Initializes the Device SDK library
-2. Sets up the MQTT 5 Client
-3. Starts the connection session
-4. Stops the connection session
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) through a WebSocket using Sigv4-based authentication. 
 
 ## Before Running the Sample
 

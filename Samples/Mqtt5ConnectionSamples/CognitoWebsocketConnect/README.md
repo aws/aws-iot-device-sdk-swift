@@ -1,18 +1,8 @@
-# Websocket with Cognito Connect Sample
+# WebSocket with Cognito Connect Sample
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish a Mqtt Connection against AWS IoT service through a websocket using a [Cognito Identity](https://aws.amazon.com/cognito/) to authorize the connection. This has the advantage of not requiring the need to store AWS credentials on the device itself with permissions to perform the IoT actions your device requires, but instead just having AWS credentials for the Cognito identity instead. This provides a layer of security and indirection that gives you better security.
-
-You will uses the
-[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection using MQTT5.
-
-The sample performs the following actions:
-1. Initializes the Device SDK library
-2. Sets up the MQTT 5 Client
-3. Starts the connection session
-4. Stops the connection session
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) through a WebSocket using a [Amazon Cognito Identity](https://aws.amazon.com/cognito/) to authorize the connection. This has the advantage of not requiring the need to store AWS credentials on the device itself with permissions to perform the IoT actions your device requires, but instead just having AWS credentials for the Amazon Cognito identity instead. This provides a layer of security and indirection that gives you better security.
 
 ## Before Running the Sample
 

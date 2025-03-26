@@ -2,16 +2,7 @@
 
 [**Return to main sample list**](../README.md)
 
-This sample demonstrates how to establish an MQTT connection with an AWS IoT service using X509 client certificates and execute MQTT operations using the MQTT 5 Client.
-
-You will uses the
-[message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection.
-
-The sample performs the following actions:
-1. Initializes the Device SDK library
-2. Sets up the MQTT 5 Client
-3. Now the Client can be instructed to complete the following operations using the command line:  `start`, `stop`, `subscribe`, `unsubscribe`, and `publish`. 
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) using X509 client certificates and execute MQTT operations using the MQTT 5 Client.
 
 ## Before Running the Sample
 

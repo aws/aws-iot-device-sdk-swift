@@ -2,19 +2,7 @@
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish an MQTT connection with an AWS IoT service using a Custom Authorizer. 
-
-You will uses the
-[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
-for AWS IoT to send and receive messages through an MQTT connection using MQTT5.
-
-[AWS IoT Core Custom Authentication](https://docs.aws.amazon.com/iot/latest/developerguide/custom-authentication.html) allows you to use a lambda to gate access to IoT Core resources. For this authentication method, you must supply an additional configuration structure containing fields relevant to AWS IoT Core Custom Authentication.
-
-The sample performs the following actions:
-1. Initializes the Device SDK library
-2. Sets up the MQTT 5 Client
-3. Starts the connection session
-4. Stops the connection session
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) using a Custom Authorizer.
 
 ## Before Running the Sample
 
