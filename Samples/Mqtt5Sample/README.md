@@ -8,7 +8,10 @@ You will uses the
 [message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
 for AWS IoT to send and receive messages through an MQTT connection.
 
-The provided arguments are used to create an `MQTT5ClientBuilder` with `Mqtt5ClientBuilder.mtlsFromPath()`. The `MQTT5ClientBuilder` is used to set various callbacks and a client id. The `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. From here the Client can be instructed to complete operations using the command line.
+The sample performs the following actions:
+1. Initializes the Device SDK library
+2. Sets up the MQTT 5 Client
+3. Now the Client can be instructed to complete the following operations using the command line:  `start`, `stop`, `subscribe`, `unsubscribe`, and `publish`. 
 
 ## Before Running the Sample
 

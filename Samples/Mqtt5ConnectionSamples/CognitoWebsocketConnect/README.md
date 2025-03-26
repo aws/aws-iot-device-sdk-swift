@@ -8,7 +8,11 @@ You will uses the
 [Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
 for AWS IoT to send and receive messages through an MQTT connection using MQTT5.
 
-The provided arguments are used to create a `CredentialsProvider` which is then used to create an `MQTT5ClientBuilder` with `Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning()`. `MQTT5ClientBuilder` is used to set various callbacks and a client id. Once configured, the `Mqtt5ClientBuilder` is used to create an `Mqtt5Client`. The `Mqtt5Client` is instructed to `start()` at which point it connects to the provided endpoint. Once it successfully connects and the `onLifecycleEventConnectionSuccess` is emitted, the `Mqtt5Client` is instructed to `stop()` at which point the `Mqtt5Client` will disconnect.
+The sample performs the following actions:
+1. Initializes the Device SDK library
+2. Sets up the MQTT 5 Client
+3. Starts the connection session
+4. Stops the connection session
 
 ## Before Running the Sample
 
