@@ -2,7 +2,7 @@
 
 This document provides information about the AWS IoT Device SDK for Swift. This SDK is built on the [AWS Common Runtime](https://docs.aws.amazon.com/sdkref/latest/guide/common-runtime.html)
 
-**Supported Platforms**: MacOS, iOS, tvOS, Linux
+**Supported Platforms**: macOS, iOS, tvOS, Linux
 
 *__Topics:__*
 * [Build the Library](#build-the-library)
@@ -49,17 +49,18 @@ dependencies: [
 Note: On Mac, after a private key is used with a certificate, that certificate-key pair is imported into the Mac Keychain.  All subsequent uses of that certificate will use the stored private key and ignore anything passed in programmatically.  When a stored private key from the Mac Keychain is used, the following is logged at the "info" log level:
 
 ```
-static: certificate has an existing certificate-key pair that was previously imported into the Keychain.  Using key from Keychain instead of the one provided.
+static: certificate has an existing certificate-key pair that was previously imported into the Keychain.
+Using key from Keychain instead of the one provided.
 ```
 
 ## Getting Help
 
 The best way to interact with our team is through GitHub.
-* Open [discussion](https://github.com/aws/aws-iot-device-sdk-swift/discussions): Share ideas and solutions ith the SDK community
-* Search [issues](https://github.com/aws/aws-iot-device-sdk-swift/issues): Find created issues for answers base on a topic
-* Create [issue](https://github.com/aws/aws-iot-device-sdk-swift/issues/new/choose): New Feature request or file a bug
+* Open [discussion](https://github.com/aws/aws-iot-device-sdk-swift/discussions): Share ideas and solutions with the SDK community
+* Search [issues](https://github.com/aws/aws-iot-device-sdk-swift/issues): Find created issues for answers based on a topic
+* Create [issue](https://github.com/aws/aws-iot-device-sdk-swift/issues/new/choose): New feature request or file a bug
 
-You might also find help on community resources such as [StackOverFlow](https://stackoverflow.com/questions/tagged/aws-iot) with the tag [#aws-iot](https://stackoverflow.com/questions/tagged/aws-iot) or if you have a support plan with [AWS Support](https://aws.amazon.com/premiumsupport/), you can also create a new support case.
+If you have a support plan with [AWS Support](https://aws.amazon.com/premiumsupport/), you can also create a new support case.
 
 ## Resources
 Check out our resources for additional guidance too before opening an issue:
