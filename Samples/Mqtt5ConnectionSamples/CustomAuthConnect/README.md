@@ -26,7 +26,7 @@ See the [AWS IoT Developer Guide](https://docs.aws.amazon.com/iot/latest/develop
 
 ### Required Arguments:
 * <b>endpoint</b> - account specific endpoint
-* <b>authroizer-name</b> - Name of your custom authorizer
+* <b>authorizer-name</b> - Name of your custom authorizer
 * <b>authorizer-username</b> - value of username field to be passed to the authorizer's lambda
 * <b>authorizer-password</b> - value of the password field to be passed to the authorizer's lambda
 ### Optional Arguments:

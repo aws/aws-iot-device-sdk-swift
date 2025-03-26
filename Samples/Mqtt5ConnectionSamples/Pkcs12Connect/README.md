@@ -1,8 +1,8 @@
-# PKCS12 Connect Sample
+# PKCS #12 Connect Sample
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish an MQTT connection with an AWS IoT service using a PKCS12 file. 
+This sample demonstrates how to establish an MQTT connection with an AWS IoT service using a PKCS #12 file. 
 
 You will uses the
 [message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
@@ -24,8 +24,8 @@ The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what
 
 ### Required Arguments:
 * <b>endpoint</b> - account specific endpoint
-* <b>pkcs12-path</b> - Path to PKCS12 file
-* <b>pkcs12-password</b> - PKCS12 password
+* <b>pkcs12-path</b> - Path to PKCS #12 file
+* <b>pkcs12-password</b> - PKCS #12 password
 ### Optional Arguments:
 * <b>client-id</b> - Mqtt5 client id to use. If not provided, "test-<UUID>" will be used.
 

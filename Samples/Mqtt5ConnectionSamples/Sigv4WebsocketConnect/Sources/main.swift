@@ -7,7 +7,7 @@ import ArgumentParser
 import AwsIotDeviceSdkSwift
 import Foundation
 
-// This sample creates an MQTT5 client and connects using a PKCS12 file.
+// This sample creates an MQTT5 client and connects using a PKCS #12 file.
 // Here are the steps to setup a client and connect.
 // 0. Sample only: Parse command line arguments
 // 1. Initialize Device Sdk library
@@ -88,7 +88,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
             /**************************************
              * 3. Create Mqtt5ClientBuilder
              **************************************/
-            // Create an Mqtt5ClientBuilder configured to connect using PKCS12
+            // Create an Mqtt5ClientBuilder configured to connect using PKCS #12
             let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
                 endpoint: endpoint,
                 region: region,

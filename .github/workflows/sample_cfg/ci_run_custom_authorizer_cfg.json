@@ -10,7 +10,7 @@
             "secret": "ci/endpoint"
         },
         {
-            "name": "--authroizer-name",
+            "name": "--authorizer-name",
             "secret": "ci/CustomAuthorizer/name"
         },
         {

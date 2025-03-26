@@ -6,7 +6,7 @@
 * [Connecting to AWS IoT Core](#connecting-to-aws-iot-core)
 * [How to create an MQTT5 Client based on desired connection method](#how-to-create-a-mqtt5-client-based-on-desired-connection-method)
     * [Direct MQTT with X509-based mutual TLS](#direct-mqtt-with-x509-based-mutual-tls)
-    * [Direct MQTT with PKCS12 Method](#direct-mqtt-with-pkcs12-method)
+    * [Direct MQTT with PKCS #12 Method](#direct-mqtt-with-pkcs-12-method)
     * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
     * [MQTT over Websockets with Cognito authentication](#mqtt-over-websockets-with-cognito-authentication)
 * [Assigning Callbacks and Optional Configurations](#assigning-callbacks-and-optional-configurations)
@@ -62,14 +62,14 @@ For X509 based mutual TLS, you can create a client where the certificate and pri
     let client = try clientBuilder.build()
 ```
 
-#### **Direct MQTT with PKCS12 Method**
+#### **Direct MQTT with PKCS #12 Method**
 
-An MQTT5 direct connection can be made using a PKCS12 file rather than using a PEM encoded private key. To create an MQTT5 builder configured for this connection, see the following code:
+An MQTT5 direct connection can be made using a PKCS #12 file rather than using a PEM encoded private key. To create an MQTT5 builder configured for this connection, see the following code:
 
 ```swift
     let endpoint: String = "<Host name of AWS IoT server>"
-    let pkcs12Path: String = "<PKCS12 file path>"
-    let pkcs12Password: String = "<PKCS12 password>"
+    let pkcs12Path: String = "<PKCS #12 file path>"
+    let pkcs12Password: String = "<PKCS #12 password>"
     
     let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
         pkcs12Path: self.pkcs12Path, 

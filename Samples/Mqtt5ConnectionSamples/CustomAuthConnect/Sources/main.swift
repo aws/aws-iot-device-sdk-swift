@@ -30,7 +30,7 @@ struct SignedCustomAuthSample: ParsableCommand {
     var endpoint: String
 
     @Option(help: "Required: Name of the Custom Authorizer.")
-    var authroizerName: String
+    var authorizerName: String
 
     @Option(help: "Required: Value of the username field that should be passed to the authorizer's lambda.")
     var authorizerUsername: String
@@ -82,7 +82,7 @@ struct SignedCustomAuthSample: ParsableCommand {
                 let _tokenSignature = tokenSignature {
                 clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
                     endpoint: endpoint,
-                    authAuthorizerName: authroizerName,
+                    authAuthorizerName: authorizerName,
                     authAuthorizerSignature: _tokenSignature,
                     authTokenKeyName: _tokenKeyName,
                     authTokenValue: _tokenValue,
@@ -94,7 +94,7 @@ struct SignedCustomAuthSample: ParsableCommand {
             else {
                 clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
                     endpoint: endpoint,
-                    authAuthorizerName: authroizerName,
+                    authAuthorizerName: authorizerName,
                     authPassword: authorizerPassword.data(using: .utf8),
                     authUsername: authorizerUsername)
             }

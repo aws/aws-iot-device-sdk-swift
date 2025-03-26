@@ -1,17 +1,18 @@
-# MQTT5 Sandbox Sample
+# iOS PubSub Sample
 
-[**Return to main sample list**](../README.md)
+[**Return to main sample list**](./README.md)
 
-This sample demonstrates how to establish an MQTT connection with an AWS IoT service using X509 client certificates and execute MQTT operations using the MQTT 5 Client.
-
-You will uses the
-[message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
+This sample uses the
+[Message Broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html)
 for AWS IoT to send and receive messages through an MQTT connection.
 
-The sample performs the following actions:
+This sample demonstrates how to send and receive messages on designated IoT Core topics. The sample would perform the following actions: 
 1. Initializes the Device SDK library
 2. Sets up the MQTT 5 Client
-3. Now the Client can be instructed to complete the following operations using the command line:  `start`, `stop`, `subscribe`, `unsubscribe`, and `publish`. 
+3. Starts the connection session
+4. Subscribe to test topics
+5. Publish to test topics
+4. Stops the connection session
 
 ## Before Running the Sample
 
@@ -21,58 +22,24 @@ If you don't have an AWS account, complete [these steps](https://docs.aws.amazon
 ### Understand IoT:
 The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
 
-### Required Arguments:
-* <b>endpoint</b> - account specific endpoint
-* <b>cert</b> - Path to certificate file
-* <b>key</b> - Path to private key file
-### Optional Arguments:
-* <b>client-id</b> - Mqtt5 client id to use. If not provided, "test-\<UUID\>" will be used.
-* <b>topic</b> - Topic to subscribe and publish to. If not provided, "test/topic" will be used.
-* <b>payload-message</b> - Payload message to use in the publish packet. If not provided, "Sample payload message." will be used.
+### Prepare your IoT Thing certificates
+While you create an IoT thing, please download the certificate files into `iOSPubSubSample\MqttClient` folder. Save the certificate files as `.\iOSPubSubSample\MqttClient\cert.pem`, and the private key file as `.\iOSPubSubSample\MqttClient\privatekey.pem`.
 
-### Build the sample
+## How to run the sample (with XCode)
+1. Launch the `iOSPubSubSample\MqttClient.xcodeproject` with XCode
+2. Setup your endpoint in `iOSPubSubSample\MqttClient\ContentView.swift`: Replace "<your-endpoint>" in the source with your IoT endpoint value.
 ```
-// The sample should be built from the sample's folder
-cd aws-iot-device-sdk-swift/Samples/Mqtt5PubSub
-
-// build the sample
-swift build
+let TEST_HOST = "<your-endpoint>"
 ```
-### Run the sample
-```
-swift run Mqtt5Sample \
-    --endpoint <endpoint> \
-    --cert <certificate path> \
-    --key <private key path>
-```
+3. Run the project. You should see the the following screen
 
-### Available Commands
-* <b>start</b> - Instructs the Mqtt5 Client to start a session.
-* <b>stop</b> - Instructs the Mqtt5 Client to stop a session.
-* <b>subscribe</b> - format: `subscribe <qos> <topic>` Subscribes to a topic.
-* <b>unsubscribe</b> - format: `unsubscribe <topic>` Unsubscribes from a topic.
-* <b>publish</b> - format: `publish <qos> <topic> <payload text>` Publishes to a topic.
-* <b>exit</b> - Exit the program
+![image](./iOSAppScreenshot.png)
 
-#### Example
-```
-start
-// Client attempts to start a session. It will try to connect and emit lifecycle events reporting its progress.
+4. Test the operation: 
 
-subscribe qos1 test/topic
-// Client subscribes to topic "test/topic" with QoS1. A Suback packet will be logged if available.
-
-publish qos1 test/topic payload
-// Client publishes to topic "test/topic" with QoS1. A Puback packet will be logged if available.
-// If the previous subscribe was successful, the outbound publish packet will be received by the
-// Client and logged.
-
-unsubscribe test/topic
-// Client unsubscribes from topic "test/topic". An Unsuback packet will be logged if available.
-
-stop
-// Client will end its session. It will disconnect and emit lifecycle events reporting its progress
-```
+* Click "Setup Client and Start" to start a connection session. 
+* Click "Publish A Message" to send a publish message.
+* Click "Stop Connection" to stop a connection session. 
 
 ## Troubleshooting
 ### Enable logging in samples
@@ -88,7 +55,7 @@ try Logger.initialize(target: .standardOutput, level: .debug)
 ### I'm getting error code 5134: AWS_ERROR_MQTT_UNEXPECTED_HANGUP
 This error is most likely due to your AWS IoT Core thing's [policy](https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html). The policy must provide privileges for this sample to connect. The following is a sample policy that can be used on your AWS IoT Core thing that allows this sample to run as intended.
 
-For the purposes of this sample, please make sure your policy allows all IoT actions when running the sample. Wildcard resource permission is **NOT** recommended in production.
+For the purposes of this sample, make sure your policy allows a client ID of `test-*` to connect or use the `--client_id <client ID here>` argument to use a client ID that your policy supports.
 
 <details>
 <summary>(see sample policy)</summary>
@@ -100,13 +67,10 @@ For the purposes of this sample, please make sure your policy allows all IoT act
     {
       "Effect": "Allow",
       "Action": [
-        "iot:Connect",
-        "iot:Subscribe",
-        "iot:Publish",
-        "iot:Receive"
+        "iot:Connect"
       ],
       "Resource": [
-        "*"
+        "arn:aws:iot:<b>region</b>:<b>account</b>:client/test-*"
       ]
     }
   ]
@@ -120,9 +84,6 @@ For the purposes of this sample, please make sure your policy allows all IoT act
   Note: In a real application, you might want to avoid the use of wildcards in your policy or use them selectively. Follow best practices when using the SDK to work with AWS on production applications.
 
 </details>
-
-### Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied
-s2n is a Unix-specific library, and if you encounter a "Permission Denied" error, it is most likely because you are attempting to use it on an unsupported platform. The AWS IoT Device SDK for Swift supports the following platforms: macOS, iOS, tvOS, and Linux.
 
 ### Other Resources
 Check out our resources to learn more:
