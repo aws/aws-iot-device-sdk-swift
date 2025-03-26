@@ -2,7 +2,7 @@
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [Getting Started with MQTT5](#getting-started-with-mqtt5)
+* [Getting Started with MQTT5](#getting-started-with-mqtt-5)
 * [Connecting to AWS IoT Core](#connecting-to-aws-iot-core)
 * [How to create an MQTT5 Client based on desired connection method](#how-to-create-a-mqtt5-client-based-on-desired-connection-method)
     * [Direct MQTT with X509-based mutual TLS](#direct-mqtt-with-x509-based-mutual-tls)
@@ -22,27 +22,27 @@
 
 ## **Introduction**
 
-This user guide is designed to act as a reference and guide for how to use MQTT5 with the IoT Device SDK for Swift. This guide includes code snippets for how to make an MQTT5 client with proper configuration, how to connect to AWS IoT Core, how to perform operations and interact with AWS IoT Core through MQTT5, and some best practices for MQTT5.
+This user guide is a reference for how to use MQTT 5 with the AWS IoT Device SDK for Swift. It includes code snippets for how to make an MQTT 5 client with the proper configuration, how to connect to AWS IoT Core, how to perform operations and interact with AWS IoT Core through MQTT 5, and some best practices for MQTT 5.
 
-If you are completely new to MQTT, it is highly recommended to check out the following resources to learn more about MQTT:
+If you're new to MQTT, we recommended the following resources to learn more about MQTT:
 
-* MQTT.org getting started: https://mqtt.org/getting-started/
-* MQTT.org FAQ (includes list of commonly used terms): https://mqtt.org/faq/
-* MQTT on AWS IoT Core documentation: https://docs.aws.amazon.com/iot/latest/developerguide/mqtt.html
-* MQTT 5 standard: https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html
+* [Getting started](https://mqtt.org/getting-started/) on the MQTT website.
+* [FAQ](https://mqtt.org/faq/) on the MQTT website
+* [MQTT](https://docs.aws.amazon.com/iot/latest/developerguide/mqtt.html) in the AWS IoT Core Developer Guide 
+* [MQTT v5.0 specification](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)
 
 This user guide expects some beginner level familiarity with MQTT and the terms used to describe MQTT.
 
-## **Getting Started with MQTT5**
+## **Getting Started with MQTT 5**
 
-This section covers how to use MQTT5 in the Iot Device SDK for Swift. This includes how to setup an MQTT5 builder for making MQTT5 clients, how to connect to AWS IoT Core, and how to perform the operations with the MQTT5 client. Each section below contains code snippets showing the functionality in Swift.
+This section covers how to use MQTT 5 in the AWS IoT Device SDK for Swift. This includes how to set up an MQTT 5 builder for making MQTT 5 clients, how to connect to AWS IoT Core, and how to perform the operations with the MQTT 5 client. Each section contains code snippets showing the functionality in Swift.
 
-## **Connecting To AWS IoT Core**
+## **Connecting to AWS IoT Core**
 We strongly recommend using the `Mqtt5ClientBuilder` class to configure MQTT5 clients when connecting to AWS IoT Core.  The builder simplifies configuration for all authentication methods supported by AWS IoT Core.  This section shows samples for all of the authentication possibilities.
 
-## **How to create an MQTT5 Client based on desired connection method**
-#### **Direct MQTT with X509-based mutual TLS**
-For X509 based mutual TLS, you can create a client where the certificate and private key are configured by path:
+## **Creating an MQTT 5 Client**
+#### **Direct MQTT with X509-based Mutual TLS**
+For X509 based mutual TLS, you can create a client where the certificate and private key are configured by the following path:
 
 ```swift
     let endpoint: String = "<Host name of AWS IoT server>"
@@ -56,15 +56,15 @@ For X509 based mutual TLS, you can create a client where the certificate and pri
         keyPath: self.keyPath, 
         endpoint: self.endpoint)
     
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
+    // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
-    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    // Create an MQTT 5 client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
 ```
 
 #### **Direct MQTT with PKCS #12 Method**
 
-An MQTT5 direct connection can be made using a PKCS #12 file rather than using a PEM encoded private key. To create an MQTT5 builder configured for this connection, see the following code:
+An MQTT 5 direct connection can be made using a PKCS #12 file rather than using a PEM encoded private key. To create an MQTT 5 builder configured for this connection, see the following code:
 
 ```swift
     let endpoint: String = "<Host name of AWS IoT server>"
@@ -76,17 +76,17 @@ An MQTT5 direct connection can be made using a PKCS #12 file rather than using a
         pkcs12Password: self.pkcs12Password,
         endpoint: self.endpoint)
 
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
+    // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
-    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    // Create an MQTT 5 client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
 ```
 
-**Note**: TLS integration with PKCS#12 is only available on Apple devices.
+**Note**: TLS integration with PKCS #12 is only available on Apple devices.
 #### **Direct MQTT with Custom Authentication**
-AWS IoT Core Custom Authentication allows you to use a lambda to gate access to IoT Core resources.  For this authentication method,
-you must supply an additional configuration structure containing fields relevant to AWS IoT Core Custom Authentication.
-If your custom authenticator does not use signing, you don't specify anything related to the token signature:
+AWS IoT Core custom authentication allows you to use an AWS Lambda to gate access to AWS IoT Core resources.  For this authentication method,
+you must supply an additional configuration structure containing fields relevant to AWS IoT Core custom authentication.
+If your custom authenticator doesn't use signing, you don't need to specify anything related to the token signature:
 
 ```swift
     let endpoint: String = "<account-specific endpoint>"
@@ -100,13 +100,13 @@ If your custom authenticator does not use signing, you don't specify anything re
         authPassword: self.authPassword,
         authUsername: self.authUsername)
 
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
+    // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
-    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    // Create an MQTT 5 client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
 ```
 
-If your custom authorizer uses signing, you must specify the three signed token properties as well. It is your responsibility to URI-encode the auth_username, auth_authorizer_name, and auth_token_key_name parameters.
+If your custom authorizer uses signing, you must specify the three signed token properties as well. It's your responsibility to URI-encode the `auth_username`, `auth_authorizer_name`, and `auth_token_key_name` parameters.
 
 ```swift
     let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
@@ -118,19 +118,19 @@ If your custom authorizer uses signing, you must specify the three signed token 
         authUsername: self.authUsername,
         authPassword: self.authPassword)
     
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
+    // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
-    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    // Create an MQTT 5 client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
 ```
 
-In both cases, the builder will construct a final CONNECT packet username field value for you based on the values configured.  Do not add the token-signing fields to the value of the username that you assign within the custom authentication config structure.  Similarly, do not add any custom authentication related values to the username in the CONNECT configuration optionally attached to the client configuration. The builder will do everything for you.
+In both cases, the builder will construct a final `CONNECT` packet username field value for you based on the values configured.  Don't add the token-signing fields to the value of the username that you assign within the custom authentication config structure.  Similarly, Don't add any custom authentication related values to the username in the `CONNECT` configuration optionally attached to the client configuration. The builder will do everything for you.
 
-#### **MQTT over Websockets with Cognito authentication**
+#### **MQTT over WebSockets with Amazon Cognito Authentication**
 
-An MQTT5 websocket connection can be made using Cognito to authenticate rather than the AWS credentials located on the device or via key and certificate. Instead, Cognito can authenticate the connection using a valid Cognito identity ID. This requires a valid Cognito identity ID, which can be retrieved from a Cognito identity pool. A Cognito identity pool can be created from the AWS console.
+An MQTT 5 WebSocket connection can be made using Amazon Cognito to authenticate rather than the AWS credentials located on the device or by using the key and certificate. Instead, Amazon Cognito can authenticate the connection using a valid identity ID. This requires a valid identity ID, which can be retrieved from an Amazon Cognito identity pool. An Amazon Cognito identity pool can be created from the AWS console.
 
-To create an MQTT5 builder configured for this connection, see the following code:
+To create an MQTT 5 builder configured for this connection, see the following code:
 
 ```swift
     // The signing region. e.x.: 'us-east-1'
@@ -163,16 +163,16 @@ To create an MQTT5 builder configured for this connection, see the following cod
         region: self.region,
         credentialsProvider: cognitoProvider);
         
-    // Set MQTT5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
+    // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
-    // Create an MQTT5 Client using Mqtt5ClientBuilder
+    // Create an MQTT 5 client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
 ```
 
-**Note**: A Cognito identity ID is different from a Cognito identity pool ID and trying to connect with a Cognito identity pool ID will not work. If you are unable to connect, make sure you are passing a Cognito identity ID rather than a Cognito identity pool ID.
+**Note**: An Amazon Cognito identity ID is different from an identity pool ID, and trying to connect with an identity pool ID won't work. If you're unable to connect, make sure you're passing an identity ID rather than an identity pool ID.
 
 ## **Assigning Callbacks and Optional Configurations**
-All lifecycle events and the callback for publishes received by the MQTT5 Client should be added to the `Mqtt5ClientBuilder` prior to calling `build()`. A full list of configuration methods can be found in the API guide.
+All lifecycle events and the callback for publishes received by the MQTT 5 client should be added to the `Mqtt5ClientBuilder` prior to calling `build()`. A full list of configuration methods can be found in the [API guide](https://docs.aws.amazon.com/iot/latest/apireference/Welcome.html).
 
 ### **Adding Callbacks**
 ``` swift
@@ -191,7 +191,7 @@ All lifecycle events and the callback for publishes received by the MQTT5 Client
     clientBuilder.withOnPublishReceived(self.onPublishReceived)
 ```
 ### **Adding an HTTP Proxy**
-No matter what your connection transport or authentication method is, you may connect through an HTTP proxy
+No matter what your connection transport or authentication method is, you can connect through an HTTP proxy
 by adding `HTTPProxyOptions` to the builder:
 
 ```swift
@@ -204,15 +204,15 @@ by adding `HTTPProxyOptions` to the builder:
     let client = try clientBuilder.build()
 ```
 
-SDK Proxy support also includes support for basic authentication and TLS-to-proxy.  SDK proxy support does not include any additional
-proxy authentication methods (kerberos, NTLM, etc...) nor does it include non-HTTP proxies (SOCKS5, for example).
+SDK Proxy support also includes support for basic authentication and TLS-to-proxy.  SDK proxy support doesn't include any additional
+proxy authentication methods (Kerberos, NTLM, etc.) It also doesn't include non-HTTP proxies (like SOCKS5).
 
 ## **Client lifecycle management**
-Once created, an MQTT5 client's configuration is immutable.  Invoking start() on the client will put it into an active state where it
-recurrently establishes a connection to the configured remote endpoint.  Reconnecting continues until you invoke stop().
+Once created, an MQTT 5 client's configuration is immutable.  Invoking `start()` on the client will put it into an active state where it
+recurrently establishes a connection to the configured remote endpoint.  Reconnecting continues until you invoke `stop()`.
 
 ```swift
-    // Create an MQTT5 Client using a configured Mqtt5ClientBuilder    
+    // Create an MQTT 5 client using a configured Mqtt5ClientBuilder    
     let client = try clientBuilder.build()
 
     # Use the client
@@ -220,7 +220,7 @@ recurrently establishes a connection to the configured remote endpoint.  Reconne
     ...
 ```
 
-Invoking stop() breaks the current connection (if any) and moves the client into an idle state.
+Invoking `stop()` breaks the current connection (if any) and moves the client into an idle state.
 
 ```swift
     // Shutdown
@@ -228,28 +228,28 @@ Invoking stop() breaks the current connection (if any) and moves the client into
     ...
 ```
 ## **Lifecycle Events**
-The MQTT5 client emits a set of events related to state and network status changes. 
+The MQTT 5 client emits a set of events related to state and network status changes. 
 
 #### **AttemptingConnect**
 Emitted when the client begins to make a connection attempt.
 
 #### **ConnectionSuccess**
-Emitted when a connection attempt succeeds based on receipt of an affirmative CONNACK packet from the MQTT broker.  A ConnectionSuccess event includes the MQTT broker's CONNACK packet, as well as a `NegotiatedSettings` which contains the final values for all variable MQTT session settings (based on protocol defaults, client wishes, and server response) within the `LifecycleConnectionSuccessData`.
+Emitted when a connection attempt succeeds based on receipt of an affirmative `CONNACK` packet from the MQTT broker.  A ConnectionSuccess event includes the MQTT broker's `CONNACK` packet, as well as a `NegotiatedSettings` which contains the final values for all variable MQTT session settings (based on protocol defaults, client wishes, and server response) within the `LifecycleConnectionSuccessData`.
 
 #### **ConnectionFailure**
-Emitted when a connection attempt fails at any point between DNS resolution and CONNACK receipt.  In addition to an error code, additional data may be present in the event based on the context.  For example, if the remote endpoint sent a CONNACK with a failing reason code, the CONNACK packet will be included within the `LifecycleConnectionFailureData`.
+Emitted when a connection attempt fails at any point between DNS resolution and `CONNACK` receipt.  In addition to an error code, additional data may be present in the event based on the context.  For example, if the remote endpoint sent a `CONNACK` with a failing reason code, the `CONNACK` packet will be included within the `LifecycleConnectionFailureData`.
 
 #### **Disconnect**
-Emitted when the client's network connection is shut down, either by a local action, event, or a remote close or reset.  Only emitted after a ConnectionSuccess event: a network connection that is shut down during the connecting process manifests as a ConnectionFailure event.  A Disconnect event will always include an error code.  If the Disconnect event is due to the receipt of a server-sent DISCONNECT packet, the packet will be included within the `LifecycleDisconnectData`.
+Emitted when the client's network connection is shut down, either by a local action, event, or a remote close or reset.  Only emitted after a ConnectionSuccess event, a network connection that's shut down during the connecting process manifests as a `ConnectionFailure` event. A disconnect event will always include an error code.  If the disconnect event is due to the receipt of a server-sent `DISCONNECT` packet, the packet will be included within the `LifecycleDisconnectData`.
 
 #### **Stopped**
-Emitted once the client has shutdown any associated network connection and entered an idle state where it will no longer attempt to reconnect.  Only emitted after an invocation of `stop()` on the client.  A stopped client may always be started again.
+Emitted once the client has shutdown any associated network connection and entered an idle state where it will no longer attempt to reconnect.  Only emitted after an invocation of `stop()` on the client.  A stopped client can be started again.
 
 ## **Client Operations**
-There are four basic MQTT operations you can perform with the MQTT5 client.
+There are four basic MQTT operations you can perform with the MQTT 5 client.
 
 ### Subscribe
-The Subscribe operation takes a description of the SUBSCRIBE packet you wish to send and asynchronously returns the corresponding SUBACK returned by the broker; the operation throws an exception if anything goes wrong before the SUBACK is received.
+The `Subscribe` operation takes a description of the `SUBSCRIBE` packet you wish to send and asynchronously returns the corresponding `SUBACK` returned by the broker. The operation throws an exception if anything goes wrong before the `SUBACK` is received.
 
 ```swift
     let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: "<topic>", qos: <QoS>, payload: <payload>)
@@ -257,7 +257,7 @@ The Subscribe operation takes a description of the SUBSCRIBE packet you wish to 
 ```
 
 ### Unsubscribe
-The Unsubscribe operation takes a description of the UNSUBSCRIBE packet you wish to send and asynchronously returns the corresponding UNSUBACK returned by the broker; the operation throws an exception if anything goes wrong before the UNSUBACK is received.
+The `Unsubscribe` operation takes a description of the `UNSUBSCRIBE` packet you wish to send and asynchronously returns the corresponding `UNSUBACK` returned by the broker. The operation throws an exception if anything goes wrong before the `UNSUBACK` is received.
 
 ```swift
     let unsubscribePacket: UnsubscribePacket = UnsubscribePacket(topicFilter: "<topic>")
@@ -265,7 +265,7 @@ The Unsubscribe operation takes a description of the UNSUBSCRIBE packet you wish
 ```
 
 ### Publish
-The Publish operation takes a description of the PUBLISH packet you wish to send and asynchronously returns a `PublishResult`. If the PUBLISH was a QoS 0 publish, the `PublishResult` will be returned as soon as the PUBLISH packet is written to the socket and will cotain a nil `PubackPacket`. If the PUBLISH was a QoS 1 publish, the `PublishResult` will be returned upon receipt of a PUBACK packet from the broker or when the operation times out. The `PubackPacket` contained within the `PublishResult` will contain a reasonCode and potentialy a reasonString and userProperties if the broker has assigned them any values. If the operation fails for any reason before these respective completion events, the operation will throw an exception.
+The `Publish` operation takes a description of the PUBLISH packet you wish to send and asynchronously returns a `PublishResult`. If the PUBLISH was a QoS 0 publish, the `PublishResult` will be returned as soon as the PUBLISH packet is written to the socket and will cotain a nil `PubackPacket`. If the PUBLISH was a QoS 1 publish, the `PublishResult` will be returned upon receipt of a PUBACK packet from the broker or when the operation times out. The `PubackPacket` contained within the `PublishResult` will contain a reasonCode and potentially a reasonString and userProperties if the broker has assigned them any values. If the operation fails for any reason before these respective completion events, the operation will throw an exception.
 
 ```swift
     let publishPacket: PublishPacket = PublishPacket(qos: .atLeastOnce, topic: "<topic>", payload: <Data>)
@@ -286,12 +286,12 @@ The `stop()` API supports a DISCONNECT packet as an optional parameter.  If supp
     try client.stop(disconnectPacket: this.disconnectPacket)
 ```
 
-## **MQTT5 Best Practices**
+## **MQTT 5 Best Practices**
 
-Below are some best practices for the MQTT5 client that are recommended to follow for the best development experience:
+The following are some best practices for the MQTT 5 client that help provide the best development experience:
 
-* When creating MQTT5 clients, make sure to use ClientIDs that are unique! If you connect two MQTT5 clients with the same ClientID, they will Disconnect each other! If you do not configure a ClientID, the MQTT5 server will automatically assign one.
-* Use the minimum QoS you can get away with for the lowest latency and bandwidth costs. For example, if you are sending data consistently multiple times per second and do not have to have a guarantee the server got each and every publish, using QoS 0 may be ideal compared to QoS 1. Of course, this heavily depends on your use case but generally it is recommended to use the lowest QoS possible.
-* If you are getting unexpected disconnects when trying to connect to AWS IoT Core, make sure to check your IoT Core Thing’s policy and permissions to make sure your device is has the permissions it needs to connect!
+* When creating MQTT 5 clients, make sure to use client IDs that are unique. If you connect two MQTT 5 clients with the same client ID, they will disconnect each other. If you don't configure a client ID, the MQTT 5 server will automatically assign one.
+* Use the minimum Quality of service (QoS) you can get away with for the lowest latency and bandwidth costs. For example, if you're sending data consistently multiple times per second and don't have to have a guarantee the server got each and every publish, using QoS 0 may be ideal compared to QoS 1. Of course, this heavily depends on your use case but it's generally recommended to use the lowest QoS possible.
+* If you are getting unexpected disconnects when trying to connect to AWS IoT Core, make sure to check your AWS IoT Core thing’s policy and permissions to make sure your device is has the permissions it needs to connect.
 * For **Publish**, **Subscribe**, and **Unsubscribe**, you can check the reason codes in the returned Future to see if the operation actually succeeded.
-* You MUST NOT perform blocking operations on any callback, or you will cause a deadlock. For example: in the `on_publish_received` callback, do not await a publish. The Client cannot do work until your callback returns, so the thread will be stuck.
+* You must not perform blocking operations (e.g., waiting for a publish result) within any callback, as this can cause a deadlock. The client pauses socket I/O operations until the user callback returns, so blocking within the callback will prevent further progress.
