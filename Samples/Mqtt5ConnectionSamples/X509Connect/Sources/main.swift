@@ -22,6 +22,10 @@ struct X509MTLSConnectSample: ParsableCommand {
     /**************************************
     * 0. Sample only: Parse command line arguments
     **************************************/
+    enum SampleError: Error {
+        case clientSetupFailed
+    }
+
     @Argument(help: "The endpoint to connect to.")
     var endpoint: String
 
@@ -127,6 +131,7 @@ struct X509MTLSConnectSample: ParsableCommand {
             print("Sample complete.")
         } catch {
             print("Failed to setup client.")
+            throw SampleError.clientSetupFailed
         }
     }
 }

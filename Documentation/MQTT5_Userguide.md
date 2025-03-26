@@ -1,4 +1,4 @@
-# MQTT 5
+# MQTT 5 User Guide
 ## Table of Contents
 
 * [Introduction](#introduction)
