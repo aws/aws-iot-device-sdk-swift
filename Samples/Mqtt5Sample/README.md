@@ -38,8 +38,8 @@ swift run Mqtt5Sample \
 ```
 
 ### Available Commands
-* <b>start</b> - Instructs the Mqtt5 Client to start a session.
-* <b>stop</b> - Instructs the Mqtt5 Client to stop a session.
+* <b>start</b> - Instructs the Mqtt5 Client to open the MQTT connection
+* <b>stop</b> - Instructs the Mqtt5 Client to close the MQTT connection
 * <b>subscribe</b> - format: `subscribe <qos> <topic>` Subscribes to a topic.
 * <b>unsubscribe</b> - format: `unsubscribe <topic>` Unsubscribes from a topic.
 * <b>publish</b> - format: `publish <qos> <topic> <payload text>` Publishes to a topic.

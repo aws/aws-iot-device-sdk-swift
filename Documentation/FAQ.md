@@ -67,7 +67,7 @@ After you resolve this error, make sure to only allow the actions and resources 
 
 
 ### Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied
-If you encounter a "s2n Permission Denied" error, it's likely because you're attempting to use an unsupported platform. s2n-tls is a Unix-specific library.
+If you encounter a "s2n Permission Denied" error, it's likely because you're attempting to use an unsupported platform. s2n-tls is a library for Unix-like platform.
 
 The AWS IoT Device SDK for Swift supports the following platforms:
 * macOS

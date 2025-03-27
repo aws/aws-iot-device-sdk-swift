@@ -7,8 +7,8 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 *__Topics:__*
 * [Build the Library](#build-the-library)
     * [Build from source](#build-from-source)
-    * [Use the SDK as a Dependency](#use-the-sdk-as-a-dependency)
-    * [Mac-Only TLS Behavior](#mac-only-tls-behavior)
+* [Use the SDK as a Dependency](#use-the-sdk-as-a-dependency)
+* [Mac-Only TLS Behavior](#mac-only-tls-behavior)
 * [Getting Help](#getting-help)
 * [Resources](#resources)
 * [Samples](./Samples/README.md)
@@ -35,7 +35,7 @@ cd aws-iot-device-sdk-swift
 swift build
 ```
 
-### Use the SDK as a Dependency
+## Use the SDK as a Dependency
 * If you want to consume the AWS IoT Device SDK package in your Swift package, add it as a dependency in your `Package.swift` file.
 ```
 dependencies: [
@@ -44,7 +44,7 @@ dependencies: [
 ```
 * If you're integrating into an Xcode project, you can add the Swift package directly in Xcode by going to **File** > **Add Packages Dependencies...** and providing the AWS IoT Device SDK Swift Git URL.
 
-### Mac-Only TLS Behavior
+## Mac-Only TLS Behavior
 
 Note: On Mac, after a private key is used with a certificate, that certificate-key pair is imported into the Mac Keychain.  All subsequent uses of that certificate will use the stored private key and ignore anything passed in programmatically.  When a stored private key from the Mac Keychain is used, the following is logged at the "info" log level:
 
@@ -58,7 +58,7 @@ Using key from Keychain instead of the one provided.
 The best way to interact with our team is through GitHub.
 * Open [discussion](https://github.com/aws/aws-iot-device-sdk-swift/discussions): Share ideas and solutions with the SDK community
 * Search [issues](https://github.com/aws/aws-iot-device-sdk-swift/issues): Find created issues for answers based on a topic
-* Create [issue](https://github.com/aws/aws-iot-device-sdk-swift/issues/new/choose): New feature request or file a bug
+* Create an [issue](https://github.com/aws/aws-iot-device-sdk-swift/issues/new/choose): New feature request or file a bug
 
 If you have a support plan with [AWS Support](https://aws.amazon.com/premiumsupport/), you can also create a new support case.
 
