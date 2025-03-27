@@ -96,7 +96,13 @@ For the purposes of this sample, make sure your policy allows a client ID of `te
 </details>
 
 ### Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied
-s2n is a Unix-specific library, and if you encounter a "Permission Denied" error, it is most likely because you are attempting to use it on an unsupported platform. The AWS IoT Device SDK for Swift supports the following platforms: macOS, iOS, tvOS, and Linux.
+If you encounter a "s2n Permission Denied" error, it's likely because you're attempting to use an unsupported platform. s2n-tls is a Unix-specific library.
+
+The AWS IoT Device SDK for Swift supports the following platforms:
+* macOS
+* iOS
+* tvOS
+* Linux
 
 ### Other Resources
 Check out our resources to learn more:
