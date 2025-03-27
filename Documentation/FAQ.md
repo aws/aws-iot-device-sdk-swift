@@ -7,7 +7,7 @@
 * [I keep getting AWS_ERROR_MQTT_UNEXPECTED_HANGUP](#i-keep-getting-aws_error_mqtt_unexpected_hangup)
 * [What certificates do I need?](#what-certificates-do-i-need)
 * [Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied](#error-unable-to-create-symlink-aws-common-runtimeconfigs2n-Permission-denied)
-* [I still have more questions about this sdk?](#i-still-have-more-questions-about-this-sdk)
+* [To learn more about this SDK](#to-learn-more-about-this-sdk)
 
 ### Where should I start?
 
