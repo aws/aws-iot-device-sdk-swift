@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-*__Jump To:__*
+*__Topics:__*
 * [Where should I start](#where-should-i-start)
 * [How do I enable logging](#how-do-i-enable-logging)
 * [I am getting OSStatus -34018 when adding a certificate](#i-am-getting-osstatus--34018-when-adding-a-certificate)
@@ -14,18 +14,18 @@
 If you're just getting started, make sure you [build this SDK](https://github.com/aws/aws-iot-device-sdk-swift#build-the-library) before building and running the [Certificate and Key File Connect Sample](https://github.com/aws/aws-iot-device-sdk-swift/tree/main/Samples/Mqtt5ConnectionSamples/CertAndKeyFileConnect).
 
 ### Where can I get the API documentation?
-Load the library in XCode and then go to **Product**>**Build Documentation**.
+Load the library in XCode and then go to **Product** > **Build Documentation**.
 
 ### How do I enable logging?
 
 ```
 try? Logger.initialize(target: .standardOutput, level: .debug)
 ```
-You can also enable [CloudWatch logging](https://docs.aws.amazon.com/iot/latest/developerguide/cloud-watch-logs.html) for AWS IoT, which provides you with additional information that's not available on the client-side sdk.
+You can also enable [CloudWatch logging](https://docs.aws.amazon.com/iot/latest/developerguide/cloud-watch-logs.html) for AWS IoT, which provides you with additional information that's not available on the client-side SDK.
 
 ### I am getting OSStatus -34018 when adding a certificate
 
-The `errSecMissingEntitlement` [OSStatus error](https://www.osstatus.com/search/results?platform=all&framework=all&search=-34018) indicates that a required entitlement is missing. For more information, see [errSecMissingEntitlement](https://developer.apple.com/documentation/security/errsecmissingentitlement) on Apple's developer website. You must provide entitlements to the app or binary you're building and running using the SDK to allow it permission to access the Mac Keychain on the device. This entitlement cannot be given directly to the SDK library and must be provided to the application being built using the SDK library.
+The `errSecMissingEntitlement` [OSStatus error](https://www.osstatus.com/search/results?platform=all&framework=all&search=-34018) indicates that a required entitlement is missing. For more information, see [errSecMissingEntitlement](https://developer.apple.com/documentation/security/errsecmissingentitlement) on Apple's developer website. You must provide entitlements to the app or binary you're building and running using the SDK to allow it permission to access the Mac Keychain on the device. This entitlement can't be given directly to the SDK library and must be provided to the application being built using the SDK library.
 
 
 ### I keep getting AWS_ERROR_MQTT_UNEXPECTED_HANGUP
@@ -58,10 +58,10 @@ After you resolve this error, make sure to only allow the actions and resources 
         * An intermediate device certificate that is used to generate the key.
         * When using the samples, the certificate can look like this: `--cert abcde12345-certificate.pem.crt`
     * Key files
-        * You must generated and downloaded the private and public keys that are used to verify that communications are coming from you
+        * You must generated and downloaded the private and public keys that are used to verify that communications are coming from you.
         * When using the samples, you only need the private key. For example: `--key abcde12345-private.pem.key`
     * Root CA certificates
-        * Download the root CA certificate file that corresponds to the type of data endpoint and cipher suite you're using (usually Amazon Root CA 1)
+        * Download the root CA certificate file that corresponds to the type of data endpoint and cipher suite you're using (usually Amazon Root CA 1).
         * Root CA certificates are generated and provided by Amazon. You can [download a certificate](https://www.amazontrust.com/repository/) from Amazon Trust Service or while getting the other certificates from the [AWS Management Console](https://console.aws.amazon.com/).
         * When using the sample, the certificate can look like this: `--ca_file root-CA.crt`
 
@@ -78,5 +78,5 @@ The AWS IoT Device SDK for Swift supports the following platforms:
 ### To learn more about this SDK
 
 * [AWS IoT Core Developer Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
-* [Discussion](https://github.com/aws/aws-iot-device-sdk-swift/discussions) is a great way to ask questions about this SDK.
+* [Discussions](https://github.com/aws/aws-iot-device-sdk-swift/discussions) are a great way to ask questions about this SDK.
 * [Open an issue](https://github.com/aws/aws-iot-device-sdk-swift/issues) if you find a bug or have a feature request.
