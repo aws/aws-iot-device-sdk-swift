@@ -8,7 +8,7 @@
     * [Direct MQTT with X509-based mutual TLS](#direct-mqtt-with-x509-based-mutual-tls)
     * [Direct MQTT with PKCS #12 Method](#direct-mqtt-with-pkcs-12-method)
     * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
-    * [MQTT over Websockets with Cognito authentication](#mqtt-over-websockets-with-cognito-authentication)
+    * [MQTT over WebSockets with Cognito authentication](#mqtt-over-websockets-with-cognito-authentication)
 * [Assigning Callbacks and Optional Configurations](#assigning-callbacks-and-optional-configurations)
     * [Adding Callbacks](#adding-callbacks)
     * [Adding an HTTP Proxy](#adding-an-http-proxy)
