@@ -1,6 +1,6 @@
 # AWS IoT Device SDK for Swift
 
-This document provides information about the AWS IoT Device SDK for Swift. This SDK is built on the [AWS Common Runtime](https://docs.aws.amazon.com/sdkref/latest/guide/common-runtime.html)
+This document provides information about the AWS IoT Device SDK for Swift. This SDK is built on the [AWS Common Runtime](https://docs.aws.amazon.com/sdkref/latest/guide/common-runtime.html).
 
 **Supported Platforms**: macOS, iOS, tvOS, Linux
 
@@ -12,7 +12,7 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 * [Getting Help](#getting-help)
 * [Resources](#resources)
 * [Samples](./Samples/README.md)
-* [MQTT5 User Guide](./Documentation/MQTT5_Userguide.md)
+* [MQTT 5 User Guide](./Documentation/MQTT5_Userguide.md)
 
 ## Build the Library
 
@@ -36,7 +36,7 @@ swift build
 ```
 
 ### Use the SDK as a Dependency
-* If you want to consume the IoT Device SDK package in your Swift package, add it as a dependency in your `Package.swift` file.
+* If you want to consume the AWS IoT Device SDK package in your Swift package, add it as a dependency in your `Package.swift` file.
 ```
 dependencies: [
     .package(url: "https://github.com/aws/aws-iot-device-sdk-swift.git")
@@ -68,7 +68,7 @@ Check out our resources for additional guidance too before opening an issue:
 * [AWS IoT Core Developer Guide](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html)
 * [AWS IoT Core Documentation](https://docs.aws.amazon.com/iot/)
 * [Dev Blog](https://aws.amazon.com/blogs/?awsf.blog-master-iot=category-internet-of-things%23amazon-freertos%7Ccategory-internet-of-things%23aws-greengrass%7Ccategory-internet-of-things%23aws-iot-analytics%7Ccategory-internet-of-things%23aws-iot-button%7Ccategory-internet-of-things%23aws-iot-device-defender%7Ccategory-internet-of-things%23aws-iot-device-management%7Ccategory-internet-of-things%23aws-iot-platform)
-* [Contributions Guidelines](./Documentation/CONTRIBUTING.md)
+* [Contributing Guidelines](./Documentation/CONTRIBUTING.md)
 
 
 ## License
