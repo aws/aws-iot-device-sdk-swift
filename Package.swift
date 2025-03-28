@@ -16,7 +16,7 @@ let package = Package(
             targets: ["AwsIotDeviceSdkSwift"])
     ],
     dependencies: [
-        .package(url: "https://github.com/awslabs/aws-crt-swift.git", from: "0.49.0") 
+        .package(url: "https://github.com/awslabs/aws-crt-swift.git", from: "0.49.1") 
     ],
     targets: [
         .target(

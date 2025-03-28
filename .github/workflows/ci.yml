@@ -7,8 +7,8 @@ on:
             - 'docs'
 
 env:
-    BUILDER_VERSION: xcodebuild_setup
-    BUILDER_SOURCE: channels
+    BUILDER_VERSION: v0.9.77
+    BUILDER_SOURCE: releases
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
     RUN: ${{ github.run_id }}-${{ github.run_number }}
@@ -125,7 +125,6 @@ jobs:
               xcode: Xcode_14.1
       permissions:
         id-token: write
-        contents: read # This is required for actions/checkout
       steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
