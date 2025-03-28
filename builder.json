@@ -1,5 +1,6 @@
 {
   "name": "aws-iot-device-sdk-swift",
+  "account": "aws",
   "enabled": true,
   "needs_compiler": false,
   "build_steps": [
