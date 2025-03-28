@@ -1,8 +1,16 @@
-# WebSocket with Sigv4a Connect Sample
+# iOS PubSub Sample
 
-[**Return to main sample list**](../../README.md)
+[**Return to main sample list**](./README.md)
 
-This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) through a WebSocket using Sigv4-based authentication. 
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) and execute MQTT operations using the MQTT 5 Client in iOS Application.
+
+The sample would perform the following actions: 
+1. Initializes the Device SDK library
+2. Sets up the MQTT Client
+3. Opens the MQTT connection 
+4. Subscribes to test topics
+5. Publishes to test topics
+6. Closes the MQTT connection
 
 ## Before Running the Sample
 
@@ -12,44 +20,24 @@ If you don't have an AWS account, complete [these steps](https://docs.aws.amazon
 ### Understand IoT:
 The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
 
-### Sigv4
-Sigv4-based authentication requires a credentials provider capable of sourcing valid AWS credentials. Sourced credentials will sign the websocket upgrade request made by the client while connecting. The default credentials provider chain supported by the SDK is capable of resolving credentials in a variety of environments according to a chain of priorities:
-```
-Environment -> Profile (local file system) -> STS Web Identity -> IMDS (ec2) or ECS
-```
-### Required Arguments:
-* <b>endpoint</b> - account specific endpoint
-* <b>region</b> - Signing region
-### Optional Arguments:
-<note>Static credentials can be set and used by providing access-key, secret, and session-token optional arguments. </note>
-* <b>access-key</b> - AWS Access Key ID to obtain credentials
-* <b>secret</b> - AWS Secret Access Key to obtain credentials
-* <b>session-token</b> - AWS Session Token to obtain credentials
-* <b>client-id</b> - Mqtt5 client id to use. If not provided, "test-<UUID>" will be used.
+### Prepare Your IoT Thing certificates
+While you create an IoT thing, please download the certificate files into `iOSPubSubSample\MqttClient` folder. Save the certificate files as `.\iOSPubSubSample\MqttClient\cert.pem`, and the private key file as `.\iOSPubSubSample\MqttClient\privatekey.pem`.
 
-### Build the sample
+## How to Run the Sample (with XCode)
+1. Launch the `iOSPubSubSample\MqttClient.xcodeproject` with XCode
+2. Setup your endpoint in `iOSPubSubSample\MqttClient\ContentView.swift`: Replace "<your-endpoint>" in the source with your IoT endpoint value.
 ```
-// The sample should be built from the sample's folder
-cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/Sigv4WebsocketConnect
+let TEST_HOST = "<your-endpoint>"
+```
+3. Run the project. You should see the the following screen
 
-// build the sample
-swift build
-```
-### Run the sample
-```
-// Obtain Credentials from your environment
-swift run Sigv4WebsocketConnect \
-    --endpoint <endpoint> \
-    --region <region>
+![image](./iOSAppScreenshot.png)
 
-// Provide static credentials to use
-swift run Sigv4WebsocketConnect \
-    --endpoint <endpoint> \
-    --region <region> \
-    --access-key <AWS Access Key ID> \
-    --secret <AWS Secret Access Key> \
-    --session-token <AWS Session Token>
-```
+4. Test the operation: 
+
+* Click "Setup Client and Start" to start a connection session. 
+* Click "Publish A Message" to send a publish message.
+* Click "Stop Connection" to stop a connection session. 
 
 ## Troubleshooting
 ### Enable logging in samples
@@ -94,15 +82,6 @@ For the purposes of this sample, make sure your policy allows a client ID of `te
   Note: In a real application, you might want to avoid the use of wildcards in your policy or use them selectively. Follow best practices when using the SDK to work with AWS on production applications.
 
 </details>
-
-### Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied
-If you encounter a "s2n Permission Denied" error, it's likely because you're attempting to use an unsupported platform. s2n-tls is a Unix-specific library.
-
-The AWS IoT Device SDK for Swift supports the following platforms:
-* macOS
-* iOS
-* tvOS
-* Linux
 
 ### Other Resources
 Check out our resources to learn more:
