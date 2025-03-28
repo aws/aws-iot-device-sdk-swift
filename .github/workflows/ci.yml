@@ -203,11 +203,12 @@ jobs:
             DEVELOPER_DIR: /Applications/Xcode.app
             XCODE_DESTINATION: 'OS X'
             NSUnbufferedIO: YES
-        matrix:
-          # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
-          device_pool:
-            - iOSHighlyAvailablePool
-            - iOS13PoolArn
+        strategy:
+            matrix:
+              # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
+              device_pool:
+                - iOSHighlyAvailablePool
+                - iOS13PoolArn
         steps:
             - name: Checkout Source
               uses: actions/checkout@v4
