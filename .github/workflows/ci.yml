@@ -22,6 +22,7 @@ env:
     CI_CUSTOM_AUTHORIZER_ROLE: arn:aws:iam::180635532705:role/CI_CustomAuthorizer_Role
     CI_MQTT5_ROLE: arn:aws:iam::180635532705:role/CI_MQTT5_Role
     CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
+    CI_CRT: arn:aws:iam::123124136734:role/CRT_CI_Role
 
 jobs:
     linux:
@@ -40,7 +41,7 @@ jobs:
       steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.CI_BUILD_AND_TEST_ROLE }}
+          role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }} 
       - name: Build ${{ env.PACKAGE_NAME }}
         run: |
