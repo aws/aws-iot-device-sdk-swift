@@ -193,6 +193,7 @@ jobs:
               run: |
                 source .venv/bin/activate
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cognito_provider_websocket_connect_cfg.json            
+    
     ios-device-farm:
         runs-on: macos-14
         permissions:
@@ -202,6 +203,11 @@ jobs:
             DEVELOPER_DIR: /Applications/Xcode.app
             XCODE_DESTINATION: 'OS X'
             NSUnbufferedIO: YES
+        matrix:
+          # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
+          device_pool:
+            - iOSHighlyAvailablePool
+            - iOS13PoolArn
         steps:
             - name: Checkout Source
               uses: actions/checkout@v4
@@ -286,7 +292,7 @@ jobs:
               uses: aws-actions/configure-aws-credentials@v2
               with:
                 aws-region: us-west-2 # Device Farm only available on us-west-2
-            - name: Execute device farm iOS Highly Available
+            - name: Execute device farm
               run: |
                 cd Scripts/DeviceFarmScripts/
                 pip install -r ./requirements.txt
@@ -295,20 +301,7 @@ jobs:
                 --run_id ${{ github.run_id }} \
                 --run_attempt ${{ github.run_attempt }} \
                 --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
-                --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSHighlyAvailablePool" --query "SecretString" | cut -f2 -d\") \
-                --app_file_path $RUNNER_TEMP/output/MqttClient.ipa \
-                --test_file_path ../../Samples/iOS/iOSPubSubSample//workspace/test_bundle.zip \
-                --test_spec_file_path ./test_spec.yml
-            - name: Execute device farm iOS 13
-              run: |
-                cd Scripts/DeviceFarmScripts/
-                pip install -r ./requirements.txt
-                ls
-                python ./run_ios_ci.py \
-                --run_id ${{ github.run_id }} \
-                --run_attempt ${{ github.run_attempt }} \
-                --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
-                --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOS13PoolArn" --query "SecretString" | cut -f2 -d\") \
+                --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/${{ matrix.device_pool }}" --query "SecretString" | cut -f2 -d\") \
                 --app_file_path $RUNNER_TEMP/output/MqttClient.ipa \
                 --test_file_path ../../Samples/iOS/iOSPubSubSample//workspace/test_bundle.zip \
                 --test_spec_file_path ./test_spec.yml

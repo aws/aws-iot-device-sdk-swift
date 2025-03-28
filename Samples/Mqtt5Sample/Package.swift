@@ -14,7 +14,7 @@ let package = Package(
         .executable(name: "Mqtt5Sample", targets: ["Mqtt5Sample"])
     ],
     dependencies: [
-        .package(path: "../../"), // TODO: DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
+        .package(path: "../../"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0") // This package gives us the capability to do a argument parsing
     ],
     targets: [
