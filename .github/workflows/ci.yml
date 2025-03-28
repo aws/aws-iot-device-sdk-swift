@@ -7,8 +7,8 @@ on:
             - 'docs'
 
 env:
-    BUILDER_VERSION: v0.9.77
-    BUILDER_SOURCE: releases
+    BUILDER_VERSION: set_project_account
+    BUILDER_SOURCE: channels
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
     RUN: ${{ github.run_id }}-${{ github.run_number }}
@@ -73,7 +73,7 @@ jobs:
         run: |
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
           chmod a+x builder
-          ./builder build -p ${{ env.PACKAGE_NAME }} --account aws
+          ./builder build -p ${{ env.PACKAGE_NAME }}
 
     devices:
       runs-on: ${{ matrix.runner }}
