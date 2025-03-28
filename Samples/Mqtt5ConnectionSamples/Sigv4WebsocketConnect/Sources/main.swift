@@ -7,7 +7,7 @@ import ArgumentParser
 import AwsIotDeviceSdkSwift
 import Foundation
 
-// This sample creates an MQTT5 client and connects using a PKCS12 file.
+// This sample creates an MQTT5 client and connects using a PKCS #12 file.
 // Here are the steps to setup a client and connect.
 // 0. Sample only: Parse command line arguments
 // 1. Initialize Device Sdk library
@@ -27,23 +27,23 @@ struct Sigv4WebsocketSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "Required: The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "The signing region used for the websocket signer.")
+    @Option(help: "Required: The signing region used for the websocket signer.")
     var region: String
 
     @Option(help: "Optional: Use an AWS Access Key ID to obtain credentials.")
-    var accessKey: String? = nil
+    var accessKey: String?
 
     @Option(help: "Optional: Use an AWS Secret Access Key to obtain credentials.")
-    var secret: String? = nil
+    var secret: String?
 
     @Option(help: "Optional: Use an AWS Session Token to obtain credentials.")
-    var sessionToken: String? = nil
+    var sessionToken: String?
 
-    @Argument(
-        help: "Client id to use (optional). Please make sure the client id matches the policy.")
+    @Option(
+        help: "Optional: Client id to use. Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
 
     // The main function to run
@@ -66,7 +66,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
             /**************************************
              * 2. Setup Credentials Provider
              **************************************/
-            var provider: CredentialsProvider? = nil
+            var provider: CredentialsProvider?
 
             // If an access key, secret access key, and session token were provided, those static credentials
             // will be used by the credentials provider
@@ -88,7 +88,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
             /**************************************
              * 3. Create Mqtt5ClientBuilder
              **************************************/
-            // Create an Mqtt5ClientBuilder configured to connect using PKCS12
+            // Create an Mqtt5ClientBuilder configured to connect using PKCS #12
             let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
                 endpoint: endpoint,
                 region: region,
@@ -111,8 +111,7 @@ struct Sigv4WebsocketSample: ParsableCommand {
                 connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async
-            {
+                async {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )

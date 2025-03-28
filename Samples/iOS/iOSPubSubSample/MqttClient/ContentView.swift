@@ -148,7 +148,7 @@ func PublishAMessage() async {
     if let _client  = client {
         do {
             // 4. Publish Messages
-            let publishResult : PublishResult = try await _client.publish(publishPacket: PublishPacket(qos: QoS.atLeastOnce, topic: TEST_TOPIC, payload: ("Hello World \(publishCount)".data(using: .utf8))))
+            let publishResult: PublishResult = try await _client.publish(publishPacket: PublishPacket(qos: QoS.atLeastOnce, topic: TEST_TOPIC, payload: ("Hello World \(publishCount)".data(using: .utf8))))
             publishCount += 1
             mqttTestContext.printView("Publish result with reason code: (\(String(describing: publishResult.puback?.reasonCode))) :  \(String(describing: publishResult.puback?.reasonString))")
         } catch let err {

@@ -26,29 +26,29 @@ struct SignedCustomAuthSample: ParsableCommand {
         case clientSetupFailed
     }
 
-    @Argument(help: "The endpoint to connect to.")
+    @Option(help: "Required: The endpoint to connect to.")
     var endpoint: String
 
-    @Argument(help: "Name of the Custom Authorizer.")
-    var authroizerName: String
+    @Option(help: "Required: Name of the Custom Authorizer.")
+    var authorizerName: String
 
-    @Argument(help: "Value of the username field that should be passed to the authorizer's lambda.")
+    @Option(help: "Required: Value of the username field that should be passed to the authorizer's lambda.")
     var authorizerUsername: String
 
-    @Argument(help: "Value of the password field to be passed to the authorizer's lambda.")
+    @Option(help: "Required: Value of the password field to be passed to the authorizer's lambda.")
     var authorizerPassword: String
 
     @Option(help: "Optional: Name of the username query param that will contain the token value.")
-    var tokenKeyName: String? = nil
+    var tokenKeyName: String?
 
     @Option(
         help:
             "Optional: Value of the username query param that holds the token value that has been signed."
     )
-    var tokenValue: String? = nil
+    var tokenValue: String?
 
     @Option(help: "Optional: URI-encoded base64-encoded digital signature of tokenValue.")
-    var tokenSignature: String? = nil
+    var tokenSignature: String?
 
     @Argument(
         help: "Client id to use (optional). Please make sure the client id matches the policy.")
@@ -74,16 +74,15 @@ struct SignedCustomAuthSample: ParsableCommand {
             /**************************************
              * 2. Create Mqtt5ClientBuilder
              **************************************/
-            var clientBuilder: Mqtt5ClientBuilder? = nil
+            var clientBuilder: Mqtt5ClientBuilder?
 
             // If a tokenKeyName, tokenValue, and tokenSignature has been provided, initialize an Mqtt5ClientBuilder configured to
             // connect using a signed custom authorizer.
             if let _tokenKeyName = tokenKeyName, let _tokenValue = tokenValue,
-                let _tokenSignature = tokenSignature
-            {
+                let _tokenSignature = tokenSignature {
                 clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
                     endpoint: endpoint,
-                    authAuthorizerName: authroizerName,
+                    authAuthorizerName: authorizerName,
                     authAuthorizerSignature: _tokenSignature,
                     authTokenKeyName: _tokenKeyName,
                     authTokenValue: _tokenValue,
@@ -95,7 +94,7 @@ struct SignedCustomAuthSample: ParsableCommand {
             else {
                 clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
                     endpoint: endpoint,
-                    authAuthorizerName: authroizerName,
+                    authAuthorizerName: authorizerName,
                     authPassword: authorizerPassword.data(using: .utf8),
                     authUsername: authorizerUsername)
             }
@@ -117,8 +116,7 @@ struct SignedCustomAuthSample: ParsableCommand {
                 connectionSemaphore.signal()
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async
-            {
+                async {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )

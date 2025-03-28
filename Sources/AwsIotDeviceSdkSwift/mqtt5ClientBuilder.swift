@@ -23,57 +23,57 @@ private func appendToUsernameParameter(
     }
 }
 
-///A utility class used to build an MQTT5 Client configured for use with AWS IoT Core.
+/// A utility class used to build an MQTT5 Client configured for use with AWS IoT Core.
 public class Mqtt5ClientBuilder {
 
-    private var _endpoint: String? = nil
+    private var _endpoint: String?
     private var _port: UInt32 = 8883
-    private var _onWebsocketTransform: OnWebSocketHandshakeIntercept? = nil
-    private var _clientId: String? = nil
-    private var _username: String? = nil
-    private var _authUsername: String? = nil
-    private var _authorizerName: String? = nil
-    private var _authorizerSiganture: String? = nil
-    private var _authTokenKeyName: String? = nil
-    private var _authTokenValue: String? = nil
-    private var _password: Data? = nil
+    private var _onWebsocketTransform: OnWebSocketHandshakeIntercept?
+    private var _clientId: String?
+    private var _username: String?
+    private var _authUsername: String?
+    private var _authorizerName: String?
+    private var _authorizerSiganture: String?
+    private var _authTokenKeyName: String?
+    private var _authTokenValue: String?
+    private var _password: Data?
     private var _keepAliveInterval: TimeInterval = 1200
-    private var _sessionExpiryInterval: TimeInterval? = nil
+    private var _sessionExpiryInterval: TimeInterval?
     private var _extendedValidationAndFlowControlOptions: ExtendedValidationAndFlowControlOptions? =
         .awsIotCoreDefaults
-    private var _onPublishReceived: OnPublishReceived? = nil
-    private var _onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect? = nil
-    private var _onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess? = nil
-    private var _onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure? = nil
-    private var _onLifecycleEventDisconnection: OnLifecycleEventDisconnection? = nil
-    private var _onLifecycleEventStopped: OnLifecycleEventStopped? = nil
+    private var _onPublishReceived: OnPublishReceived?
+    private var _onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect?
+    private var _onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess?
+    private var _onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure?
+    private var _onLifecycleEventDisconnection: OnLifecycleEventDisconnection?
+    private var _onLifecycleEventStopped: OnLifecycleEventStopped?
     private var _enableMetricsCollection: Bool = true
-    private var _tlsOptions: TLSContextOptions? = nil
-    private var _caPath: String? = nil
-    private var _caFile: String? = nil
-    private var _caData: Data? = nil
-    private var _caDirPath: String? = nil
-    private var _certLabel: String? = nil
-    private var _keyLabel: String? = nil
-    private var _ackTimeout: TimeInterval? = nil
-    private var _connackTimeout: TimeInterval? = nil
-    private var _pingTimeout: TimeInterval? = nil
-    private var _minReconnectDelay: TimeInterval? = nil
-    private var _maxReconnectDelay: TimeInterval? = nil
-    private var _minConnectedTimeToResetReconnectDelay: TimeInterval? = nil
-    private var _retryJitterMode: ExponentialBackoffJitterMode? = nil
-    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType? = nil
-    private var _clientSessionBehaviorType: ClientSessionBehaviorType? = nil
-    private var _topicAliasingOptions: TopicAliasingOptions? = nil
-    private var _httpProxyOptions: HTTPProxyOptions? = nil
-    private var _socketOptions: SocketOptions? = nil
-    private var _clientBootstrap: ClientBootstrap? = nil
-    private var _requestResponseInformation: Bool? = nil
-    private var _requestProblemInformation: Bool? = nil
-    private var _receiveMaximum: UInt16? = nil
-    private var _maximumPacketSize: UInt32? = nil
-    private var _willDelayInterval: TimeInterval? = nil
-    private var _will: PublishPacket? = nil
+    private var _tlsOptions: TLSContextOptions?
+    private var _caPath: String?
+    private var _caFile: String?
+    private var _caData: Data?
+    private var _caDirPath: String?
+    private var _certLabel: String?
+    private var _keyLabel: String?
+    private var _ackTimeout: TimeInterval?
+    private var _connackTimeout: TimeInterval?
+    private var _pingTimeout: TimeInterval?
+    private var _minReconnectDelay: TimeInterval?
+    private var _maxReconnectDelay: TimeInterval?
+    private var _minConnectedTimeToResetReconnectDelay: TimeInterval?
+    private var _retryJitterMode: ExponentialBackoffJitterMode?
+    private var _clientOperationQueueBehaviorType: ClientOperationQueueBehaviorType?
+    private var _clientSessionBehaviorType: ClientSessionBehaviorType?
+    private var _topicAliasingOptions: TopicAliasingOptions?
+    private var _httpProxyOptions: HTTPProxyOptions?
+    private var _socketOptions: SocketOptions?
+    private var _clientBootstrap: ClientBootstrap?
+    private var _requestResponseInformation: Bool?
+    private var _requestProblemInformation: Bool?
+    private var _receiveMaximum: UInt16?
+    private var _maximumPacketSize: UInt32?
+    private var _willDelayInterval: TimeInterval?
+    private var _will: PublishPacket?
     private var _userProperties: [UserProperty] = []
 
     // mtlsFromPath
@@ -754,7 +754,7 @@ public class Mqtt5ClientBuilder {
             userProperties: _userProperties
         )
 
-        var _tlsCtx: TLSContext? = nil
+        var _tlsCtx: TLSContext?
         do {
             if let tlsOptions = _tlsOptions {
                 // Handle CA override
