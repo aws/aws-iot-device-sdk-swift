@@ -6,12 +6,15 @@
     "sample_main_class": "",
     "arguments": [
         {
+            "name": "--endpoint",
             "secret": "ci/endpoint"
         },
         {
-            "data": "./pkcs12-key.p12"
+            "name": "--pkcs12-file",
+            "data": "/tmp/pkcs12-key.p12"
         },
         {
+            "name": "--pkcs12-password",
             "data": "derp"
         }
     ]

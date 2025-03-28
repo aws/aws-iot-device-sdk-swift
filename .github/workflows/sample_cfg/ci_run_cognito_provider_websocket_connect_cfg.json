@@ -6,12 +6,15 @@
     "sample_main_class": "",
     "arguments": [
         {
+            "name": "--endpoint",
             "secret": "ci/endpoint"
         },
         {
+            "name": "--region",
             "data": "us-east-1"
         },
         {
+            "name": "--cognito-identity",
             "secret": "ci/Cognito/identity_id"
         }
     ]

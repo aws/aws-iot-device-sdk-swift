@@ -33,7 +33,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
 
             Commands:
             start - Starts session, instructing the MQTT5 client to desire a connected state.
-            stop - Stops session, putting the MQTT5 client in a disconnected state.       
+            stop - Stops session, putting the MQTT5 client in a disconnected state.
             subscribe <qos> <topic> - Subscribes to topic.
             unsubscribe <topic> - Unsubscribe from a topic.
             publish <qos> <topic> <payload text> - Sends a publish packet.
@@ -64,8 +64,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 print("Mqtt5Client: onLifecycleEventConnectionSuccess callback invoked.")
             }
             func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async
-            {
+                async {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )

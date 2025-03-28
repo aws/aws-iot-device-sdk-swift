@@ -6,17 +6,17 @@ import PackageDescription
 let package = Package(
     name: "AwsIotDeviceSdkSwift",
     platforms: [
-        .iOS(.v13), 
-        .macOS(.v10_15), 
+        .iOS(.v13),
+        .macOS(.v10_15),
         .tvOS(.v13)
     ],
     products: [
         .library(
             name: "AwsIotDeviceSdkSwift",
-            targets: ["AwsIotDeviceSdkSwift"]),
+            targets: ["AwsIotDeviceSdkSwift"])
     ],
     dependencies: [
-        .package(url: "https://github.com/awslabs/aws-crt-swift.git", branch: "cognito_support"), // DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
+        .package(url: "https://github.com/awslabs/aws-crt-swift.git", branch: "iot") // DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
     ],
     targets: [
         .target(
@@ -29,6 +29,6 @@ let package = Package(
         .testTarget(
             name: "AwsIotDeviceSdkSwiftTests",
             dependencies: ["AwsIotDeviceSdkSwift"]
-        ),
+        )
     ]
 )

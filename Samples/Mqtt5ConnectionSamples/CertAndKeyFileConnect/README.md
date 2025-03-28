@@ -1,8 +1,8 @@
-# WebSocket with Sigv4a Connect Sample
+# Certificate and Key File Sample
 
 [**Return to main sample list**](../../README.md)
 
-This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) through a WebSocket using Sigv4-based authentication. 
+This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) using an X509 certificate and private key files.
 
 ## Before Running the Sample
 
@@ -12,43 +12,28 @@ If you don't have an AWS account, complete [these steps](https://docs.aws.amazon
 ### Understand IoT:
 The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what-is-aws-iot.html) developer guide will help you understand IoT.
 
-### Sigv4
-Sigv4-based authentication requires a credentials provider capable of sourcing valid AWS credentials. Sourced credentials will sign the websocket upgrade request made by the client while connecting. The default credentials provider chain supported by the SDK is capable of resolving credentials in a variety of environments according to a chain of priorities:
-```
-Environment -> Profile (local file system) -> STS Web Identity -> IMDS (ec2) or ECS
-```
 ### Required Arguments:
-* <b>endpoint</b> - account specific endpoint
-* <b>region</b> - Signing region
+* <b>endpoint</b> - Account specific endpoint
+* <b>cert</b> - Path to certificate file
+* <b>key</b> - Path to private key file
 ### Optional Arguments:
-<note>Static credentials can be set and used by providing access-key, secret, and session-token optional arguments. </note>
-* <b>access-key</b> - AWS Access Key ID to obtain credentials
-* <b>secret</b> - AWS Secret Access Key to obtain credentials
-* <b>session-token</b> - AWS Session Token to obtain credentials
-* <b>client-id</b> - Mqtt5 client id to use. If not provided, "test-<UUID>" will be used.
+* <b>client-id</b> - The MQTT 5 client ID the sample use. If an ID isn't provided, "test-\<UUID\>" will be used.
 
 ### Build the sample
 ```
 // The sample should be built from the sample's folder
-cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/Sigv4WebsocketConnect
+cd aws-iot-device-sdk-swift/Samples/Mqtt5ConnectionSamples/CertAndKeyFileConnect
 
 // build the sample
 swift build
 ```
 ### Run the sample
 ```
-// Obtain Credentials from your environment
-swift run Sigv4WebsocketConnect \
+swift run CertAndKeyFileConnect \
     --endpoint <endpoint> \
-    --region <region>
+    --cert <certificate path> \
+    --key <private key path>
 
-// Provide static credentials to use
-swift run Sigv4WebsocketConnect \
-    --endpoint <endpoint> \
-    --region <region> \
-    --access-key <AWS Access Key ID> \
-    --secret <AWS Secret Access Key> \
-    --session-token <AWS Session Token>
 ```
 
 ## Troubleshooting
