@@ -1,0 +1,17 @@
+name: Lint
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+      - 'docs'
+
+jobs:
+  swiftlint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Sources
+      uses: actions/checkout@v1
+
+    - name: GitHub Action for SwiftLint
+      uses: norio-nomura/action-swiftlint@3.2.1
