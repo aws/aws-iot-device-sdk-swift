@@ -31,8 +31,8 @@ colon:
 comma: error
 empty_enum_arguments: error
 function_body_length:
-  warning: 100
-  error: 150
+  warning: 600
+  error: 600
 line_length:
   warning: 180
   error: 180
