@@ -5,17 +5,17 @@ import PackageDescription
 
 let package = Package(
     name: "CertAndKeyFileConnect",
-        platforms: [
+    platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
-        .tvOS(.v13)
+        .tvOS(.v13),
     ],
     products: [
         .executable(name: "CertAndKeyFileConnect", targets: ["CertAndKeyFileConnect"])
     ],
     dependencies: [
-        .package(path: "../../../"), // TODO: DEBUG WIP change 'branch' to `from: "aws-crt-swift version number"` when crt is updated.
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0") // This package gives us the capability to do a argument parsing
+        .package(path: "../../../"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),  // This package gives us the capability to do a argument parsing
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -24,7 +24,7 @@ let package = Package(
             name: "CertAndKeyFileConnect",
             dependencies: [
                 .product(name: "AwsIotDeviceSdkSwift", package: "aws-iot-device-sdk-swift"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             path: "Sources")
     ]
