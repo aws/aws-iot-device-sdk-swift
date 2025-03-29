@@ -33,6 +33,9 @@ empty_enum_arguments: error
 function_body_length:
   warning: 600
   error: 600
+type_body_length:
+  warning: 600
+  error: 600
 line_length:
   warning: 180
   error: 180
