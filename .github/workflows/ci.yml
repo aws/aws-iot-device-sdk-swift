@@ -32,7 +32,7 @@ jobs:
       steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.CI_CRT }}
+          role-to-assume: ${{ env.CI_BUILD_AND_TEST_ROLE }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }} 
       - name: Build ${{ env.PACKAGE_NAME }}
         run: |
