@@ -32,7 +32,7 @@ jobs:
       steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.CI_BUILD_AND_TEST_ROLE }}
+          role-to-assume: ${{ env.CI_CRT }} # TODO: temporary use CRT CI role to setup builder
           aws-region: ${{ env.AWS_DEFAULT_REGION }} 
       - name: Build ${{ env.PACKAGE_NAME }}
         run: |
