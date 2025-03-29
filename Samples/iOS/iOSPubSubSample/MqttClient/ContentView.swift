@@ -1,8 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0.
 
-import SwiftUI
 import AwsIotDeviceSdkSwift
+import SwiftUI
 
 // The app setup a direct connection with mTLS options.
 // Update the host before run the app.
@@ -53,7 +53,9 @@ struct Message: Identifiable {
 
 /// Test context to print messages on content view
 class MqttTestContext: ObservableObject {
-    @Published var messages: [Message] = [Message(id: 0, text: "Click the \"Setup Client and Start\" to start the client.")]
+    @Published var messages: [Message] = [
+        Message(id: 0, text: "Click the \"Setup Client and Start\" to start the client.")
+    ]
 
     /// Print the text and pending new message to message list
     func printView(_ txt: String) {
@@ -64,8 +66,9 @@ class MqttTestContext: ObservableObject {
 }
 
 public var onPublishReceived: OnPublishReceived = { publishData in
-    var message = "Mqtt5ClientTests: onPublishReceived." +
-    "Topic:\'\(publishData.publishPacket.topic)\' QoS:\(publishData.publishPacket.qos)"
+    var message =
+        "Mqtt5ClientTests: onPublishReceived."
+        + "Topic:\'\(publishData.publishPacket.topic)\' QoS:\(publishData.publishPacket.qos)"
     if let payloadString = publishData.publishPacket.payloadAsString() {
         message += "payload:\'\(payloadString)\'"
     }
@@ -85,18 +88,23 @@ public var onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess 
     mqttTestContext.printView("Lifecycle Event Connection Success")
     // 3. If connection succeed, subscribe to topic
     do {
-        let suback = try await client!.subscribe(subscribePacket: SubscribePacket(
-            subscription: Subscription(topicFilter: TEST_TOPIC, qos: QoS.atLeastOnce)))
+        let suback = try await client!.subscribe(
+            subscribePacket: SubscribePacket(
+                subscription: Subscription(topicFilter: TEST_TOPIC, qos: QoS.atLeastOnce)))
         print("SubackPacket received with result \(suback.reasonCodes[0])")
     } catch {
         print("Client failed to subscribe. ")
     }
 }
 public var onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure = { failureData in
-    mqttTestContext.printView("Lifecycle Event Connection Failure: (\(failureData.crtError.code)) \(failureData.crtError.message)")
+    mqttTestContext.printView(
+        "Lifecycle Event Connection Failure: (\(failureData.crtError.code)) \(failureData.crtError.message)"
+    )
 }
 public var onLifecycleEventDisconnection: OnLifecycleEventDisconnection = { disconnectionData in
-    mqttTestContext.printView("Lifecycle Event Disconnection:  (\(disconnectionData.crtError.code)) \(disconnectionData.crtError.message) ")
+    mqttTestContext.printView(
+        "Lifecycle Event Disconnection:  (\(disconnectionData.crtError.code)) \(disconnectionData.crtError.message) "
+    )
 }
 
 // This Function shows how to create a MQTT connection using a certificate file and key file.
@@ -109,11 +117,16 @@ public var onLifecycleEventDisconnection: OnLifecycleEventDisconnection = { disc
 // 5. Stop session
 func setupClientAndStart() async {
 
-    // Grab credential data from file
-    let certData = try! Data(contentsOf: Bundle.main.url(forResource: "cert", withExtension: "pem")!)
-    let keyData = try! Data(contentsOf: Bundle.main.url(forResource: "privatekey", withExtension: "pem")!)
+    guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
+        let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
+    else {
+        fatalError("Missing cert or key resource.")
+    }
 
     do {
+        let certData = try Data(contentsOf: certURL)
+        let keyData = try Data(contentsOf: keyURL)
+
         if client == nil {
             // 0. Initialize the library
             CommonRuntimeKit.initialize()
@@ -122,20 +135,22 @@ func setupClientAndStart() async {
 
             // 1. Setup Connect Options & Create a Mqtt Client
             // 1.1 Create and config a client builder to access credentials from data
-            let clientBuilder = try Mqtt5ClientBuilder.mtlsFromData(certData: certData, keyData: keyData, endpoint: TEST_HOST)
+            let clientBuilder = try Mqtt5ClientBuilder.mtlsFromData(
+                certData: certData, keyData: keyData, endpoint: TEST_HOST)
             // 1.2 Setup callbacks and other client options
             clientBuilder.withClientId("test-" + UUID().uuidString)
-            clientBuilder.withCallbacks(onPublishReceived: onPublishReceived,
-                                        onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
-                                        onLifecycleEventConnectionSuccess: onLifecycleEventConnectionSuccess,
-                                        onLifecycleEventConnectionFailure: onLifecycleEventConnectionFailure,
-                                        onLifecycleEventDisconnection: onLifecycleEventDisconnection,
-                                        onLifecycleEventStopped: onLifecycleEventStopped)
+            clientBuilder.withCallbacks(
+                onPublishReceived: onPublishReceived,
+                onLifecycleEventAttemptingConnect: onLifecycleEventAttemptingConnect,
+                onLifecycleEventConnectionSuccess: onLifecycleEventConnectionSuccess,
+                onLifecycleEventConnectionFailure: onLifecycleEventConnectionFailure,
+                onLifecycleEventDisconnection: onLifecycleEventDisconnection,
+                onLifecycleEventStopped: onLifecycleEventStopped)
             // 1.3 use the builder to create the Mqtt5 Client
             client = try clientBuilder.build()
         }
 
-        if let _client  = client {
+        if let _client = client {
             // 2. Start a connection session
             try _client.start()
         }
@@ -145,12 +160,17 @@ func setupClientAndStart() async {
 }
 
 func PublishAMessage() async {
-    if let _client  = client {
+    if let _client = client {
         do {
             // 4. Publish Messages
-            let publishResult: PublishResult = try await _client.publish(publishPacket: PublishPacket(qos: QoS.atLeastOnce, topic: TEST_TOPIC, payload: ("Hello World \(publishCount)".data(using: .utf8))))
+            let publishResult: PublishResult = try await _client.publish(
+                publishPacket: PublishPacket(
+                    qos: QoS.atLeastOnce, topic: TEST_TOPIC,
+                    payload: ("Hello World \(publishCount)".data(using: .utf8))))
             publishCount += 1
-            mqttTestContext.printView("Publish result with reason code: (\(String(describing: publishResult.puback?.reasonCode))) :  \(String(describing: publishResult.puback?.reasonString))")
+            mqttTestContext.printView(
+                "Publish result with reason code: (\(String(describing: publishResult.puback?.reasonCode))) :  \(String(describing: publishResult.puback?.reasonString))"
+            )
         } catch let err {
             mqttTestContext.printView("Publish Message Failed: \(err)")
         }
@@ -161,7 +181,7 @@ func PublishAMessage() async {
 
 func stopClient() async {
 
-    if let _client  = client {
+    if let _client = client {
         do {
             // 5. Stop connection session
             try _client.stop()
