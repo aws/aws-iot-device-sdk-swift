@@ -26,17 +26,17 @@
   "targets": {
     "ios": {
       "!build_steps": [
-        "xcodebuild -scheme AwsCommonRuntimeKit -destination 'generic/platform=iOS'"
+        "xcodebuild -scheme AwsIotDeviceSdkSwift -destination 'generic/platform=iOS'"
       ]
     },
     "tvos": {
       "!build_steps": [
-        "xcodebuild -scheme AwsCommonRuntimeKit -destination 'generic/platform=tvOS'"
+        "xcodebuild -scheme AwsIotDeviceSdkSwift -destination 'generic/platform=tvOS'"
       ]
     },
     "watchos": {
       "!build_steps": [
-        "xcodebuild -scheme AwsCommonRuntimeKit -destination 'generic/platform=watchOS'"
+        "xcodebuild -scheme AwsIotDeviceSdkSwift -destination 'generic/platform=watchOS'"
       ]
     },
     "linux":{
