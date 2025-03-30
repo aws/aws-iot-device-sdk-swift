@@ -79,7 +79,9 @@ jobs:
         matrix:
           # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
           runner:
+            - macos-13 # x64
             - macos-14
+            - macos-13-xlarge
             - macos-14-large #x64
           target:
             [{ os: ios, destination: 'iOS Simulator,OS=16.1,name=iPhone 14'},
@@ -119,7 +121,7 @@ jobs:
       steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.CI_BUILD_AND_TEST_ROLE }}
+          role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }} 
       - name: Build ${{ env.PACKAGE_NAME }} + consumers
         run: |
