@@ -57,11 +57,12 @@ extension XCTestCase {
         #endif
     }
 
-    // func skipIfPlatformDoesntSupportTLS() throws {
-    //     try skipIfiOS()
-    //     try skipIfwatchOS()
-    //     try skipIftvOS()
-    // }
+    // Skip tls test if it requires entitlements for importing certificates
+    func skipIfPlatformDoesntSupportTLS() throws {
+        try skipIfiOS()
+        try skipIfwatchOS()
+        try skipIftvOS()
+    }
 
     /// Return the environment variable value, or Skip the test if env var is not set.
     func getEnvironmentVarOrSkipTest(environmentVarName name: String) throws -> String {

@@ -182,6 +182,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     =================================================================*/
 
     func testMqttBuilderMTLSFromPath() throws {
+        try skipIfPlatformDoesntSupportTLS()
         let certPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(
@@ -208,6 +209,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttBuilderMTLSFromData() throws {
+        try skipIfPlatformDoesntSupportTLS()
         let certPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(
