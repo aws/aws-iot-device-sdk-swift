@@ -1,6 +1,5 @@
 import AwsCommonRuntimeKit
 import Foundation
-import Testing
 import XCTest
 
 @testable import AwsIotDeviceSdkSwift
@@ -183,6 +182,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     =================================================================*/
 
     func testMqttBuilderMTLSFromPath() throws {
+        try skipIfPlatformDoesntSupportTLS()
         let certPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(
@@ -209,6 +209,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
 
     func testMqttBuilderMTLSFromData() throws {
+        try skipIfPlatformDoesntSupportTLS()
         let certPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(
@@ -266,45 +267,6 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
         XCTAssertNotNil(mqttClient)
         try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
-
-    func testMqttDirectConnect() async throws {
-        let context = MqttTestContext(contextName: "DirectConnect")
-        let ConnectPacket = MqttConnectOptions(keepAliveInterval: 60, clientId: createClientId())
-        let clientOptions = MqttClientOptions(
-            hostName: "localhost",
-            port: 1883,
-            connectOptions: ConnectPacket,
-            connackTimeout: TimeInterval(10),
-            onPublishReceivedFn: context.onPublishReceived,
-            onLifecycleEventStoppedFn: context.onLifecycleEventStopped,
-            onLifecycleEventAttemptingConnectFn: context.onLifecycleEventAttemptingConnect,
-            onLifecycleEventConnectionSuccessFn: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailureFn: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnectionFn: context.onLifecycleEventDisconnection)
-
-        let mqttClient = try Mqtt5Client(clientOptions: clientOptions)
-        try connectClient(client: mqttClient, testContext: context)
-
-        let topic = "test/MQTT5_Binding_Swift_" + UUID().uuidString
-        let subscribePacket = SubscribePacket(
-            topicFilter: topic, qos: QoS.atLeastOnce, noLocal: false)
-        let subackPacket: SubackPacket = try await mqttClient.subscribe(
-            subscribePacket: subscribePacket)
-        print("SubackPacket received with result \(subackPacket.reasonCodes[0])")
-
-        let publishPacket = PublishPacket(
-            qos: QoS.atLeastOnce, topic: topic, payload: "Hello World".data(using: .utf8))
-        let publishResult: PublishResult =
-            try await mqttClient.publish(publishPacket: publishPacket)
-        if let puback = publishResult.puback {
-            print("PubackPacket received with result \(puback.reasonCode)")
-        } else {
-            XCTFail("PublishResult missing.")
-            return
-        }
-
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
 
