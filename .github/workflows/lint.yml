@@ -7,11 +7,9 @@ on:
       - 'docs'
 
 jobs:
-  swiftlint:
-    runs-on: ubuntu-latest
+  lint:
+    runs-on: ubuntu-24.04
     steps:
-    - name: Checkout Sources
-      uses: actions/checkout@v1
-
-    - name: GitHub Action for SwiftLint
-      uses: norio-nomura/action-swiftlint@3.2.1
+      - uses: actions/checkout@v4
+      - name: GitHub Action for SwiftLint
+        uses: norio-nomura/action-swiftlint@3.2.1

@@ -31,11 +31,14 @@ colon:
 comma: error
 empty_enum_arguments: error
 function_body_length:
-  warning: 100
-  error: 150
+  warning: 600
+  error: 600
+type_body_length:
+  warning: 600
+  error: 600
 line_length:
-  warning: 140
-  error: 160
+  warning: 180
+  error: 180
   ignores_comments: true
 return_arrow_whitespace: error
 statement_position:

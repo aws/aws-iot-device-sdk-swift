@@ -8,7 +8,7 @@ let package = Package(
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
-        .tvOS(.v13)
+        .tvOS(.v13),
     ],
     products: [
         .library(
@@ -16,7 +16,8 @@ let package = Package(
             targets: ["AwsIotDeviceSdkSwift"])
     ],
     dependencies: [
-        .package(url: "https://github.com/awslabs/aws-crt-swift.git", from: "0.49.1") 
+        .package(
+            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
     ],
     targets: [
         .target(
