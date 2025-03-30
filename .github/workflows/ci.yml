@@ -30,6 +30,11 @@ jobs:
       permissions:
         id-token: write
       steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.CI_CRT }} # TODO: temporary use CRT CI role to setup builder
@@ -58,6 +63,11 @@ jobs:
       permissions:
         id-token: write
       steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.CI_CRT }}
@@ -119,6 +129,11 @@ jobs:
       permissions:
         id-token: write
       steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.CI_CRT }}
