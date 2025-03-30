@@ -7,8 +7,8 @@ on:
             - 'docs'
 
 env:
-    BUILDER_VERSION: set_project_account
-    BUILDER_SOURCE: channels
+    BUILDER_VERSION: v0.9.77
+    BUILDER_SOURCE: releases
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
     RUN: ${{ github.run_id }}-${{ github.run_number }}
@@ -22,7 +22,7 @@ env:
     CI_CUSTOM_AUTHORIZER_ROLE: arn:aws:iam::180635532705:role/CI_CustomAuthorizer_Role
     CI_MQTT5_ROLE: arn:aws:iam::180635532705:role/CI_MQTT5_Role
     CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
-    CI_CRT: arn:aws:iam::123124136734:role/CRT_CI_Role
+    CI_CRT: arn:aws:iam::123124136734:role/CRT_CI_Role # TODO: We currently use CRT role to access resources for unit testing. We should migrate the secrets to IoT account
 
 jobs:
     linux:
