@@ -228,6 +228,10 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.11"  # Set your desired Python version
             - name: Install the Apple certificate and provisioning profile
               run: |
                 CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
