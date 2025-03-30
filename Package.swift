@@ -28,7 +28,8 @@ let package = Package(
         ),
         .testTarget(
             name: "AwsIotDeviceSdkSwiftTests",
-            dependencies: ["AwsIotDeviceSdkSwift"]
+            dependencies: ["AwsIotDeviceSdkSwift"],
+            path: "Tests/AwsIotDeviceSdkSwiftTests"
         )
     ]
 )
