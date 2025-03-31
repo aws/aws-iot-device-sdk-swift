@@ -4,8 +4,8 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 
 **Supported Platforms**: macOS, iOS, tvOS, Linux
 
-## DEVELOPER PREVIEW
-This project is in **DEVELOPER PREVIEW** while we gather feedback on interfaces and use cases. Please file issues and feature requests. Expect breaking API changes as we incorporate feedback.
+> [!IMPORTANT]
+> This project is in **DEVELOPER PREVIEW** while we gather feedback on interfaces and use cases. Please file issues and feature requests. Expect breaking API changes as we incorporate feedback.
 
 
 *__Topics:__*
