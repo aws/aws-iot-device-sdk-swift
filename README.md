@@ -1,4 +1,5 @@
 # AWS IoT Device SDK for Swift
+
 This document provides information about the AWS IoT Device SDK for Swift. This SDK is built on the [AWS Common Runtime](https://docs.aws.amazon.com/sdkref/latest/guide/common-runtime.html).
 
 **Supported Platforms**: macOS, iOS, tvOS, Linux
