@@ -87,13 +87,15 @@ public var onLifecycleEventAttemptingConnect: OnLifecycleEventAttemptingConnect 
 public var onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { _ in
     mqttTestContext.printView("Lifecycle Event Connection Success")
     // 3. If connection succeed, subscribe to topic
-    do {
-        let suback = try await client!.subscribe(
-            subscribePacket: SubscribePacket(
-                subscription: Subscription(topicFilter: TEST_TOPIC, qos: QoS.atLeastOnce)))
-        print("SubackPacket received with result \(suback.reasonCodes[0])")
-    } catch {
-        print("Client failed to subscribe. ")
+    Task {
+        do {
+            let suback = try await client!.subscribe(
+                subscribePacket: SubscribePacket(
+                    subscription: Subscription(topicFilter: TEST_TOPIC, qos: QoS.atLeastOnce)))
+            print("SubackPacket received with result \(suback.reasonCodes[0])")
+        } catch {
+            print("Client failed to subscribe. ")
+        }
     }
 }
 public var onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure = { failureData in
