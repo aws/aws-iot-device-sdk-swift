@@ -54,29 +54,28 @@ struct Mqtt5Sample: AsyncParsableCommand {
 
             // Callbacks to be assigned to the builder
             // The full list of callbacks and their uses can be found in the MQTT5 User Guide
-            func onLifecycleEventStopped(_: LifecycleStoppedData) async {
+            func onLifecycleEventStopped(_: LifecycleStoppedData) {
                 print("Mqtt5Client: onLifecycleEventStopped callback invoked.")
             }
-            func onLifecycleEventAttemptingConnect(_: LifecycleAttemptingConnectData) async {
+            func onLifecycleEventAttemptingConnect(_: LifecycleAttemptingConnectData) {
                 print("Mqtt5Client: onLifecycleEventAttemptingConnect callback invoked.")
             }
-            func onLifecycleEventConnectionSuccess(_: LifecycleConnectionSuccessData) async {
+            func onLifecycleEventConnectionSuccess(_: LifecycleConnectionSuccessData) {
                 print("Mqtt5Client: onLifecycleEventConnectionSuccess callback invoked.")
             }
-            func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData)
-                async {
+            func onLifecycleEventConnectionFailure(failureData: LifecycleConnectionFailureData) {
                 print(
                     "Mqtt5Client: onLifecycleEventConnectionFailure callback invoked with Error Code \(failureData.crtError.code): \(failureData.crtError.message)"
                 )
             }
-            func onLifecycleEventDisconnection(disconnectionData: LifecycleDisconnectData) async {
+            func onLifecycleEventDisconnection(disconnectionData: LifecycleDisconnectData) {
                 print(
                     "Mqtt5Client: onLifecycleEventDisconnection callback invoked with Error Code \(disconnectionData.crtError.code): \(disconnectionData.crtError.message)"
                 )
             }
 
             // The onPublishReceived callback handles all publish packets the Mqtt5 Client receives.
-            func onPublishReceived(publishData: PublishReceivedData) async {
+            func onPublishReceived(publishData: PublishReceivedData) {
                 let packet: PublishPacket = publishData.publishPacket
                 let payload = packet.payloadAsString() ?? "[no payload]"
                 print(
