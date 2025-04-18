@@ -17,7 +17,8 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
+            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "mqtt-callbacks")
+            // .upToNextMajor(from: "0.49.1"))
     ],
     targets: [
         .target(

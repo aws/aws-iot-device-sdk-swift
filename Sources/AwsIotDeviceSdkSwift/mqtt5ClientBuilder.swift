@@ -116,14 +116,15 @@ public class Mqtt5ClientBuilder {
             region: region,
             credentialsProvider: credentialsProvider,
             omitSessionToken: true)
-
         _onWebsocketTransform = { httpRequest, completCallback in
-            do {
-                let returnedHttpRequest = try await Signer.signRequest(
-                    request: httpRequest, config: signingConfig)
-                completCallback(returnedHttpRequest, 0)
-            } catch {
-                completCallback(httpRequest, -1)
+            Task {
+                do {
+                    let returnedHttpRequest = try await Signer.signRequest(
+                        request: httpRequest, config: signingConfig)
+                    completCallback(returnedHttpRequest, 0)
+                } catch {
+                    completCallback(httpRequest, -1)
+                }
             }
         }
     }
