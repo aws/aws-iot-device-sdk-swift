@@ -17,7 +17,8 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.50.0"))
+            // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
+            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming")
     ],
     targets: [
         .target(
