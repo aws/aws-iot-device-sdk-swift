@@ -32,25 +32,25 @@ public class IotShadowClient {
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/delta"
 
-        guard let thingName = request.thingName, !thingName.isEmpty else {
-            throw IotShadowClientError.thingNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{thingName}", with: thingName)
+        // guard let thingName = request.thingName, !thingName.isEmpty else {
+        //     throw IotShadowClientError.thingNameNotFound
+        // }
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
-        guard let shadowName = request.shadowName, !shadowName.isEmpty else {
-            throw IotShadowClientError.shadowNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{shadowName}", with: shadowName)
+        // guard let shadowName = request.shadowName, !shadowName.isEmpty else {
+        //     throw IotShadowClientError.shadowNameNotFound
+        // }
+        topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
 
         let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
-            subscriptionStatusEventHandler: { event in
+            topicFilter: topic,
+            subscriptionStatusCallback: { event in
                 // TODO
             },
-            incomingPublishEventHandler: { event in
+            incomingPublishCallback: { event in
                 // TODO
-            },
-            topicFilter: topic)
-        return try await rrClient.createStream(streamOptions: streamOptions)
+            })
+        return try rrClient.createStream(streamOptions: streamOptions)
     }
 
     /// Create a stream for ShadowUpdated events for a named shadow of an AWS IoT thing.
@@ -68,25 +68,25 @@ public class IotShadowClient {
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/documents"
 
-        guard let thingName = request.thingName, !thingName.isEmpty else {
-            throw IotShadowClientError.thingNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{thingName}", with: thingName)
+        // guard let thingName = request.thingName, !thingName.isEmpty else {
+        //     throw IotShadowClientError.thingNameNotFound
+        // }
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
-        guard let shadowName = request.shadowName, !shadowName.isEmpty else {
-            throw IotShadowClientError.shadowNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{shadowName}", with: shadowName)
+        // guard let shadowName = request.shadowName, !shadowName.isEmpty else {
+        //     throw IotShadowClientError.shadowNameNotFound
+        // }
+        topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
 
         let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
-            subscriptionStatusEventHandler: { event in
+            topicFilter: topic,
+            subscriptionStatusCallback: { event in
                 // TODO
             },
-            incomingPublishEventHandler: { event in
+            incomingPublishCallback: { event in
                 // TODO
-            },
-            topicFilter: topic)
-        return try await rrClient.createStream(streamOptions: streamOptions)
+            })
+        return try rrClient.createStream(streamOptions: streamOptions)
     }
 
     /// Create a stream for ShadowDelta events for the (classic) shadow of an AWS IoT thing.
@@ -104,20 +104,20 @@ public class IotShadowClient {
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/delta"
 
-        guard let thingName = request.thingName, !thingName.isEmpty else {
-            throw IotShadowClientError.thingNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{thingName}", with: thingName)
+        // guard let thingName = request.thingName, !thingName.isEmpty else {
+        //     throw IotShadowClientError.thingNameNotFound
+        // }
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
         let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
-            subscriptionStatusEventHandler: { event in
+            topicFilter: topic,
+            subscriptionStatusCallback: { event in
                 // TODO
             },
-            incomingPublishEventHandler: { event in
+            incomingPublishCallback: { event in
                 // TODO
-            },
-            topicFilter: topic)
-        return try await rrClient.createStream(streamOptions: streamOptions)
+            })
+        return try rrClient.createStream(streamOptions: streamOptions)
     }
 
     /// Create a stream for ShadowUpdated events for the (classic) shadow of an AWS IoT thing.
@@ -135,20 +135,20 @@ public class IotShadowClient {
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/documents"
 
-        guard let thingName = request.thingName, !thingName.isEmpty else {
-            throw IotShadowClientError.thingNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{thingName}", with: thingName)
+        // guard let thingName = request.thingName, !thingName.isEmpty else {
+        //     throw IotShadowClientError.thingNameNotFound
+        // }
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
         let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
-            subscriptionStatusEventHandler: { event in
+            topicFilter: topic,
+            subscriptionStatusCallback: { event in
                 // TODO
             },
-            incomingPublishEventHandler: { event in
+            incomingPublishCallback: { event in
                 // TODO
-            },
-            topicFilter: topic)
-        return try await rrClient.createStream(streamOptions: streamOptions)
+            })
+        return try rrClient.createStream(streamOptions: streamOptions)
     }
 
     /// Deletes a named shadow for an AWS IoT thing.
@@ -156,26 +156,67 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#delete-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `DeleteNamedShadowRequest` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
+    ///   - request: `DeleteNamedShadowRequest` modeled request to perform.
+    /// - Throws: `IotShadowClientError`
+    /// - Returns: a `DeleteShadowResponse` with the corresponding response.
+    public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws
+        -> DeleteShadowResponse
+    {
 
-        // symbols.toSymbol(outputShape): DeleteShadowResponse
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        var correlationToken: String? = nil
+        correlationToken = UUID().uuidString
+        request.clientToken = correlationToken
+
+        // Publish Topic
+        var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/delete"
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
+
+        // Subscription Topic Filters
+        var subscriptionTopicFilters: [String] = []
+        var subscription0: String = "$aws/things/{thingName}/shadow/name/{shadowName}/delete/+"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{shadowName}", with: request.shadowName)
+        subscriptionTopicFilters.append(subscription0)
+
+        // Response paths
+        let responseTopic1: String = topic + "/accepted"
+        let responseTopic2: String = topic + "/rejected"
+        let token1 = "clientToken"
+        let token2 = "clientToken"
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
-            let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+            // Encode the event into JSON Data.
+            let payload = try encoder.encode(request)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let requestResponseOperationOptions = RequestResponseOperationOptions(
+                subscriptionTopicFilters: subscriptionTopicFilters,
+                responsePaths: [responsePath1, responsePath2],
+                topic: topic,
+                payload: payload,
+                correlationToken: correlationToken)
+
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
+
+            if response.topic == responseTopic1 {
+                return try decoder.decode(DeleteShadowResponse.self, from: response.payload)
+            } else {
+                throw IotShadowClientError.service(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+            }
+        } catch let clientErr as IotShadowClientError {
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            throw IotShadowClientError.underlying(error)
         }
     }
 
@@ -184,26 +225,62 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#delete-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `DeleteShadowRequest` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func deleteShadow(request: DeleteShadowRequest) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
+    ///   - request: `DeleteShadowRequest` modeled request to perform.
+    /// - Throws: `IotShadowClientError`
+    /// - Returns: a `DeleteShadowResponse` with the corresponding response.
+    public func deleteShadow(request: DeleteShadowRequest) async throws -> DeleteShadowResponse {
 
-        // symbols.toSymbol(outputShape): DeleteShadowResponse
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        var correlationToken: String? = nil
+        correlationToken = UUID().uuidString
+        request.clientToken = correlationToken
+
+        // Publish Topic
+        var topic: String = "$aws/things/{thingName}/shadow/delete"
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
+
+        // Subscription Topic Filters
+        var subscriptionTopicFilters: [String] = []
+        var subscription0: String = "$aws/things/{thingName}/shadow/delete/+"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscriptionTopicFilters.append(subscription0)
+
+        // Response paths
+        let responseTopic1: String = topic + "/accepted"
+        let responseTopic2: String = topic + "/rejected"
+        let token1 = "clientToken"
+        let token2 = "clientToken"
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
-            let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+            // Encode the event into JSON Data.
+            let payload = try encoder.encode(request)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let requestResponseOperationOptions = RequestResponseOperationOptions(
+                subscriptionTopicFilters: subscriptionTopicFilters,
+                responsePaths: [responsePath1, responsePath2],
+                topic: topic,
+                payload: payload,
+                correlationToken: correlationToken)
+
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
+
+            if response.topic == responseTopic1 {
+                return try decoder.decode(DeleteShadowResponse.self, from: response.payload)
+            } else {
+                throw IotShadowClientError.service(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+            }
+        } catch let clientErr as IotShadowClientError {
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            throw IotShadowClientError.underlying(error)
         }
     }
 
@@ -212,26 +289,65 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#get-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `GetNamedShadowRequest` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func getNamedShadow(request: GetNamedShadowRequest) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
+    ///   - request: `GetNamedShadowRequest` modeled request to perform.
+    /// - Throws: `IotShadowClientError`
+    /// - Returns: a `GetShadowResponse` with the corresponding response.
+    public func getNamedShadow(request: GetNamedShadowRequest) async throws -> GetShadowResponse {
 
-        // symbols.toSymbol(outputShape): GetShadowResponse
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        var correlationToken: String? = nil
+        correlationToken = UUID().uuidString
+        request.clientToken = correlationToken
+
+        // Publish Topic
+        var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/get"
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
+
+        // Subscription Topic Filters
+        var subscriptionTopicFilters: [String] = []
+        var subscription0: String = "$aws/things/{thingName}/shadow/name/{shadowName}/get/+"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{shadowName}", with: request.shadowName)
+        subscriptionTopicFilters.append(subscription0)
+
+        // Response paths
+        let responseTopic1: String = topic + "/accepted"
+        let responseTopic2: String = topic + "/rejected"
+        let token1 = "clientToken"
+        let token2 = "clientToken"
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
-            let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+            // Encode the event into JSON Data.
+            let payload = try encoder.encode(request)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let requestResponseOperationOptions = RequestResponseOperationOptions(
+                subscriptionTopicFilters: subscriptionTopicFilters,
+                responsePaths: [responsePath1, responsePath2],
+                topic: topic,
+                payload: payload,
+                correlationToken: correlationToken)
+
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
+
+            if response.topic == responseTopic1 {
+                return try decoder.decode(GetShadowResponse.self, from: response.payload)
+            } else {
+                throw IotShadowClientError.service(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+            }
+        } catch let clientErr as IotShadowClientError {
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            throw IotShadowClientError.underlying(error)
         }
     }
 
@@ -240,91 +356,63 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#get-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `GetShadowRequest` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func getShadow(request: GetShadowRequest) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
+    ///   - request: `GetShadowRequest` modeled request to perform.
+    /// - Throws: `IotShadowClientError`
+    /// - Returns: a `GetShadowResponse` with the corresponding response.
+    public func getShadow(request: GetShadowRequest) async throws -> GetShadowResponse {
 
-        // symbols.toSymbol(outputShape): GetShadowResponse
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        var correlationToken: String? = nil
+        correlationToken = UUID().uuidString
+        request.clientToken = correlationToken
 
-        do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
-            let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+        // Publish Topic
+        var topic: String = "$aws/things/{thingName}/shadow/get"
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
-        }
-    }
+        // Subscription Topic Filters
+        var subscriptionTopicFilters: [String] = []
+        var subscription0: String = "$aws/things/{thingName}/shadow/get/+"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscriptionTopicFilters.append(subscription0)
 
-    /// Testing Operation for Request Response.
-    ///
-    /// API Docs: https://NonExistantLink.com
-    ///
-    /// - Parameters:
-    ///   - request: `TestStructureData` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func testRequestResponseOperation(request: TestStructureData) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
-
-        // symbols.toSymbol(outputShape): TestStructureData
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        // Response paths
+        let responseTopic1: String = topic + "/accepted"
+        let responseTopic2: String = topic + "/rejected"
+        let token1 = "clientToken"
+        let token2 = "clientToken"
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
+            // Encode the event into JSON Data.
+            let payload = try encoder.encode(request)
+
             let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+                subscriptionTopicFilters: subscriptionTopicFilters,
+                responsePaths: [responsePath1, responsePath2],
+                topic: topic,
+                payload: payload,
+                correlationToken: correlationToken)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
+
+            if response.topic == responseTopic1 {
+                return try decoder.decode(GetShadowResponse.self, from: response.payload)
+            } else {
+                throw IotShadowClientError.service(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+            }
+        } catch let clientErr as IotShadowClientError {
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            throw IotShadowClientError.underlying(error)
         }
-    }
-
-    /// Testing Operation for Streaming.
-    ///
-    /// API Docs: https://NonExistantLink.com
-    ///
-    /// - Parameters:
-    ///   - request: `TestStructureData` modeled streaming operation subscription configuration
-    ///   - options: options set of callbacks that the operation should invoke in response to related events
-    /// - Throws: // TODO errors input here
-    /// - Returns: a `StreamingOperation` which will invoke a callback every time a message is received on the
-    ///            associated MQTT topic
-    public func testStreamingOperation(
-        request: TestStructureData
-    ) async throws -> StreamingOperation {
-        var topic: String = "$aws/things/{thingName}/test/streamingOperation/{shadowName}/update/documents"
-
-        guard let thingName = request.thingName, !thingName.isEmpty else {
-            throw IotShadowClientError.thingNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{thingName}", with: thingName)
-
-        guard let shadowName = request.shadowName, !shadowName.isEmpty else {
-            throw IotShadowClientError.shadowNameNotFound
-        }
-        topic = topic.replacingOccurrences(of: "{shadowName}", with: shadowName)
-
-        let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
-            subscriptionStatusEventHandler: { event in
-                // TODO
-            },
-            incomingPublishEventHandler: { event in
-                // TODO
-            },
-            topicFilter: topic)
-        return try await rrClient.createStream(streamOptions: streamOptions)
     }
 
     /// Update a named shadow for a device.
@@ -332,26 +420,75 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `UpdateNamedShadowRequest` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
+    ///   - request: `UpdateNamedShadowRequest` modeled request to perform.
+    /// - Throws: `IotShadowClientError`
+    /// - Returns: a `UpdateShadowResponse` with the corresponding response.
+    public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws
+        -> UpdateShadowResponse
+    {
 
-        // symbols.toSymbol(outputShape): UpdateShadowResponse
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        var correlationToken: String? = nil
+        correlationToken = UUID().uuidString
+        request.clientToken = correlationToken
+
+        // Publish Topic
+        var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update"
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
+
+        // Subscription Topic Filters
+        var subscriptionTopicFilters: [String] = []
+        var subscription0: String =
+            "$aws/things/{thingName}/shadow/name/{shadowName}/update/accepted"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{shadowName}", with: request.shadowName)
+        subscriptionTopicFilters.append(subscription0)
+        var subscription1: String =
+            "$aws/things/{thingName}/shadow/name/{shadowName}/update/rejected"
+        subscription1 = subscription1.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscription1 = subscription1.replacingOccurrences(
+            of: "{shadowName}", with: request.shadowName)
+        subscriptionTopicFilters.append(subscription1)
+
+        // Response paths
+        let responseTopic1: String = topic + "/accepted"
+        let responseTopic2: String = topic + "/rejected"
+        let token1 = "clientToken"
+        let token2 = "clientToken"
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
-            let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+            // Encode the event into JSON Data.
+            let payload = try encoder.encode(request)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let requestResponseOperationOptions = RequestResponseOperationOptions(
+                subscriptionTopicFilters: subscriptionTopicFilters,
+                responsePaths: [responsePath1, responsePath2],
+                topic: topic,
+                payload: payload,
+                correlationToken: correlationToken)
+
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
+
+            if response.topic == responseTopic1 {
+                return try decoder.decode(UpdateShadowResponse.self, from: response.payload)
+            } else {
+                throw IotShadowClientError.service(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+            }
+        } catch let clientErr as IotShadowClientError {
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            throw IotShadowClientError.underlying(error)
         }
     }
 
@@ -360,26 +497,66 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `UpdateShadowRequest` modeled request to perform
-    /// - Throws:  `CommonRuntimeError.crtError` // TODO setup Error to be thrown
-    /// - Returns: a `StreamingOperation` Need to see implementation by Vera  // TODO update info on return
-    public func updateShadow(request: UpdateShadowRequest) async throws -> MqttRequestResponseResponse {
-        // Check for mandatory members:
+    ///   - request: `UpdateShadowRequest` modeled request to perform.
+    /// - Throws: `IotShadowClientError`
+    /// - Returns: a `UpdateShadowResponse` with the corresponding response.
+    public func updateShadow(request: UpdateShadowRequest) async throws -> UpdateShadowResponse {
 
-        // symbols.toSymbol(outputShape): UpdateShadowResponse
-        // symbols.toSymbol(errorShape) V2ErrorResponse
+        var correlationToken: String? = nil
+        correlationToken = UUID().uuidString
+        request.clientToken = correlationToken
+
+        // Publish Topic
+        var topic: String = "$aws/things/{thingName}/shadow/update"
+        topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
+
+        // Subscription Topic Filters
+        var subscriptionTopicFilters: [String] = []
+        var subscription0: String = "$aws/things/{thingName}/shadow/update/accepted"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscriptionTopicFilters.append(subscription0)
+        var subscription1: String = "$aws/things/{thingName}/shadow/update/rejected"
+        subscription1 = subscription1.replacingOccurrences(
+            of: "{thingName}", with: request.thingName)
+        subscriptionTopicFilters.append(subscription1)
+
+        // Response paths
+        let responseTopic1: String = topic + "/accepted"
+        let responseTopic2: String = topic + "/rejected"
+        let token1 = "clientToken"
+        let token2 = "clientToken"
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
-            // Encode the event into Data.
-            let jsonData = try encoder.encode(request)
-            let requestResponseOperationOptions = RequestResponseOperationOptions(
-                subscriptionTopicFilters: ["topic Filter"],
-                responsePaths: nil,
-                topic: "Topic",
-                payload: jsonData,
-                correlationToken: nil)
+            // Encode the event into JSON Data.
+            let payload = try encoder.encode(request)
 
-            return try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let requestResponseOperationOptions = RequestResponseOperationOptions(
+                subscriptionTopicFilters: subscriptionTopicFilters,
+                responsePaths: [responsePath1, responsePath2],
+                topic: topic,
+                payload: payload,
+                correlationToken: correlationToken)
+
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
+
+            if response.topic == responseTopic1 {
+                return try decoder.decode(UpdateShadowResponse.self, from: response.payload)
+            } else {
+                throw IotShadowClientError.service(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+            }
+        } catch let clientErr as IotShadowClientError {
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            throw IotShadowClientError.underlying(error)
         }
     }
 
@@ -421,7 +598,7 @@ public class ShadowState: Codable {
 
     enum CodingKeys: String, CodingKey {
         case desired,
-             reported
+            reported
     }
 
     /// initialize this class containing the document trait from JSON
@@ -429,7 +606,8 @@ public class ShadowState: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
         self.desired = desiredJSON?.asAnyDictionary()
-        let reportedJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .reported)
+        let reportedJSON = try container.decodeIfPresent(
+            [String: JSONValue].self, forKey: .reported)
         self.reported = reportedJSON?.asAnyDictionary()
     }
 
@@ -495,8 +673,8 @@ public class ShadowStateWithDelta: Codable {
 
     enum CodingKeys: String, CodingKey {
         case desired,
-             reported,
-             delta
+            reported,
+            delta
     }
 
     /// initialize this class containing the document trait from JSON
@@ -504,7 +682,8 @@ public class ShadowStateWithDelta: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
         self.desired = desiredJSON?.asAnyDictionary()
-        let reportedJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .reported)
+        let reportedJSON = try container.decodeIfPresent(
+            [String: JSONValue].self, forKey: .reported)
         self.reported = reportedJSON?.asAnyDictionary()
         let deltaJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .delta)
         self.delta = deltaJSON?.asAnyDictionary()
@@ -648,10 +827,10 @@ public class ShadowDeltaUpdatedEvent: Codable {
 
     enum CodingKeys: String, CodingKey {
         case state,
-             metadata,
-             timestamp,
-             version,
-             clientToken
+            metadata,
+            timestamp,
+            version,
+            clientToken
     }
 
     /// initialize this class containing the document trait from JSON
@@ -659,11 +838,12 @@ public class ShadowDeltaUpdatedEvent: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let stateJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .state)
         self.state = stateJSON?.asAnyDictionary()
-        let metadataJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .metadata)
+        let metadataJSON = try container.decodeIfPresent(
+            [String: JSONValue].self, forKey: .metadata)
         self.metadata = metadataJSON?.asAnyDictionary()
-        self.timestamp = try container.decodeIfPresent(Foundation.Date.self , forKey: .timestamp)
-        self.version = try container.decodeIfPresent(Int.self , forKey: .version)
-        self.clientToken = try container.decodeIfPresent(String.self , forKey: .clientToken)
+        self.timestamp = try container.decodeIfPresent(Foundation.Date.self, forKey: .timestamp)
+        self.version = try container.decodeIfPresent(Int.self, forKey: .version)
+        self.clientToken = try container.decodeIfPresent(String.self, forKey: .clientToken)
     }
 
     /// encode this class containing the document trait into JSON
@@ -767,7 +947,7 @@ public class ShadowMetadata: Codable {
 
     enum CodingKeys: String, CodingKey {
         case desired,
-             reported
+            reported
     }
 
     /// initialize this class containing the document trait from JSON
@@ -775,7 +955,8 @@ public class ShadowMetadata: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
         self.desired = desiredJSON?.asAnyDictionary()
-        let reportedJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .reported)
+        let reportedJSON = try container.decodeIfPresent(
+            [String: JSONValue].self, forKey: .reported)
         self.reported = reportedJSON?.asAnyDictionary()
     }
 
@@ -800,10 +981,10 @@ public class ShadowMetadata: Codable {
 public class DeleteNamedShadowRequest: Codable {
 
     /// AWS IoT thing to delete a named shadow from.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to delete.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
     public var clientToken: String?
@@ -811,12 +992,12 @@ public class DeleteNamedShadowRequest: Codable {
     /// Initializes a new `DeleteNamedShadowRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing to delete a named shadow from.
-
     ///   - shadowName: `String` Name of the shadow to delete.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
         clientToken = nil
@@ -839,7 +1020,7 @@ public class DeleteNamedShadowRequest: Codable {
 public class DeleteShadowRequest: Codable {
 
     /// AWS IoT thing to delete the (classic) shadow of.
-    public var thingName: String?
+    public var thingName: String
 
     /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
     public var clientToken: String?
@@ -847,7 +1028,6 @@ public class DeleteShadowRequest: Codable {
     /// Initializes a new `DeleteShadowRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing to delete the (classic) shadow of.
     public init(thingName: String) {
         self.thingName = thingName
@@ -871,10 +1051,10 @@ public class DeleteShadowRequest: Codable {
 public class GetNamedShadowRequest: Codable {
 
     /// AWS IoT thing to get the named shadow for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to get.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
     public var clientToken: String?
@@ -882,12 +1062,12 @@ public class GetNamedShadowRequest: Codable {
     /// Initializes a new `GetNamedShadowRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing to get the named shadow for.
-
     ///   - shadowName: `String` Name of the shadow to get.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
         clientToken = nil
@@ -910,7 +1090,7 @@ public class GetNamedShadowRequest: Codable {
 public class GetShadowRequest: Codable {
 
     /// AWS IoT thing to get the (classic) shadow for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
     public var clientToken: String?
@@ -918,7 +1098,6 @@ public class GetShadowRequest: Codable {
     /// Initializes a new `GetShadowRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing to get the (classic) shadow for.
     public init(thingName: String) {
         self.thingName = thingName
@@ -942,10 +1121,10 @@ public class GetShadowRequest: Codable {
 public class UpdateNamedShadowRequest: Codable {
 
     /// Aws IoT thing to update a named shadow of.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to update.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
     public var clientToken: String?
@@ -959,12 +1138,12 @@ public class UpdateNamedShadowRequest: Codable {
     /// Initializes a new `UpdateNamedShadowRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Aws IoT thing to update a named shadow of.
-
     ///   - shadowName: `String` Name of the shadow to update.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
         clientToken = nil
@@ -1005,7 +1184,7 @@ public class UpdateNamedShadowRequest: Codable {
 public class UpdateShadowRequest: Codable {
 
     /// Aws IoT thing to update the (classic) shadow of.
-    public var thingName: String?
+    public var thingName: String
 
     /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
     public var clientToken: String?
@@ -1019,7 +1198,6 @@ public class UpdateShadowRequest: Codable {
     /// Initializes a new `UpdateShadowRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Aws IoT thing to update the (classic) shadow of.
     public init(thingName: String) {
         self.thingName = thingName
@@ -1061,20 +1239,20 @@ public class UpdateShadowRequest: Codable {
 public class DeleteNamedShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing to subscribe to DeleteNamedShadow operations for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to subscribe to DeleteNamedShadow operations for.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Initializes a new `DeleteNamedShadowSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing to subscribe to DeleteNamedShadow operations for.
-
     ///   - shadowName: `String` Name of the shadow to subscribe to DeleteNamedShadow operations for.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1088,12 +1266,11 @@ public class DeleteNamedShadowSubscriptionRequest: Codable {
 public class DeleteShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing to subscribe to DeleteShadow operations for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Initializes a new `DeleteShadowSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing to subscribe to DeleteShadow operations for.
     public init(thingName: String) {
         self.thingName = thingName
@@ -1108,20 +1285,20 @@ public class DeleteShadowSubscriptionRequest: Codable {
 public class GetNamedShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing subscribe to GetNamedShadow responses for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to subscribe to GetNamedShadow responses for.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Initializes a new `GetNamedShadowSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing subscribe to GetNamedShadow responses for.
-
     ///   - shadowName: `String` Name of the shadow to subscribe to GetNamedShadow responses for.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1135,12 +1312,11 @@ public class GetNamedShadowSubscriptionRequest: Codable {
 public class GetShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing subscribe to GetShadow responses for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Initializes a new `GetShadowSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` AWS IoT thing subscribe to GetShadow responses for.
     public init(thingName: String) {
         self.thingName = thingName
@@ -1155,20 +1331,20 @@ public class GetShadowSubscriptionRequest: Codable {
 public class UpdateNamedShadowSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to listen to UpdateNamedShadow responses for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to listen to UpdateNamedShadow responses for.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Initializes a new `UpdateNamedShadowSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Name of the AWS IoT thing to listen to UpdateNamedShadow responses for.
-
     ///   - shadowName: `String` Name of the shadow to listen to UpdateNamedShadow responses for.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1182,12 +1358,11 @@ public class UpdateNamedShadowSubscriptionRequest: Codable {
 public class UpdateShadowSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to listen to UpdateShadow responses for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Initializes a new `UpdateShadowSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Name of the AWS IoT thing to listen to UpdateShadow responses for.
     public init(thingName: String) {
         self.thingName = thingName
@@ -1202,20 +1377,20 @@ public class UpdateShadowSubscriptionRequest: Codable {
 public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get NamedShadowDelta events for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to get ShadowDelta events for.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Initializes a new `NamedShadowDeltaUpdatedSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Name of the AWS IoT thing to get NamedShadowDelta events for.
-
     ///   - shadowName: `String` Name of the shadow to get ShadowDelta events for.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1229,20 +1404,20 @@ public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
 public class NamedShadowUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get NamedShadowUpdated events for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Name of the shadow to get NamedShadowUpdated events for.
-    public var shadowName: String?
+    public var shadowName: String
 
     /// Initializes a new `NamedShadowUpdatedSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Name of the AWS IoT thing to get NamedShadowUpdated events for.
-
     ///   - shadowName: `String` Name of the shadow to get NamedShadowUpdated events for.
-    public init(thingName: String,
-        shadowName: String) {
+    public init(
+        thingName: String,
+        shadowName: String
+    ) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1256,12 +1431,11 @@ public class NamedShadowUpdatedSubscriptionRequest: Codable {
 public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get ShadowDelta events for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Initializes a new `ShadowDeltaUpdatedSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Name of the AWS IoT thing to get ShadowDelta events for.
     public init(thingName: String) {
         self.thingName = thingName
@@ -1276,12 +1450,11 @@ public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
 public class ShadowUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get ShadowUpdated events for.
-    public var thingName: String?
+    public var thingName: String
 
     /// Initializes a new `ShadowUpdatedSubscriptionRequest`
     ///
     /// - Parameters:
-
     ///   - thingName: `String` Name of the AWS IoT thing to get ShadowUpdated events for.
     public init(thingName: String) {
         self.thingName = thingName
@@ -1299,7 +1472,7 @@ public class ErrorResponse: Codable {
     public var clientToken: String?
 
     /// An HTTP response code that indicates the type of error.
-    public var code: Int?
+    public var code: Int
 
     /// A text message that provides additional information.
     public var message: String?
@@ -1310,7 +1483,6 @@ public class ErrorResponse: Codable {
     /// Initializes a new `ErrorResponse`
     ///
     /// - Parameters:
-
     ///   - code: `Int` An HTTP response code that indicates the type of error.
     public init(code: Int) {
         clientToken = nil
@@ -1349,13 +1521,13 @@ public class ErrorResponse: Codable {
 ///
 /// This class initializes with all optional properties set to 'nil'.
 /// Use the provided builder with() functions to configure optional properties after instaitiation.
-public class V2ErrorResponse: Codable {
+public class V2ErrorResponse: Codable, ServiceError, @unchecked Sendable {
 
     /// Opaque request-response correlation data.  Present only if a client token was used in the request.
     public var clientToken: String?
 
     /// An HTTP response code that indicates the type of error.
-    public var code: Int?
+    public var code: Int
 
     /// A text message that provides additional information.
     public var message: String?
@@ -1366,7 +1538,6 @@ public class V2ErrorResponse: Codable {
     /// Initializes a new `V2ErrorResponse`
     ///
     /// - Parameters:
-
     ///   - code: `Int` An HTTP response code that indicates the type of error.
     public init(code: Int) {
         clientToken = nil
@@ -1593,309 +1764,12 @@ public class UpdateShadowResponse: Codable {
 
 }
 
-/// Smithy structure for testing that contains all supported symbol types.
-///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
-public class TestStructureData: Codable {
+public protocol ServiceError: Sendable {}
 
-    /// Required thingName.
-    public var thingName: String?
+public enum IotShadowClientError: Error, Sendable {
+    case crt(CRTError)
 
-    /// Required shadowName.
-    public var shadowName: String?
+    case service(any ServiceError)
 
-    /// Blob
-    public var testBlob: Foundation.Data?
-
-    /// Boolean
-    public var testBoolean: Bool?
-
-    /// String
-    public var testString: String?
-
-    /// Byte
-    public var testByte: Int?
-
-    /// Short
-    public var testShort: Int?
-
-    /// Integer
-    public var testInteger: Int?
-
-    /// Long
-    public var testLong: Int?
-
-    /// Float
-    public var testFloat: Double?
-
-    /// Double
-    public var testDouble: Double?
-
-    /// BigInteger
-    public var testBigInteger: Int?
-
-    /// BigDecimal
-    public var testBigDecimal: Decimal?
-
-    /// Timestamp
-    public var testTimestamp: Foundation.Date?
-
-    /// Document
-    public var testDocument: [String: Any]?
-
-    /// Test Enum
-    public var testEnum: TestEnum?
-
-    /// Initializes a new `TestStructureData`
-    ///
-    /// - Parameters:
-
-    ///   - thingName: `String` Required thingName.
-
-    ///   - shadowName: `String` Required shadowName.
-    public init(thingName: String,
-        shadowName: String) {
-        self.thingName = thingName
-        self.shadowName = shadowName
-        testBlob = nil
-        testBoolean = nil
-        testString = nil
-        testByte = nil
-        testShort = nil
-        testInteger = nil
-        testLong = nil
-        testFloat = nil
-        testDouble = nil
-        testBigInteger = nil
-        testBigDecimal = nil
-        testTimestamp = nil
-        testDocument = nil
-        testEnum = nil
-    }
-
-    /// Assign the testBlob property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testBlob: `Foundation.Data` Blob
-    public func withTestBlob(testBlob: Foundation.Data) {
-        self.testBlob = testBlob
-    }
-
-    /// Assign the testBoolean property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testBoolean: `Bool` Boolean
-    public func withTestBoolean(testBoolean: Bool) {
-        self.testBoolean = testBoolean
-    }
-
-    /// Assign the testString property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testString: `String` String
-    public func withTestString(testString: String) {
-        self.testString = testString
-    }
-
-    /// Assign the testByte property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testByte: `Int` Byte
-    public func withTestByte(testByte: Int) {
-        self.testByte = testByte
-    }
-
-    /// Assign the testShort property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testShort: `Int` Short
-    public func withTestShort(testShort: Int) {
-        self.testShort = testShort
-    }
-
-    /// Assign the testInteger property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testInteger: `Int` Integer
-    public func withTestInteger(testInteger: Int) {
-        self.testInteger = testInteger
-    }
-
-    /// Assign the testLong property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testLong: `Int` Long
-    public func withTestLong(testLong: Int) {
-        self.testLong = testLong
-    }
-
-    /// Assign the testFloat property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testFloat: `Double` Float
-    public func withTestFloat(testFloat: Double) {
-        self.testFloat = testFloat
-    }
-
-    /// Assign the testDouble property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testDouble: `Double` Double
-    public func withTestDouble(testDouble: Double) {
-        self.testDouble = testDouble
-    }
-
-    /// Assign the testBigInteger property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testBigInteger: `Int` BigInteger
-    public func withTestBigInteger(testBigInteger: Int) {
-        self.testBigInteger = testBigInteger
-    }
-
-    /// Assign the testBigDecimal property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testBigDecimal: `Decimal` BigDecimal
-    public func withTestBigDecimal(testBigDecimal: Decimal) {
-        self.testBigDecimal = testBigDecimal
-    }
-
-    /// Assign the testTimestamp property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testTimestamp: `Foundation.Date` Timestamp
-    public func withTestTimestamp(testTimestamp: Foundation.Date) {
-        self.testTimestamp = testTimestamp
-    }
-
-    /// Assign the testDocument property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testDocument: `[String: Any]` Document
-    public func withTestDocument(testDocument: [String: Any]) {
-        self.testDocument = testDocument
-    }
-
-    /// Assign the testEnum property a `TestStructureData` value
-    ///
-    /// - Parameters:
-    ///   - testEnum: `TestEnum` Test Enum
-    public func withTestEnum(testEnum: TestEnum) {
-        self.testEnum = testEnum
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case thingName,
-             shadowName,
-             testBlob,
-             testBoolean,
-             testString,
-             testByte,
-             testShort,
-             testInteger,
-             testLong,
-             testFloat,
-             testDouble,
-             testBigInteger,
-             testBigDecimal,
-             testTimestamp,
-             testDocument,
-             testEnum
-    }
-
-    /// initialize this class containing the document trait from JSON
-    public required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.thingName = try container.decodeIfPresent(String.self , forKey: .thingName)
-        self.shadowName = try container.decodeIfPresent(String.self , forKey: .shadowName)
-        self.testBlob = try container.decodeIfPresent(Foundation.Data.self , forKey: .testBlob)
-        self.testBoolean = try container.decodeIfPresent(Bool.self , forKey: .testBoolean)
-        self.testString = try container.decodeIfPresent(String.self , forKey: .testString)
-        self.testByte = try container.decodeIfPresent(Int.self , forKey: .testByte)
-        self.testShort = try container.decodeIfPresent(Int.self , forKey: .testShort)
-        self.testInteger = try container.decodeIfPresent(Int.self , forKey: .testInteger)
-        self.testLong = try container.decodeIfPresent(Int.self , forKey: .testLong)
-        self.testFloat = try container.decodeIfPresent(Double.self , forKey: .testFloat)
-        self.testDouble = try container.decodeIfPresent(Double.self , forKey: .testDouble)
-        self.testBigInteger = try container.decodeIfPresent(Int.self , forKey: .testBigInteger)
-        self.testBigDecimal = try container.decodeIfPresent(Decimal.self , forKey: .testBigDecimal)
-        self.testTimestamp = try container.decodeIfPresent(Foundation.Date.self , forKey: .testTimestamp)
-        let testDocumentJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .testDocument)
-        self.testDocument = testDocumentJSON?.asAnyDictionary()
-        self.testEnum = try container.decodeIfPresent(TestEnum.self , forKey: .testEnum)
-    }
-
-    /// encode this class containing the document trait into JSON
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(thingName, forKey: .thingName)
-        try container.encode(shadowName, forKey: .shadowName)
-        try container.encode(testBlob, forKey: .testBlob)
-        try container.encode(testBoolean, forKey: .testBoolean)
-        try container.encode(testString, forKey: .testString)
-        try container.encode(testByte, forKey: .testByte)
-        try container.encode(testShort, forKey: .testShort)
-        try container.encode(testInteger, forKey: .testInteger)
-        try container.encode(testLong, forKey: .testLong)
-        try container.encode(testFloat, forKey: .testFloat)
-        try container.encode(testDouble, forKey: .testDouble)
-        try container.encode(testBigInteger, forKey: .testBigInteger)
-        try container.encode(testBigDecimal, forKey: .testBigDecimal)
-        try container.encode(testTimestamp, forKey: .testTimestamp)
-        if let testDocument = testDocument {
-            let testDocumentJSON = testDocument.asJSONValueDictionary()
-            try container.encode(testDocumentJSON, forKey: .testDocument)
-        }
-        try container.encode(testEnum, forKey: .testEnum)
-    }
+    case underlying(Error)
 }
-
-/// A test enum
-public enum TestEnum: Int, Codable {
-
-    /// TEST DOCUMENTATION 1
-    case FIRST
-
-    /// TEST DOCUMENTATION 2
-    case SECOND
-
-    /// TEST DOCUMENTATION 3
-    case THIRD
-
-    /// TEST DOCUMENTATION 4
-    case FOURTH
-
-    /// TEST DOCUMENTATION 5
-    case FIFTH
-
-    /// TEST DOCUMENTATION 6. None after.
-    case SIXTH
-
-    case SEVENTH
-
-    case EIGHTH
-
-    case NINTH
-
-    case TENTH
-
-}
-
-enum IotShadowClientError: Error {
-    case codeNotFound
-    case shadowNameNotFound
-    case thingNameNotFound
-}
-
-extension IotShadowClientError : LocalizedError {
-    var errorDescription: String? {
-        switch self {
-        case .codeNotFound: return "Required argument: code was not found."
-        case .shadowNameNotFound: return "Required argument: shadowName was not found."
-        case .thingNameNotFound: return "Required argument: thingName was not found."
-        }
-    }
-}
-

@@ -53,7 +53,56 @@ class ShadowClientTests: XCTestCase {
         super.tearDown()
     }
 
+    public func logShadowClientError(_ error: Error) {
+        // Step 1 ─ try to down‑cast to your umbrella error
+        guard let err = error as? IotShadowClientError else {
+            print("Unrecognised error: \(error)")
+            return
+        }
+
+        // Step 2 ─ switch on the typed error
+        switch err {
+
+        case .crt(let crt):
+            print(
+            """
+            ─── CRT error ───────────────────────────────────────────────
+            code:    \(crt.code)
+            name:    \(crt.name)
+            message: \(crt.message)
+            ─────────────────────────────────────────────────────────────
+            """)
+
+        case .service(let svc):
+            switch svc {
+
+            case let v2 as V2ErrorResponse:
+                print(
+                """
+                ─── Service rejected request ────────────────────────────
+                clientToken: \(v2.clientToken ?? "<nil>")
+                code:        \(v2.code)
+                message:     \(v2.message ?? "<nil>")
+                timestamp:   \(v2.timestamp?.formatted(.iso8601) ?? "<nil>")
+                ───────────────────────────────────────────────────────────
+                """)
+
+            default:
+                print("Service‑layer error of unknown type: \(svc)")
+            }
+
+        case .underlying(let swiftErr):
+            print(
+            """
+            ─── Underlying Swift error ─────────────────────────────────
+            \(swiftErr)
+            ────────────────────────────────────────────────────────────
+            """)
+        }
+    }
+
     func testShadowClient() async throws {
+        print("Starting testShadowClient")
         ////////////////////////////////////////////////////////////
         /// Initialize working mqtt client
         ////////////////////////////////////////////////////////////
@@ -64,6 +113,17 @@ class ShadowClientTests: XCTestCase {
             print("Mqtt5Client: onLifecycleEventConnectionSuccess")
             connectionExpectation.fulfill()
         }
+        // let onPublishReceived: OnPublishReceived = { publishData in
+        //     let packet: PublishPacket = publishData.publishPacket
+        //     let payload = packet.payloadAsString() ?? "[no payload]"
+        //     print(
+        //         """
+        //         Publish Packet Received
+        //             QoS: \(packet.qos)
+        //             Topic: \(packet.topic)
+        //             Payload: \(payload)
+        //         """)
+        // }
         let certPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(
@@ -73,8 +133,10 @@ class ShadowClientTests: XCTestCase {
         let builder = try Mqtt5ClientBuilder.mtlsFromPath(
             certPath: certPath, keyPath: keyPath, endpoint: endpoint)
         builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
+        // builder.withOnPublishReceived(onPublishReceived)
         let mqttClient = try builder.build()
         XCTAssertNotNil(mqttClient)
+        print("Client built")
 
         ////////////////////////////////////////////////////////////
         /// Start the mqttClient
@@ -86,12 +148,24 @@ class ShadowClientTests: XCTestCase {
         ////////////////////////////////////////////////////////////
         // Create fake rrClient for use to establish shadowClient
         ////////////////////////////////////////////////////////////
-        let rrClient = AwsIotDeviceSdkSwift.MqttRequestResponseClient(mqttClient: mqttClient)
+        let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(operationTimeout: 5)
+        let rrClient = try MqttRequestResponseClient.newFromMqtt5Client(mqtt5Client: mqttClient, options: options)
+        // let rrClient = AwsIotDeviceSdkSwift.MqttRequestResponseClient(mqttClient: mqttClient)
         XCTAssertNotNil(rrClient)
         let shadowClient = try IotShadowClient(rrClient: rrClient)
         XCTAssertNotNil(shadowClient)
 
-        try await runTestStructureOperations(shadowClient: shadowClient)
+        // try await runGetShadow(shadowClient: shadowClient)
+        try await runUpdateShadow(shadowClient: shadowClient, color: "Purple")
+        try await runGetShadow(shadowClient: shadowClient)
+        try await runUpdateShadow(shadowClient: shadowClient, color: "Green")
+        try await runGetShadow(shadowClient: shadowClient)
+        try await runDeleteShadow(shadowClient: shadowClient)
+        try await runGetShadow(shadowClient: shadowClient)        
+        try await runUpdateNamedShadow(shadowClient: shadowClient, color: "Pink")
+        try await runGetNamedShadow(shadowClient: shadowClient)
+        try await runDeleteNamedShadow(shadowClient: shadowClient)
+        try await runDeleteNamedShadow(shadowClient: shadowClient)
 
         print("\nEnd Tests\n")
     }
@@ -105,41 +179,135 @@ class ShadowClientTests: XCTestCase {
         }
     }
 
-    private func runTestStructureOperations(shadowClient: IotShadowClient) async throws {
-        print("\n=======\n")
-        print("runTestStructureOperations()")
+    private func runDeleteShadow(shadowClient: IotShadowClient) async throws {
+        print("\n=======")
+        print("runDeleteShadow()")
+        let request: DeleteShadowRequest = DeleteShadowRequest(thingName: "thingName")
+        do {
+            let response = try await shadowClient.deleteShadow(request: request)
+            print(
+            """
+            deleteShadow response recieved:                
+                timestamp: \(response.timestamp!)
+                version: \(response.version!)
+            """)
+        print("=======\n")
+        } catch {
+            logShadowClientError(error)
+        }
+    }
 
-        let testData: Data = Data(repeating: 8, count: 20)
-        let testTimestamp = Date(timeIntervalSinceNow: TimeInterval(21321))
+    private func runDeleteNamedShadow(shadowClient: IotShadowClient) async throws {
+        print("\n=======")
+        print("runDeleteNamedShadow()")
+        let request: DeleteNamedShadowRequest = DeleteNamedShadowRequest(thingName: "thingName", shadowName: "shadowName")
+        do {
+            let response = try await shadowClient.deleteNamedShadow(request: request)
 
-        let testStructureData: TestStructureData = TestStructureData(
-            thingName: "Thing Name", shadowName: "ShadowName")
-        testStructureData.withTestBigDecimal(testBigDecimal: 999)
-        testStructureData.withTestBigInteger(testBigInteger: 9999)
-        testStructureData.withTestBlob(testBlob: testData)
-        testStructureData.withTestBoolean(testBoolean: true)
-        testStructureData.withTestByte(testByte: 1)
-        testStructureData.withTestDocument(testDocument: ["Title": "Document contents"])
-        testStructureData.withTestDouble(testDouble: 1212)
-        testStructureData.withTestFloat(testFloat: 123.456)
-        testStructureData.withTestInteger(testInteger: 42)
-        testStructureData.withTestLong(testLong: 44_442_222)
-        testStructureData.withTestShort(testShort: 2)
-        testStructureData.withTestString(testString: "TEST STRING")
-        testStructureData.withTestTimestamp(testTimestamp: testTimestamp)
-        testStructureData.withTestEnum(testEnum: .FIRST)
+            print(
+                """
+                deleteNamedShadow response recieved:                
+                    clientToken: \(response.clientToken!)                    
+                    timestamp: \(response.timestamp!)
+                    version: \(response.version!)
+                """)
+            print("=======\n")
+        } catch {
+            logShadowClientError(error)
+        }
+    }
 
-        print("\n======= TEST Request Response =======")
-        let response: MqttRequestResponseResponse =
-            try await shadowClient.testRequestResponseOperation(
-                request: testStructureData)
+    private func runGetNamedShadow(shadowClient: IotShadowClient) async throws {
+        print("\n=======")
+        print("runGetNamedShadow()")
+        let request: GetNamedShadowRequest = GetNamedShadowRequest(thingName: "thingName", shadowName: "shadowName")
+        do {
+            let response = try await shadowClient.getNamedShadow(request: request)
+            let shadowStateResponse = response.state!
+            let shadowMetaDataResponse = response.metadata!
 
-        // Try decoding the encoded JSON Data
-        let decoder: JSONDecoder = JSONDecoder()
-        let _: TestStructureData = try decoder.decode(
-            TestStructureData.self, from: response.payload)
+            print(
+                """
+                getNamedShadow response recieved:                
+                    state: \(shadowStateResponse.desired!)
+                    metadata.desired: \(shadowMetaDataResponse.desired!)
+                    timestamp: \(response.timestamp!)
+                """)
+            print("=======\n")
+        } catch {
+            logShadowClientError(error)
+        }
+    }
 
-        print("\n======= TEST Streaming =======")
-        let _ = try await shadowClient.testStreamingOperation(request: testStructureData)
+    private func runGetShadow(shadowClient: IotShadowClient) async throws {
+        print("\n=======")
+        print("runGetShadow()")
+        let request: GetShadowRequest = GetShadowRequest(thingName: "thingName")
+        do {
+            let response = try await shadowClient.getShadow(request: request)
+            let shadowStateResponse = response.state!
+            let shadowMetaDataResponse = response.metadata!
+
+            print(
+                """
+                getShadow response recieved:                
+                    state: \(shadowStateResponse.desired!)
+                    metadata.desired: \(shadowMetaDataResponse.desired!)
+                    timestamp: \(response.timestamp!)
+                """)
+            print("=======\n")      
+        } catch {
+            logShadowClientError(error)
+        }
+    }
+
+    private func runUpdateNamedShadow(shadowClient: IotShadowClient, color: String) async throws {
+        print("\n=======")
+        print("runUpdateNamedShadow(\(color))")
+        let request: UpdateNamedShadowRequest = UpdateNamedShadowRequest(thingName: "thingName", shadowName: "shadowName")
+        let shadowState: ShadowState = ShadowState()
+        shadowState.withDesired(desired: ["Color":color])
+        request.withState(state: shadowState)
+        do {
+            let response = try await shadowClient.updateNamedShadow(request: request)
+            let shadowStateResponse = response.state!
+            let shadowMetaDataResponse = response.metadata!
+
+            print(
+                """
+                updateNamedShadow response recieved:                
+                    state: \(shadowStateResponse.desired!)
+                    metadata.desired: \(shadowMetaDataResponse.desired!)
+                    timestamp: \(response.timestamp!)
+                """)
+            print("=======\n")
+        } catch {
+            logShadowClientError(error)
+        }
+    }
+
+    private func runUpdateShadow(shadowClient: IotShadowClient, color: String) async throws {
+        print("\n=======")
+        print("runUpdateShadow(\(color))")
+        let request: UpdateShadowRequest = UpdateShadowRequest(thingName: "thingName")
+        let shadowState: ShadowState = ShadowState()
+        shadowState.withDesired(desired: ["Color":color])
+        request.withState(state: shadowState)
+        do {
+            let response = try await shadowClient.updateShadow(request: request)
+            let shadowStateResponse = response.state!
+            let shadowMetaDataResponse = response.metadata!
+
+            print(
+                """
+                updateShadow response recieved:                
+                    state: \(shadowStateResponse.desired!)
+                    metadata.desired: \(shadowMetaDataResponse.desired!)
+                    timestamp: \(response.timestamp!)
+                """)
+            print("=======\n")
+        } catch {
+            logShadowClientError(error)
+        }
     }
 }
