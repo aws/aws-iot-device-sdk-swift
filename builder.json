@@ -27,7 +27,7 @@
     "ios": {
       "!build_steps": [
         "xcodebuild -scheme AwsIotDeviceSdkSwift -destination 'generic/platform=iOS'",
-        "cd ServiceClients/AwsIotShadowClient",
+        "cd ServiceClients\\AwsIotShadowClient",
         "pwd",
         "ls",
         "xcodebuild -scheme IotShadowClient -destination 'generic/platform=iOS'"
