@@ -26,7 +26,9 @@
   "targets": {
     "ios": {
       "!build_steps": [
-        "xcodebuild -scheme AwsIotDeviceSdkSwift -destination 'generic/platform=iOS'"
+        "xcodebuild -scheme AwsIotDeviceSdkSwift -destination 'generic/platform=iOS'",
+        "cd ServiceClients/AwsIotShadowClient",
+        "xcodebuild -scheme IotShadowClient -destination 'generic/platform=iOS'"
       ]
     },
     "tvos": {
