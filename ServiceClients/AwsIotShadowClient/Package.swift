@@ -1,10 +1,15 @@
 // swift-tools-version: 5.8
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+// Copyright Amazon.com, Inc. or its affiliates. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0.
+
+// This file is generated
+
 import PackageDescription
 
 let package = Package(
-    name: "ShadowClient",
+    name: "IotShadowClient",
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
@@ -12,24 +17,25 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "ShadowClient", 
-            targets: ["ShadowClient"])
+            name: "IotShadowClient",
+            targets: ["IotShadowClient"]
+        )
     ],
     dependencies: [
         .package(path: "../../")
     ],
     targets: [
         .target(
-            name: "ShadowClient",
+            name: "IotShadowClient",
             dependencies: [
                 .product(name: "AwsIotDeviceSdkSwift", package: "aws-iot-device-sdk-swift")
             ],
             path: "Sources"
         ),
         .testTarget(
-            name: "ShadowClientTests",
-            dependencies: ["ShadowClient"],
+            name: "IotShadowClientTests",
+            dependencies: ["IotShadowClient"],
             path: "Tests"
-        )
+        ),
     ]
 )

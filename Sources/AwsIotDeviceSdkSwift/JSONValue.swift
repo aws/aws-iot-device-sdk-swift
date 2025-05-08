@@ -103,7 +103,7 @@ public enum JSONValue: Codable {
 
 extension Dictionary where Key == String, Value == Any {
     /// Converts a [String: Any] dictionary into a [String: JSONValue] dictionary.
-    func asJSONValueDictionary() -> [String: JSONValue] {
+    public func asJSONValueDictionary() -> [String: JSONValue] {
         var dict = [String: JSONValue]()
         for (key, value) in self {
             dict[key] = JSONValue.fromAny(value)
@@ -114,7 +114,7 @@ extension Dictionary where Key == String, Value == Any {
 
 extension Dictionary where Key == String, Value == JSONValue {
     /// Converts a [String: JSONValue] dictionary back into a [String: Any] dictionary.
-    func asAnyDictionary() -> [String: Any] {
+    public func asAnyDictionary() -> [String: Any] {
         var dict = [String: Any]()
         for (key, value) in self {
             dict[key] = value.toAny()

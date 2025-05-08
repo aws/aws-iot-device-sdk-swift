@@ -13,8 +13,11 @@ public class IotShadowClient {
     internal let encoder: JSONEncoder = JSONEncoder()
     internal let decoder: JSONDecoder = JSONDecoder()
 
-    public init(rrClient: AwsIotDeviceSdkSwift.MqttRequestResponseClient) throws {
-        self.rrClient = rrClient
+    public init(
+        mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
+    ) throws {
+        self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
+            mqtt5Client: mqttClient, options: options)
     }
 
     /// Create a stream for NamedShadowDelta events for a named shadow of an AWS IoT thing.
@@ -22,35 +25,53 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-delta-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `NamedShadowDeltaUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
-    ///   - options: options set of callbacks that the operation should invoke in response to related events
-    /// - Throws: // TODO errors input here
-    /// - Returns: a `StreamingOperation` which will invoke a callback every time a message is received on the
-    ///            associated MQTT topic
+    ///     - request: `NamedShadowDeltaUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
+    ///     - options: options set of callbacks that the operation should invoke in response to success, subscription status,
+    ///         and deserialization failure.
+    /// - Returns:
+    ///     - `StreamingOperation`: which will invoke a callback every time a message is received on the associated MQTT topic.
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func createNamedShadowDeltaUpdatedStream(
-        request: NamedShadowDeltaUpdatedSubscriptionRequest
+        request: NamedShadowDeltaUpdatedSubscriptionRequest,
+        options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/delta"
-
-        // guard let thingName = request.thingName, !thingName.isEmpty else {
-        //     throw IotShadowClientError.thingNameNotFound
-        // }
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
-
-        // guard let shadowName = request.shadowName, !shadowName.isEmpty else {
-        //     throw IotShadowClientError.shadowNameNotFound
-        // }
         topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
 
-        let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
+        let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { event in
-                // TODO
+            subscriptionStatusCallback: { status in
+                options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { event in
-                // TODO
+            incomingPublishCallback: { publish in
+                do {
+                    let event = try self.decoder.decode(
+                        ShadowDeltaUpdatedEvent.self, from: publish.payload)
+                    options.streamEventHandler(event)
+                } catch {
+                    let failure = DeserializationFailureEvent(
+                        cause: error,
+                        payload: publish.payload,
+                        topic: publish.topic
+                    )
+                    options.deserializationFailureHandler(failure)
+                }
             })
-        return try rrClient.createStream(streamOptions: streamOptions)
+
+        do {
+            return try rrClient.createStream(streamOptions: innerOptions)
+        } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
+            throw IotShadowClientError.underlying(error)
+        }
     }
 
     /// Create a stream for ShadowUpdated events for a named shadow of an AWS IoT thing.
@@ -58,35 +79,53 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-documents-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `NamedShadowUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
-    ///   - options: options set of callbacks that the operation should invoke in response to related events
-    /// - Throws: // TODO errors input here
-    /// - Returns: a `StreamingOperation` which will invoke a callback every time a message is received on the
-    ///            associated MQTT topic
+    ///     - request: `NamedShadowUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
+    ///     - options: options set of callbacks that the operation should invoke in response to success, subscription status,
+    ///         and deserialization failure.
+    /// - Returns:
+    ///     - `StreamingOperation`: which will invoke a callback every time a message is received on the associated MQTT topic.
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func createNamedShadowUpdatedStream(
-        request: NamedShadowUpdatedSubscriptionRequest
+        request: NamedShadowUpdatedSubscriptionRequest,
+        options: ClientStreamOptions<ShadowUpdatedEvent>
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/documents"
-
-        // guard let thingName = request.thingName, !thingName.isEmpty else {
-        //     throw IotShadowClientError.thingNameNotFound
-        // }
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
-
-        // guard let shadowName = request.shadowName, !shadowName.isEmpty else {
-        //     throw IotShadowClientError.shadowNameNotFound
-        // }
         topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
 
-        let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
+        let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { event in
-                // TODO
+            subscriptionStatusCallback: { status in
+                options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { event in
-                // TODO
+            incomingPublishCallback: { publish in
+                do {
+                    let event = try self.decoder.decode(
+                        ShadowUpdatedEvent.self, from: publish.payload)
+                    options.streamEventHandler(event)
+                } catch {
+                    let failure = DeserializationFailureEvent(
+                        cause: error,
+                        payload: publish.payload,
+                        topic: publish.topic
+                    )
+                    options.deserializationFailureHandler(failure)
+                }
             })
-        return try rrClient.createStream(streamOptions: streamOptions)
+
+        do {
+            return try rrClient.createStream(streamOptions: innerOptions)
+        } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
+            throw IotShadowClientError.underlying(error)
+        }
     }
 
     /// Create a stream for ShadowDelta events for the (classic) shadow of an AWS IoT thing.
@@ -94,30 +133,52 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-delta-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `ShadowDeltaUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
-    ///   - options: options set of callbacks that the operation should invoke in response to related events
-    /// - Throws: // TODO errors input here
-    /// - Returns: a `StreamingOperation` which will invoke a callback every time a message is received on the
-    ///            associated MQTT topic
+    ///     - request: `ShadowDeltaUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
+    ///     - options: options set of callbacks that the operation should invoke in response to success, subscription status,
+    ///         and deserialization failure.
+    /// - Returns:
+    ///     - `StreamingOperation`: which will invoke a callback every time a message is received on the associated MQTT topic.
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func createShadowDeltaUpdatedStream(
-        request: ShadowDeltaUpdatedSubscriptionRequest
+        request: ShadowDeltaUpdatedSubscriptionRequest,
+        options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/delta"
-
-        // guard let thingName = request.thingName, !thingName.isEmpty else {
-        //     throw IotShadowClientError.thingNameNotFound
-        // }
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
-        let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
+        let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { event in
-                // TODO
+            subscriptionStatusCallback: { status in
+                options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { event in
-                // TODO
+            incomingPublishCallback: { publish in
+                do {
+                    let event = try self.decoder.decode(
+                        ShadowDeltaUpdatedEvent.self, from: publish.payload)
+                    options.streamEventHandler(event)
+                } catch {
+                    let failure = DeserializationFailureEvent(
+                        cause: error,
+                        payload: publish.payload,
+                        topic: publish.topic
+                    )
+                    options.deserializationFailureHandler(failure)
+                }
             })
-        return try rrClient.createStream(streamOptions: streamOptions)
+
+        do {
+            return try rrClient.createStream(streamOptions: innerOptions)
+        } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
+            throw IotShadowClientError.underlying(error)
+        }
     }
 
     /// Create a stream for ShadowUpdated events for the (classic) shadow of an AWS IoT thing.
@@ -125,30 +186,51 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-documents-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `ShadowUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
-    ///   - options: options set of callbacks that the operation should invoke in response to related events
-    /// - Throws: // TODO errors input here
-    /// - Returns: a `StreamingOperation` which will invoke a callback every time a message is received on the
-    ///            associated MQTT topic
+    ///     - request: `ShadowUpdatedSubscriptionRequest` modeled streaming operation subscription configuration
+    ///     - options: options set of callbacks that the operation should invoke in response to success, subscription status,
+    ///         and deserialization failure.
+    /// - Returns:
+    ///     - `StreamingOperation`: which will invoke a callback every time a message is received on the associated MQTT topic.
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func createShadowUpdatedStream(
-        request: ShadowUpdatedSubscriptionRequest
+        request: ShadowUpdatedSubscriptionRequest, options: ClientStreamOptions<ShadowUpdatedEvent>
     ) async throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/documents"
-
-        // guard let thingName = request.thingName, !thingName.isEmpty else {
-        //     throw IotShadowClientError.thingNameNotFound
-        // }
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
-        let streamOptions: StreamingOperationOptions = StreamingOperationOptions(
+        let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { event in
-                // TODO
+            subscriptionStatusCallback: { status in
+                options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { event in
-                // TODO
+            incomingPublishCallback: { publish in
+                do {
+                    let event = try self.decoder.decode(
+                        ShadowUpdatedEvent.self, from: publish.payload)
+                    options.streamEventHandler(event)
+                } catch {
+                    let failure = DeserializationFailureEvent(
+                        cause: error,
+                        payload: publish.payload,
+                        topic: publish.topic
+                    )
+                    options.deserializationFailureHandler(failure)
+                }
             })
-        return try rrClient.createStream(streamOptions: streamOptions)
+
+        do {
+            return try rrClient.createStream(streamOptions: innerOptions)
+        } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
+            throw clientErr
+        } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
+            throw IotShadowClientError.crt(crtErr)
+        } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
+            throw IotShadowClientError.underlying(error)
+        }
     }
 
     /// Deletes a named shadow for an AWS IoT thing.
@@ -156,13 +238,15 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#delete-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `DeleteNamedShadowRequest` modeled request to perform.
-    /// - Throws: `IotShadowClientError`
-    /// - Returns: a `DeleteShadowResponse` with the corresponding response.
+    ///     - request: `DeleteNamedShadowRequest` modeled request to perform.
+    /// - Returns:
+    ///     - `DeleteShadowResponse`: with the corresponding response.
+    ///
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws
         -> DeleteShadowResponse
     {
-
         var correlationToken: String? = nil
         correlationToken = UUID().uuidString
         request.clientToken = correlationToken
@@ -206,16 +290,21 @@ public class IotShadowClient {
                 operationOptions: requestResponseOperationOptions)
 
             if response.topic == responseTopic1 {
+                // Successful operation ack returns the expected output.
                 return try decoder.decode(DeleteShadowResponse.self, from: response.payload)
             } else {
-                throw IotShadowClientError.service(
+                // Unsuccessful operation ack throws IotShadowClientError.errorResponse
+                throw IotShadowClientError.errorResponse(
                     try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
             throw clientErr
         } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
             throw IotShadowClientError.crt(crtErr)
         } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
             throw IotShadowClientError.underlying(error)
         }
     }
@@ -225,11 +314,13 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#delete-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `DeleteShadowRequest` modeled request to perform.
-    /// - Throws: `IotShadowClientError`
-    /// - Returns: a `DeleteShadowResponse` with the corresponding response.
+    ///     - request: `DeleteShadowRequest` modeled request to perform.
+    /// - Returns:
+    ///     - `DeleteShadowResponse`: with the corresponding response.
+    ///
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func deleteShadow(request: DeleteShadowRequest) async throws -> DeleteShadowResponse {
-
         var correlationToken: String? = nil
         correlationToken = UUID().uuidString
         request.clientToken = correlationToken
@@ -270,16 +361,21 @@ public class IotShadowClient {
                 operationOptions: requestResponseOperationOptions)
 
             if response.topic == responseTopic1 {
+                // Successful operation ack returns the expected output.
                 return try decoder.decode(DeleteShadowResponse.self, from: response.payload)
             } else {
-                throw IotShadowClientError.service(
+                // Unsuccessful operation ack throws IotShadowClientError.errorResponse
+                throw IotShadowClientError.errorResponse(
                     try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
             throw clientErr
         } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
             throw IotShadowClientError.crt(crtErr)
         } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
             throw IotShadowClientError.underlying(error)
         }
     }
@@ -289,11 +385,13 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#get-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `GetNamedShadowRequest` modeled request to perform.
-    /// - Throws: `IotShadowClientError`
-    /// - Returns: a `GetShadowResponse` with the corresponding response.
+    ///     - request: `GetNamedShadowRequest` modeled request to perform.
+    /// - Returns:
+    ///     - `GetShadowResponse`: with the corresponding response.
+    ///
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func getNamedShadow(request: GetNamedShadowRequest) async throws -> GetShadowResponse {
-
         var correlationToken: String? = nil
         correlationToken = UUID().uuidString
         request.clientToken = correlationToken
@@ -337,16 +435,21 @@ public class IotShadowClient {
                 operationOptions: requestResponseOperationOptions)
 
             if response.topic == responseTopic1 {
+                // Successful operation ack returns the expected output.
                 return try decoder.decode(GetShadowResponse.self, from: response.payload)
             } else {
-                throw IotShadowClientError.service(
+                // Unsuccessful operation ack throws IotShadowClientError.errorResponse
+                throw IotShadowClientError.errorResponse(
                     try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
             throw clientErr
         } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
             throw IotShadowClientError.crt(crtErr)
         } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
             throw IotShadowClientError.underlying(error)
         }
     }
@@ -356,11 +459,13 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#get-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `GetShadowRequest` modeled request to perform.
-    /// - Throws: `IotShadowClientError`
-    /// - Returns: a `GetShadowResponse` with the corresponding response.
+    ///     - request: `GetShadowRequest` modeled request to perform.
+    /// - Returns:
+    ///     - `GetShadowResponse`: with the corresponding response.
+    ///
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func getShadow(request: GetShadowRequest) async throws -> GetShadowResponse {
-
         var correlationToken: String? = nil
         correlationToken = UUID().uuidString
         request.clientToken = correlationToken
@@ -401,16 +506,21 @@ public class IotShadowClient {
                 operationOptions: requestResponseOperationOptions)
 
             if response.topic == responseTopic1 {
+                // Successful operation ack returns the expected output.
                 return try decoder.decode(GetShadowResponse.self, from: response.payload)
             } else {
-                throw IotShadowClientError.service(
+                // Unsuccessful operation ack throws IotShadowClientError.errorResponse
+                throw IotShadowClientError.errorResponse(
                     try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
             throw clientErr
         } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
             throw IotShadowClientError.crt(crtErr)
         } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
             throw IotShadowClientError.underlying(error)
         }
     }
@@ -420,13 +530,15 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `UpdateNamedShadowRequest` modeled request to perform.
-    /// - Throws: `IotShadowClientError`
-    /// - Returns: a `UpdateShadowResponse` with the corresponding response.
+    ///     - request: `UpdateNamedShadowRequest` modeled request to perform.
+    /// - Returns:
+    ///     - `UpdateShadowResponse`: with the corresponding response.
+    ///
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws
         -> UpdateShadowResponse
     {
-
         var correlationToken: String? = nil
         correlationToken = UUID().uuidString
         request.clientToken = correlationToken
@@ -478,16 +590,21 @@ public class IotShadowClient {
                 operationOptions: requestResponseOperationOptions)
 
             if response.topic == responseTopic1 {
+                // Successful operation ack returns the expected output.
                 return try decoder.decode(UpdateShadowResponse.self, from: response.payload)
             } else {
-                throw IotShadowClientError.service(
+                // Unsuccessful operation ack throws IotShadowClientError.errorResponse
+                throw IotShadowClientError.errorResponse(
                     try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
             throw clientErr
         } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
             throw IotShadowClientError.crt(crtErr)
         } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
             throw IotShadowClientError.underlying(error)
         }
     }
@@ -497,11 +614,13 @@ public class IotShadowClient {
     /// API Docs: https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html#update-pub-sub-topic
     ///
     /// - Parameters:
-    ///   - request: `UpdateShadowRequest` modeled request to perform.
-    /// - Throws: `IotShadowClientError`
-    /// - Returns: a `UpdateShadowResponse` with the corresponding response.
+    ///     - request: `UpdateShadowRequest` modeled request to perform.
+    /// - Returns:
+    ///     - `UpdateShadowResponse`: with the corresponding response.
+    ///
+    /// - Throws:
+    ///     - `IotShadowClientError`
     public func updateShadow(request: UpdateShadowRequest) async throws -> UpdateShadowResponse {
-
         var correlationToken: String? = nil
         correlationToken = UUID().uuidString
         request.clientToken = correlationToken
@@ -546,16 +665,21 @@ public class IotShadowClient {
                 operationOptions: requestResponseOperationOptions)
 
             if response.topic == responseTopic1 {
+                // Successful operation ack returns the expected output.
                 return try decoder.decode(UpdateShadowResponse.self, from: response.payload)
             } else {
-                throw IotShadowClientError.service(
+                // Unsuccessful operation ack throws IotShadowClientError.errorResponse
+                throw IotShadowClientError.errorResponse(
                     try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
+            // Pass along the thrown IotShadowClientError
             throw clientErr
         } catch let CommonRunTimeError.crtError(crtErr) {
+            // Throw IotShadowClientError.crt containing the `CRTError`
             throw IotShadowClientError.crt(crtErr)
         } catch {
+            // Throw IotShadowClientError.underlying containing any other `Error`
             throw IotShadowClientError.underlying(error)
         }
     }
@@ -576,8 +700,8 @@ public class ShadowState: Codable {
 
     /// Initializes a new `ShadowState`
     public init() {
-        desired = nil
-        reported = nil
+        self.desired = nil
+        self.reported = nil
     }
 
     /// Assign the desired property a `ShadowState` value
@@ -642,9 +766,9 @@ public class ShadowStateWithDelta: Codable {
 
     /// Initializes a new `ShadowStateWithDelta`
     public init() {
-        desired = nil
-        reported = nil
-        delta = nil
+        self.desired = nil
+        self.reported = nil
+        self.delta = nil
     }
 
     /// Assign the desired property a `ShadowStateWithDelta` value
@@ -724,9 +848,9 @@ public class ShadowUpdatedEvent: Codable {
 
     /// Initializes a new `ShadowUpdatedEvent`
     public init() {
-        previous = nil
-        current = nil
-        timestamp = nil
+        self.previous = nil
+        self.current = nil
+        self.timestamp = nil
     }
 
     /// Assign the previous property a `ShadowUpdatedEvent` value
@@ -778,11 +902,11 @@ public class ShadowDeltaUpdatedEvent: Codable {
 
     /// Initializes a new `ShadowDeltaUpdatedEvent`
     public init() {
-        state = nil
-        metadata = nil
-        timestamp = nil
-        version = nil
-        clientToken = nil
+        self.state = nil
+        self.metadata = nil
+        self.timestamp = nil
+        self.version = nil
+        self.clientToken = nil
     }
 
     /// Assign the state property a `ShadowDeltaUpdatedEvent` value
@@ -880,9 +1004,9 @@ public class ShadowUpdatedSnapshot: Codable {
 
     /// Initializes a new `ShadowUpdatedSnapshot`
     public init() {
-        state = nil
-        metadata = nil
-        version = nil
+        self.state = nil
+        self.metadata = nil
+        self.version = nil
     }
 
     /// Assign the state property a `ShadowUpdatedSnapshot` value
@@ -925,8 +1049,8 @@ public class ShadowMetadata: Codable {
 
     /// Initializes a new `ShadowMetadata`
     public init() {
-        desired = nil
-        reported = nil
+        self.desired = nil
+        self.reported = nil
     }
 
     /// Assign the desired property a `ShadowMetadata` value
@@ -1000,7 +1124,7 @@ public class DeleteNamedShadowRequest: Codable {
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
-        clientToken = nil
+        self.clientToken = nil
     }
 
     /// Assign the clientToken property a `DeleteNamedShadowRequest` value
@@ -1031,7 +1155,7 @@ public class DeleteShadowRequest: Codable {
     ///   - thingName: `String` AWS IoT thing to delete the (classic) shadow of.
     public init(thingName: String) {
         self.thingName = thingName
-        clientToken = nil
+        self.clientToken = nil
     }
 
     /// Assign the clientToken property a `DeleteShadowRequest` value
@@ -1070,7 +1194,7 @@ public class GetNamedShadowRequest: Codable {
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
-        clientToken = nil
+        self.clientToken = nil
     }
 
     /// Assign the clientToken property a `GetNamedShadowRequest` value
@@ -1101,7 +1225,7 @@ public class GetShadowRequest: Codable {
     ///   - thingName: `String` AWS IoT thing to get the (classic) shadow for.
     public init(thingName: String) {
         self.thingName = thingName
-        clientToken = nil
+        self.clientToken = nil
     }
 
     /// Assign the clientToken property a `GetShadowRequest` value
@@ -1146,9 +1270,9 @@ public class UpdateNamedShadowRequest: Codable {
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
-        clientToken = nil
-        state = nil
-        version = nil
+        self.clientToken = nil
+        self.state = nil
+        self.version = nil
     }
 
     /// Assign the clientToken property a `UpdateNamedShadowRequest` value
@@ -1201,9 +1325,9 @@ public class UpdateShadowRequest: Codable {
     ///   - thingName: `String` Aws IoT thing to update the (classic) shadow of.
     public init(thingName: String) {
         self.thingName = thingName
-        clientToken = nil
-        state = nil
-        version = nil
+        self.clientToken = nil
+        self.state = nil
+        self.version = nil
     }
 
     /// Assign the clientToken property a `UpdateShadowRequest` value
@@ -1485,10 +1609,10 @@ public class ErrorResponse: Codable {
     /// - Parameters:
     ///   - code: `Int` An HTTP response code that indicates the type of error.
     public init(code: Int) {
-        clientToken = nil
+        self.clientToken = nil
         self.code = code
-        message = nil
-        timestamp = nil
+        self.message = nil
+        self.timestamp = nil
     }
 
     /// Assign the clientToken property a `ErrorResponse` value
@@ -1521,7 +1645,7 @@ public class ErrorResponse: Codable {
 ///
 /// This class initializes with all optional properties set to 'nil'.
 /// Use the provided builder with() functions to configure optional properties after instaitiation.
-public class V2ErrorResponse: Codable, ServiceError, @unchecked Sendable {
+public class V2ErrorResponse: Codable, @unchecked Sendable {
 
     /// Opaque request-response correlation data.  Present only if a client token was used in the request.
     public var clientToken: String?
@@ -1540,10 +1664,10 @@ public class V2ErrorResponse: Codable, ServiceError, @unchecked Sendable {
     /// - Parameters:
     ///   - code: `Int` An HTTP response code that indicates the type of error.
     public init(code: Int) {
-        clientToken = nil
+        self.clientToken = nil
         self.code = code
-        message = nil
-        timestamp = nil
+        self.message = nil
+        self.timestamp = nil
     }
 
     /// Assign the clientToken property a `V2ErrorResponse` value
@@ -1589,9 +1713,9 @@ public class DeleteShadowResponse: Codable {
 
     /// Initializes a new `DeleteShadowResponse`
     public init() {
-        clientToken = nil
-        timestamp = nil
-        version = nil
+        self.clientToken = nil
+        self.timestamp = nil
+        self.version = nil
     }
 
     /// Assign the clientToken property a `DeleteShadowResponse` value
@@ -1643,11 +1767,11 @@ public class GetShadowResponse: Codable {
 
     /// Initializes a new `GetShadowResponse`
     public init() {
-        clientToken = nil
-        state = nil
-        metadata = nil
-        timestamp = nil
-        version = nil
+        self.clientToken = nil
+        self.state = nil
+        self.metadata = nil
+        self.timestamp = nil
+        self.version = nil
     }
 
     /// Assign the clientToken property a `GetShadowResponse` value
@@ -1715,11 +1839,11 @@ public class UpdateShadowResponse: Codable {
 
     /// Initializes a new `UpdateShadowResponse`
     public init() {
-        clientToken = nil
-        state = nil
-        metadata = nil
-        timestamp = nil
-        version = nil
+        self.clientToken = nil
+        self.state = nil
+        self.metadata = nil
+        self.timestamp = nil
+        self.version = nil
     }
 
     /// Assign the clientToken property a `UpdateShadowResponse` value
@@ -1764,12 +1888,77 @@ public class UpdateShadowResponse: Codable {
 
 }
 
-public protocol ServiceError: Sendable {}
+/// Configuration options for streaming operations created from service clients
+///
+/// `Event` is the Type that the stream deserializes MQTT messages into
+public struct ClientStreamOptions<Event: Sendable>: Sendable {
+    // Type-aliases for clarity
+    public typealias StreamHandler = @Sendable (Event) -> Void
+    public typealias SubscriptionHandler = @Sendable (SubscriptionStatusEvent) -> Void
+    public typealias FailureHandler = @Sendable (DeserializationFailureEvent) -> Void
 
+    // Stored properties (all immutable -> thread-safe)
+    public let streamEventHandler: StreamHandler
+    public let subscriptionEventHandler: SubscriptionHandler
+    public let deserializationFailureHandler: FailureHandler
+
+    /// Initializes a new `ClientStreamOptions`
+    ///
+    /// - Parameters:
+    ///   - streamEventHandler: the callback the stream should invoke on a successfully deserialized message.
+    ///   - subscriptionEventHandler: the callback the stream should invoke when something changes about the underlying subscription.
+    ///   - deserializationFailureHandler: the callback the stream should invoke when a message fails to deserialize.
+    public init(
+        streamEventHandler: @escaping StreamHandler = { _ in },
+        subscriptionEventHandler: @escaping SubscriptionHandler = { _ in },
+        deserializationFailureHandler: @escaping FailureHandler = { _ in }
+    ) {
+        self.streamEventHandler = streamEventHandler
+        self.subscriptionEventHandler = subscriptionEventHandler
+        self.deserializationFailureHandler = deserializationFailureHandler
+    }
+}
+
+/// An event emitted by a streaming operation when an incoming message fails to deserialize
+public struct DeserializationFailureEvent: Sendable, Error {
+
+    /// The decoding error that triggered the failure.
+    public let cause: Error
+
+    /// Raw MQTT payload that failed to decode.
+    public let payload: Data
+
+    /// Topic from which the payload was received.
+    public let topic: String
+
+    /// Initializes a new `DeserializationFailureEvent`
+    ///
+    /// - Parameters:
+    ///   - cause: sets the `Error` that triggered the failure.
+    ///   - payload: the payload of the message that triggered the failure.
+    ///   - topic: the topic of the message that triggered the failure.
+    public init(cause: Error, payload: Data, topic: String) {
+        self.cause = cause
+        self.payload = payload
+        self.topic = topic
+    }
+}
+
+/// Use the `IotShadowClientError` enum to surface *all* errors thrown by the
+/// IotShadowClient. The three cases preserve the original error intact so
+/// callers can inspect, log, or switch on them.
 public enum IotShadowClientError: Error, Sendable {
+    /// A low-level error reported by aws-crt-swift.
+    /// These errors correspond to the values returned by `aws_last_error()` and
+    /// include TLS failures, socket errors, mqtt errors, and other transport-layer issues.
     case crt(CRTError)
 
-    case service(any ServiceError)
+    /// The service accepted the request frame but *rejected* it,
+    /// returning a structured payload that conforms to the protocol `ServiceError`.
+    case errorResponse(V2ErrorResponse)
 
+    /// Any other Swift error the client didn't recognise.
+    /// Examples include JSON decoding failures, time-outs thrown by the
+    /// concurrency runtime, and user-provided call-backs that threw.
     case underlying(Error)
 }

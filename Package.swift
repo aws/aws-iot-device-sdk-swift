@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.8
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(
             // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
-            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_codegen")
+            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming")
     ],
     targets: [
         .target(
@@ -32,6 +32,6 @@ let package = Package(
             name: "AwsIotDeviceSdkSwiftTests",
             dependencies: ["AwsIotDeviceSdkSwift"],
             path: "Tests/AwsIotDeviceSdkSwiftTests"
-        )
+        ),
     ]
 )
