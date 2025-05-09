@@ -35,7 +35,7 @@ public class IotJobsClient {
     public func createJobExecutionsChangedStream(
         request: JobExecutionsChangedSubscriptionRequest,
         options: ClientStreamOptions<JobExecutionsChangedEvent>
-    ) async throws -> StreamingOperation {
+    ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/jobs/notify"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
@@ -88,7 +88,7 @@ public class IotJobsClient {
     public func createNextJobExecutionChangedStream(
         request: NextJobExecutionChangedSubscriptionRequest,
         options: ClientStreamOptions<NextJobExecutionChangedEvent>
-    ) async throws -> StreamingOperation {
+    ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/jobs/notify-next"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
@@ -136,7 +136,8 @@ public class IotJobsClient {
     ///     - `DescribeJobExecutionResponse`: with the corresponding response.
     ///
     /// - Throws:
-    ///     - `IotJobsClientError`
+    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func describeJobExecution(request: DescribeJobExecutionRequest) async throws
         -> DescribeJobExecutionResponse
     {
@@ -211,7 +212,8 @@ public class IotJobsClient {
     ///     - `GetPendingJobExecutionsResponse`: with the corresponding response.
     ///
     /// - Throws:
-    ///     - `IotJobsClientError`
+    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getPendingJobExecutions(request: GetPendingJobExecutionsRequest) async throws
         -> GetPendingJobExecutionsResponse
     {
@@ -285,7 +287,8 @@ public class IotJobsClient {
     ///     - `StartNextJobExecutionResponse`: with the corresponding response.
     ///
     /// - Throws:
-    ///     - `IotJobsClientError`
+    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func startNextPendingJobExecution(request: StartNextPendingJobExecutionRequest)
         async throws -> StartNextJobExecutionResponse
     {
@@ -359,7 +362,8 @@ public class IotJobsClient {
     ///     - `UpdateJobExecutionResponse`: with the corresponding response.
     ///
     /// - Throws:
-    ///     - `IotJobsClientError`
+    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func updateJobExecution(request: UpdateJobExecutionRequest) async throws
         -> UpdateJobExecutionResponse
     {
@@ -451,13 +455,8 @@ public class JobExecutionSummary: Codable {
     public var startedAt: Foundation.Date?
 
     /// Initializes a new `JobExecutionSummary`
+    /// - Parameters:
     public init() {
-        self.jobId = nil
-        self.executionNumber = nil
-        self.versionNumber = nil
-        self.lastUpdatedAt = nil
-        self.queuedAt = nil
-        self.startedAt = nil
     }
 
     /// Assign the jobId property a `JobExecutionSummary` value
@@ -547,17 +546,8 @@ public class JobExecutionData: Codable {
     public var executionNumber: Int?
 
     /// Initializes a new `JobExecutionData`
+    /// - Parameters:
     public init() {
-        self.jobId = nil
-        self.thingName = nil
-        self.jobDocument = nil
-        self.status = nil
-        self.statusDetails = nil
-        self.queuedAt = nil
-        self.startedAt = nil
-        self.lastUpdatedAt = nil
-        self.versionNumber = nil
-        self.executionNumber = nil
     }
 
     /// Assign the jobId property a `JobExecutionData` value
@@ -641,16 +631,16 @@ public class JobExecutionData: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case jobId,
-            thingName,
-            jobDocument,
-            status,
-            statusDetails,
-            queuedAt,
-            startedAt,
-            lastUpdatedAt,
-            versionNumber,
-            executionNumber
+        case jobId
+        case thingName
+        case jobDocument
+        case status
+        case statusDetails
+        case queuedAt
+        case startedAt
+        case lastUpdatedAt
+        case versionNumber
+        case executionNumber
     }
 
     /// initialize this class containing the document trait from JSON
@@ -707,10 +697,8 @@ public class JobExecutionState: Codable {
     public var versionNumber: Int?
 
     /// Initializes a new `JobExecutionState`
+    /// - Parameters:
     public init() {
-        self.status = nil
-        self.statusDetails = nil
-        self.versionNumber = nil
     }
 
     /// Assign the status property a `JobExecutionState` value
@@ -761,10 +749,6 @@ public class DescribeJobExecutionRequest: Codable {
     public var includeJobDocument: Bool?
 
     /// Initializes a new `DescribeJobExecutionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` The name of the thing associated with the device.
-    ///   - jobId: `String` The unique identifier assigned to this job when it was created. Or use $next to return the next pending job execution for a thing (status IN_PROGRESS or QUEUED). In this case, any job executions with status IN_PROGRESS are returned first. Job executions are returned in the order in which they were created.
     public init(
         thingName: String,
         jobId: String
@@ -815,10 +799,9 @@ public class GetPendingJobExecutionsRequest: Codable {
     public var clientToken: String?
 
     /// Initializes a new `GetPendingJobExecutionsRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` IoT Thing the request is relative to.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
         self.clientToken = nil
     }
@@ -852,10 +835,9 @@ public class StartNextPendingJobExecutionRequest: Codable {
     public var statusDetails: [String: String]?
 
     /// Initializes a new `StartNextPendingJobExecutionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` IoT Thing the request is relative to.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
         self.clientToken = nil
         self.stepTimeoutInMinutes = nil
@@ -925,11 +907,6 @@ public class UpdateJobExecutionRequest: Codable {
     public var stepTimeoutInMinutes: Int?
 
     /// Initializes a new `UpdateJobExecutionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` The name of the thing associated with the device.
-    ///   - jobId: `String` The unique identifier assigned to this job when it was created.
-    ///   - status: `JobStatus` The new status for the job execution (IN_PROGRESS, FAILED, SUCCEEDED, or REJECTED). This must be specified on every update.
     public init(
         thingName: String,
         jobId: String,
@@ -1018,10 +995,6 @@ public class DescribeJobExecutionSubscriptionRequest: Codable {
     public var jobId: String
 
     /// Initializes a new `DescribeJobExecutionSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the IoT Thing that you want to subscribe to DescribeJobExecution response events for.
-    ///   - jobId: `String` Job ID that you want to subscribe to DescribeJobExecution response events for.
     public init(
         thingName: String,
         jobId: String
@@ -1042,10 +1015,9 @@ public class GetPendingJobExecutionsSubscriptionRequest: Codable {
     public var thingName: String
 
     /// Initializes a new `GetPendingJobExecutionsSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the IoT Thing that you want to subscribe to GetPendingJobExecutions response events for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1061,10 +1033,9 @@ public class JobExecutionsChangedSubscriptionRequest: Codable {
     public var thingName: String
 
     /// Initializes a new `JobExecutionsChangedSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the IoT Thing that you want to subscribe to JobExecutionsChanged events for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1080,10 +1051,9 @@ public class NextJobExecutionChangedSubscriptionRequest: Codable {
     public var thingName: String
 
     /// Initializes a new `NextJobExecutionChangedSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the IoT Thing that you want to subscribe to NextJobExecutionChanged events for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1099,10 +1069,9 @@ public class StartNextPendingJobExecutionSubscriptionRequest: Codable {
     public var thingName: String
 
     /// Initializes a new `StartNextPendingJobExecutionSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the IoT Thing that you want to subscribe to StartNextPendingJobExecution response events for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1121,10 +1090,6 @@ public class UpdateJobExecutionSubscriptionRequest: Codable {
     public var jobId: String
 
     /// Initializes a new `UpdateJobExecutionSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the IoT Thing that you want to subscribe to UpdateJobExecution response events for.
-    ///   - jobId: `String` Job ID that you want to subscribe to UpdateJobExecution response events for.
     public init(
         thingName: String,
         jobId: String
@@ -1141,11 +1106,11 @@ public class UpdateJobExecutionSubscriptionRequest: Codable {
 /// Use the provided builder with() functions to configure optional properties after instaitiation.
 public class RejectedError: Codable {
 
-    /// Opaque token that can correlate this response to the original request.
-    public var clientToken: String?
-
     /// Indicates the type of error.
     public var code: RejectedErrorCode
+
+    /// Opaque token that can correlate this response to the original request.
+    public var clientToken: String?
 
     /// A text message that provides additional information.
     public var message: String?
@@ -1157,12 +1122,11 @@ public class RejectedError: Codable {
     public var executionState: JobExecutionState?
 
     /// Initializes a new `RejectedError`
-    ///
-    /// - Parameters:
-    ///   - code: `RejectedErrorCode` Indicates the type of error.
-    public init(code: RejectedErrorCode) {
-        self.clientToken = nil
+    public init(
+        code: RejectedErrorCode
+    ) {
         self.code = code
+        self.clientToken = nil
         self.message = nil
         self.timestamp = nil
         self.executionState = nil
@@ -1208,11 +1172,11 @@ public class RejectedError: Codable {
 /// Use the provided builder with() functions to configure optional properties after instaitiation.
 public class V2ErrorResponse: Codable, @unchecked Sendable {
 
-    /// Opaque token that can correlate this response to the original request.
-    public var clientToken: String?
-
     /// Indicates the type of error.
     public var code: RejectedErrorCode
+
+    /// Opaque token that can correlate this response to the original request.
+    public var clientToken: String?
 
     /// A text message that provides additional information.
     public var message: String?
@@ -1224,12 +1188,11 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
     public var executionState: JobExecutionState?
 
     /// Initializes a new `V2ErrorResponse`
-    ///
-    /// - Parameters:
-    ///   - code: `RejectedErrorCode` Indicates the type of error.
-    public init(code: RejectedErrorCode) {
-        self.clientToken = nil
+    public init(
+        code: RejectedErrorCode
+    ) {
         self.code = code
+        self.clientToken = nil
         self.message = nil
         self.timestamp = nil
         self.executionState = nil
@@ -1275,27 +1238,23 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
 /// Use the provided builder with() functions to configure optional properties after instaitiation.
 public class DescribeJobExecutionResponse: Codable {
 
-    /// A client token used to correlate requests and responses.
-    public var clientToken: String?
-
     /// Contains data about a job execution.
     public var execution: JobExecutionData
 
     /// The time when the message was sent.
     public var timestamp: Foundation.Date
 
+    /// A client token used to correlate requests and responses.
+    public var clientToken: String?
+
     /// Initializes a new `DescribeJobExecutionResponse`
-    ///
-    /// - Parameters:
-    ///   - execution: `JobExecutionData` Contains data about a job execution.
-    ///   - timestamp: `Foundation.Date` The time when the message was sent.
     public init(
         execution: JobExecutionData,
         timestamp: Foundation.Date
     ) {
-        self.clientToken = nil
         self.execution = execution
         self.timestamp = timestamp
+        self.clientToken = nil
     }
 
     /// Assign the clientToken property a `DescribeJobExecutionResponse` value
@@ -1327,11 +1286,8 @@ public class GetPendingJobExecutionsResponse: Codable {
     public var clientToken: String?
 
     /// Initializes a new `GetPendingJobExecutionsResponse`
+    /// - Parameters:
     public init() {
-        self.inProgressJobs = nil
-        self.queuedJobs = nil
-        self.timestamp = nil
-        self.clientToken = nil
     }
 
     /// Assign the inProgressJobs property a `GetPendingJobExecutionsResponse` value
@@ -1384,10 +1340,8 @@ public class StartNextJobExecutionResponse: Codable {
     public var timestamp: Foundation.Date?
 
     /// Initializes a new `StartNextJobExecutionResponse`
+    /// - Parameters:
     public init() {
-        self.clientToken = nil
-        self.execution = nil
-        self.timestamp = nil
     }
 
     /// Assign the clientToken property a `StartNextJobExecutionResponse` value
@@ -1422,9 +1376,6 @@ public class StartNextJobExecutionResponse: Codable {
 /// Use the provided builder with() functions to configure optional properties after instaitiation.
 public class UpdateJobExecutionResponse: Codable {
 
-    /// A client token used to correlate requests and responses.
-    public var clientToken: String?
-
     /// Contains data about the state of a job execution.
     public var executionState: JobExecutionState
 
@@ -1434,21 +1385,19 @@ public class UpdateJobExecutionResponse: Codable {
     /// The time when the message was sent.
     public var timestamp: Foundation.Date
 
+    /// A client token used to correlate requests and responses.
+    public var clientToken: String?
+
     /// Initializes a new `UpdateJobExecutionResponse`
-    ///
-    /// - Parameters:
-    ///   - executionState: `JobExecutionState` Contains data about the state of a job execution.
-    ///   - jobDocument: `[String: Any]` A UTF-8 encoded JSON document that contains information that your devices need to perform the job.
-    ///   - timestamp: `Foundation.Date` The time when the message was sent.
     public init(
         executionState: JobExecutionState,
         jobDocument: [String: Any],
         timestamp: Foundation.Date
     ) {
-        self.clientToken = nil
         self.executionState = executionState
         self.jobDocument = jobDocument
         self.timestamp = timestamp
+        self.clientToken = nil
     }
 
     /// Assign the clientToken property a `UpdateJobExecutionResponse` value
@@ -1460,30 +1409,30 @@ public class UpdateJobExecutionResponse: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case clientToken,
-            executionState,
-            jobDocument,
-            timestamp
+        case clientToken
+        case executionState
+        case jobDocument
+        case timestamp
     }
 
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.clientToken = try container.decodeIfPresent(String.self, forKey: .clientToken)
         self.executionState = try container.decode(JobExecutionState.self, forKey: .executionState)
         let jobDocumentJSON = try container.decode([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocument = jobDocumentJSON.asAnyDictionary()
         self.timestamp = try container.decode(Foundation.Date.self, forKey: .timestamp)
+        self.clientToken = try container.decodeIfPresent(String.self, forKey: .clientToken)
     }
 
     /// encode this class containing the document trait into JSON
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(clientToken, forKey: .clientToken)
         try container.encode(executionState, forKey: .executionState)
         let jobDocumentJSON = jobDocument.asJSONValueDictionary()
         try container.encode(jobDocumentJSON, forKey: .jobDocument)
         try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(clientToken, forKey: .clientToken)
     }
 }
 
@@ -1500,10 +1449,6 @@ public class JobExecutionsChangedEvent: Codable {
     public var timestamp: Foundation.Date
 
     /// Initializes a new `JobExecutionsChangedEvent`
-    ///
-    /// - Parameters:
-    ///   - jobs: `[JobStatus: [JobExecutionSummary]]` Map from JobStatus to a list of Jobs transitioning to that status.
-    ///   - timestamp: `Foundation.Date` The time when the message was sent.
     public init(
         jobs: [JobStatus: [JobExecutionSummary]],
         timestamp: Foundation.Date
@@ -1527,10 +1472,6 @@ public class NextJobExecutionChangedEvent: Codable {
     public var timestamp: Foundation.Date
 
     /// Initializes a new `NextJobExecutionChangedEvent`
-    ///
-    /// - Parameters:
-    ///   - execution: `JobExecutionData` Contains data about a job execution.
-    ///   - timestamp: `Foundation.Date` The time when the message was sent.
     public init(
         execution: JobExecutionData,
         timestamp: Foundation.Date
@@ -1575,7 +1516,7 @@ public enum RejectedErrorCode: Int, Codable {
 
 /// Configuration options for streaming operations created from service clients
 ///
-/// `Event` is the Type that the stream deserializes MQTT messages into
+/// `Event` is the Type that the stream deserializes MQTT payload messages into
 public struct ClientStreamOptions<Event: Sendable>: Sendable {
     // Type-aliases for clarity
     public typealias StreamHandler = @Sendable (Event) -> Void
@@ -1605,7 +1546,7 @@ public struct ClientStreamOptions<Event: Sendable>: Sendable {
 }
 
 /// An event emitted by a streaming operation when an incoming message fails to deserialize
-public struct DeserializationFailureEvent: Sendable, Error {
+public struct DeserializationFailureEvent: Sendable {
 
     /// The decoding error that triggered the failure.
     public let cause: Error

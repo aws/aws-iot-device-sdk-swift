@@ -168,6 +168,7 @@ class ShadowClientTests: XCTestCase {
             let _ = try await shadowClient.updateNamedShadow(
                 request: updateRequest)
         } catch {
+            print(error)
             XCTFail("updateNamedShadow failed")
         }
         print("updateNamedShadow succeeded")
@@ -288,7 +289,7 @@ class ShadowClientTests: XCTestCase {
             },
             deserializationFailureHandler: { _ in }
         )
-        let deltaUpdatedOperation = try await shadowClient.createNamedShadowDeltaUpdatedStream(
+        let deltaUpdatedOperation = try shadowClient.createNamedShadowDeltaUpdatedStream(
             request: namedShadowDeltaUpdatedSubscriptionRequest,
             options: clientStreamOptions)
         try deltaUpdatedOperation.open()
@@ -328,7 +329,7 @@ class ShadowClientTests: XCTestCase {
             },
             deserializationFailureHandler: { _ in }
         )
-        let updatedOperation = try await shadowClient.createNamedShadowUpdatedStream(
+        let updatedOperation = try shadowClient.createNamedShadowUpdatedStream(
             request: namedShadowUpdatedSubscriptionRequest,
             options: clientStreamOptions2)
         try updatedOperation.open()
