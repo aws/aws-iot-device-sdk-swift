@@ -132,17 +132,15 @@ public class IotJobsClient {
     ///
     /// - Parameters:
     ///     - request: `DescribeJobExecutionRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `DescribeJobExecutionResponse`: with the corresponding response.
+    /// - Returns: `DescribeJobExecutionResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func describeJobExecution(request: DescribeJobExecutionRequest) async throws
         -> DescribeJobExecutionResponse
     {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -208,17 +206,15 @@ public class IotJobsClient {
     ///
     /// - Parameters:
     ///     - request: `GetPendingJobExecutionsRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `GetPendingJobExecutionsResponse`: with the corresponding response.
+    /// - Returns: `GetPendingJobExecutionsResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getPendingJobExecutions(request: GetPendingJobExecutionsRequest) async throws
         -> GetPendingJobExecutionsResponse
     {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -283,17 +279,15 @@ public class IotJobsClient {
     ///
     /// - Parameters:
     ///     - request: `StartNextPendingJobExecutionRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `StartNextJobExecutionResponse`: with the corresponding response.
+    /// - Returns: `StartNextJobExecutionResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func startNextPendingJobExecution(request: StartNextPendingJobExecutionRequest)
         async throws -> StartNextJobExecutionResponse
     {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -358,17 +352,15 @@ public class IotJobsClient {
     ///
     /// - Parameters:
     ///     - request: `UpdateJobExecutionRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `UpdateJobExecutionResponse`: with the corresponding response.
+    /// - Returns: `UpdateJobExecutionResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotJobsClientError` Thrown when the provided request is rejected or when
+    /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func updateJobExecution(request: UpdateJobExecutionRequest) async throws
         -> UpdateJobExecutionResponse
     {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -433,7 +425,7 @@ public class IotJobsClient {
 /// Contains a subset of information about a job execution.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class JobExecutionSummary: Codable {
 
     /// The unique identifier you assigned to this job when it was created.
@@ -512,7 +504,7 @@ public class JobExecutionSummary: Codable {
 /// Data about a job execution.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class JobExecutionData: Codable {
 
     /// The unique identifier you assigned to this job when it was created.
@@ -684,7 +676,7 @@ public class JobExecutionData: Codable {
 /// Data about the state of a job execution.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class JobExecutionState: Codable {
 
     /// The status of the job execution. Can be one of: QUEUED, IN_PROGRESS, FAILED, SUCCEEDED, CANCELED, TIMED_OUT, REJECTED, or REMOVED.
@@ -730,7 +722,7 @@ public class JobExecutionState: Codable {
 /// Data needed to make a DescribeJobExecution request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DescribeJobExecutionRequest: Codable {
 
     /// The name of the thing associated with the device.
@@ -789,7 +781,7 @@ public class DescribeJobExecutionRequest: Codable {
 /// Data needed to make a GetPendingJobExecutions request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetPendingJobExecutionsRequest: Codable {
 
     /// IoT Thing the request is relative to.
@@ -819,7 +811,7 @@ public class GetPendingJobExecutionsRequest: Codable {
 /// Data needed to make a StartNextPendingJobExecution request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class StartNextPendingJobExecutionRequest: Codable {
 
     /// IoT Thing the request is relative to.
@@ -873,7 +865,7 @@ public class StartNextPendingJobExecutionRequest: Codable {
 /// Data needed to make an UpdateJobExecution request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateJobExecutionRequest: Codable {
 
     /// The name of the thing associated with the device.
@@ -985,7 +977,7 @@ public class UpdateJobExecutionRequest: Codable {
 /// Data needed to subscribe to DescribeJobExecution responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DescribeJobExecutionSubscriptionRequest: Codable {
 
     /// Name of the IoT Thing that you want to subscribe to DescribeJobExecution response events for.
@@ -1008,7 +1000,7 @@ public class DescribeJobExecutionSubscriptionRequest: Codable {
 /// Data needed to subscribe to GetPendingJobExecutions responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetPendingJobExecutionsSubscriptionRequest: Codable {
 
     /// Name of the IoT Thing that you want to subscribe to GetPendingJobExecutions response events for.
@@ -1026,7 +1018,7 @@ public class GetPendingJobExecutionsSubscriptionRequest: Codable {
 /// Data needed to subscribe to JobExecutionsChanged events.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class JobExecutionsChangedSubscriptionRequest: Codable {
 
     /// Name of the IoT Thing that you want to subscribe to JobExecutionsChanged events for.
@@ -1044,7 +1036,7 @@ public class JobExecutionsChangedSubscriptionRequest: Codable {
 /// Data needed to subscribe to NextJobExecutionChanged events.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class NextJobExecutionChangedSubscriptionRequest: Codable {
 
     /// Name of the IoT Thing that you want to subscribe to NextJobExecutionChanged events for.
@@ -1062,7 +1054,7 @@ public class NextJobExecutionChangedSubscriptionRequest: Codable {
 /// Data needed to subscribe to StartNextPendingJobExecution responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class StartNextPendingJobExecutionSubscriptionRequest: Codable {
 
     /// Name of the IoT Thing that you want to subscribe to StartNextPendingJobExecution response events for.
@@ -1080,7 +1072,7 @@ public class StartNextPendingJobExecutionSubscriptionRequest: Codable {
 /// Data needed to subscribe to UpdateJobExecution responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateJobExecutionSubscriptionRequest: Codable {
 
     /// Name of the IoT Thing that you want to subscribe to UpdateJobExecution response events for.
@@ -1103,7 +1095,7 @@ public class UpdateJobExecutionSubscriptionRequest: Codable {
 /// Response document containing details about a failed request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class RejectedError: Codable {
 
     /// Indicates the type of error.
@@ -1169,64 +1161,36 @@ public class RejectedError: Codable {
 /// Response document containing details about a failed request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class V2ErrorResponse: Codable, @unchecked Sendable {
 
     /// Indicates the type of error.
-    public var code: RejectedErrorCode
+    public let code: RejectedErrorCode
 
     /// Opaque token that can correlate this response to the original request.
-    public var clientToken: String?
+    public let clientToken: String?
 
     /// A text message that provides additional information.
-    public var message: String?
+    public let message: String?
 
     /// The date and time the response was generated by AWS IoT.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// A JobExecutionState object. This field is included only when the code field has the value InvalidStateTransition or VersionMismatch.
-    public var executionState: JobExecutionState?
+    public let executionState: JobExecutionState?
 
     /// Initializes a new `V2ErrorResponse`
     public init(
-        code: RejectedErrorCode
+        clientToken: String? = nil,
+        code: RejectedErrorCode,
+        message: String? = nil,
+        timestamp: Foundation.Date? = nil,
+        executionState: JobExecutionState? = nil
     ) {
-        self.code = code
-        self.clientToken = nil
-        self.message = nil
-        self.timestamp = nil
-        self.executionState = nil
-    }
-
-    /// Assign the clientToken property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Opaque token that can correlate this response to the original request.
-    public func withClientToken(clientToken: String) {
         self.clientToken = clientToken
-    }
-
-    /// Assign the message property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - message: `String` A text message that provides additional information.
-    public func withMessage(message: String) {
+        self.code = code
         self.message = message
-    }
-
-    /// Assign the timestamp property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The date and time the response was generated by AWS IoT.
-    public func withTimestamp(timestamp: Foundation.Date) {
         self.timestamp = timestamp
-    }
-
-    /// Assign the executionState property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - executionState: `JobExecutionState` A JobExecutionState object. This field is included only when the code field has the value InvalidStateTransition or VersionMismatch.
-    public func withExecutionState(executionState: JobExecutionState) {
         self.executionState = executionState
     }
 
@@ -1235,7 +1199,7 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
 /// Response payload to a DescribeJobExecution request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DescribeJobExecutionResponse: Codable {
 
     /// Contains data about a job execution.
@@ -1270,7 +1234,7 @@ public class DescribeJobExecutionResponse: Codable {
 /// Response payload to a GetPendingJobExecutions request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetPendingJobExecutionsResponse: Codable {
 
     /// A list of JobExecutionSummary objects with status IN_PROGRESS.
@@ -1327,7 +1291,7 @@ public class GetPendingJobExecutionsResponse: Codable {
 /// Response payload to a StartNextJobExecution request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class StartNextJobExecutionResponse: Codable {
 
     /// A client token used to correlate requests and responses.
@@ -1373,7 +1337,7 @@ public class StartNextJobExecutionResponse: Codable {
 /// Response payload to an UpdateJobExecution request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateJobExecutionResponse: Codable {
 
     /// Contains data about the state of a job execution.
@@ -1439,7 +1403,7 @@ public class UpdateJobExecutionResponse: Codable {
 /// Sent whenever a job execution is added to or removed from the list of pending job executions for a thing.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class JobExecutionsChangedEvent: Codable {
 
     /// Map from JobStatus to a list of Jobs transitioning to that status.
@@ -1462,7 +1426,7 @@ public class JobExecutionsChangedEvent: Codable {
 /// Sent whenever there is a change to which job execution is next on the list of pending job executions for a thing, as defined for DescribeJobExecution with jobId $next. This message is not sent when the next job's execution details change, only when the next job that would be returned by DescribeJobExecution with jobId $next has changed.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class NextJobExecutionChangedEvent: Codable {
 
     /// Contains data about a job execution.
@@ -1563,7 +1527,7 @@ public struct DeserializationFailureEvent: Sendable {
     ///   - cause: sets the `Error` that triggered the failure.
     ///   - payload: the payload of the message that triggered the failure.
     ///   - topic: the topic of the message that triggered the failure.
-    public init(cause: Error, payload: Data, topic: String) {
+    internal init(cause: Error, payload: Data, topic: String) {
         self.cause = cause
         self.payload = payload
         self.topic = topic
