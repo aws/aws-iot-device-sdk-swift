@@ -329,10 +329,6 @@ jobs:
       strategy:
         fail-fast: false
       steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ env.CRT_CI_ROLE }}
-          aws-region: ${{ env.AWS_DEFAULT_REGION }}
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set Swift version to 6
