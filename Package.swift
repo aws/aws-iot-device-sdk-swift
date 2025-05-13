@@ -31,6 +31,11 @@ let package = Package(
             ],
             path: "Sources"
         ),
+        .testTarget(
+            name: "AwsIotDeviceSdkSwiftTests",
+            dependencies: ["AwsIotDeviceSdkSwift"],
+            path: "Tests/AwsIotDeviceSdkSwiftTests"
+        ),
         .target(
             name: "IotShadowClient",
             dependencies: [
@@ -39,9 +44,9 @@ let package = Package(
             path: "ServiceClients/AwsIotShadowClient"
         ),
         .testTarget(
-            name: "AwsIotDeviceSdkSwiftTests",
-            dependencies: ["AwsIotDeviceSdkSwift"],
-            path: "Tests/AwsIotDeviceSdkSwiftTests"
+            name: "IotShadowClientTests",
+            dependencies: ["IotShadowClient"],
+            path: "Tests/IotShadowClientTests"
         ),
     ]
 )
