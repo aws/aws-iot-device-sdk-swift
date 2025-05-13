@@ -31,47 +31,6 @@ class ShadowClientTests: XCTestCase {
         super.tearDown()
     }
 
-    public func logShadowClientError(_ error: Error) {
-        // Step 1 ─ try to down‑cast to your umbrella error
-        guard let err = error as? IotShadowClientError else {
-            print("Unrecognised error: \(error)")
-            return
-        }
-
-        // Step 2 ─ switch on the typed error
-        switch err {
-
-        case .crt(let crt):
-            print(
-                """
-                ─── CRT error ───────────────────────────────────────────────
-                code:    \(crt.code)
-                name:    \(crt.name)
-                message: \(crt.message)
-                ─────────────────────────────────────────────────────────────
-                """)
-
-        case .errorResponse(let errorResponse):
-            print(
-                """
-                ─── Service rejected request ────────────────────────────
-                clientToken: \(errorResponse.clientToken ?? "<nil>")
-                code:        \(errorResponse.code)
-                message:     \(errorResponse.message ?? "<nil>")
-                timestamp:   \(errorResponse.timestamp?.formatted(.iso8601) ?? "<nil>")
-                ───────────────────────────────────────────────────────────
-                """)
-
-        case .underlying(let swiftErr):
-            print(
-                """
-                ─── Underlying Swift error ─────────────────────────────────
-                \(swiftErr)
-                ────────────────────────────────────────────────────────────
-                """)
-        }
-    }
-
     func awaitExpectation(_ expectations: [XCTestExpectation], _ timeout: TimeInterval = 5) async {
         // Remove the Ifdef once our minimum supported Swift version reaches 5.10
         #if swift(>=5.10)
@@ -85,37 +44,39 @@ class ShadowClientTests: XCTestCase {
         try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
     }
 
-    // Helper function that creates an MqttClient, connects, and returns an IotShadowClient using the mqtt client
+    // Helper function that creates an MqttClient, connects the client, uses the client to create an
+    // IotShadowClient, then returns the shadow client in a ready for use state.
     private func getShadowClient() async throws -> IotShadowClient {
-        // Obtain required files or skip test.
+        // Obtain required endpoint and files from the envirotnment or skip test.
         let certPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
         let keyPath = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
         let endpoint = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
-        let builder = try Mqtt5ClientBuilder.mtlsFromPath(
-            certPath: certPath, keyPath: keyPath, endpoint: endpoint)
 
-        // Track that Mqtt5 Client connection is successful
+        // Used to track whether the Mqtt5 Client connection is successful.
         let connectionExpectation: XCTestExpectation = expectation(
             description: "Connection Success")
-
         let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { successData in
-            print("Mqtt5Client: onLifecycleEventConnectionSuccess")
             connectionExpectation.fulfill()
         }
-        builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
 
+        // Build the Mqtt5 Client
+        let builder = try Mqtt5ClientBuilder.mtlsFromPath(
+            certPath: certPath, keyPath: keyPath, endpoint: endpoint)
+        builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
         let mqttClient = try builder.build()
         XCTAssertNotNil(mqttClient)
+
+        // Connect the Mqtt5 Client
         try mqttClient.start()
         // Await the expectation being fulfilled with a timeout.
         await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
 
+        // Build and return the IotShadowClient
         let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
             operationTimeout: 10)
-
         let shadowClient: IotShadowClient = try IotShadowClient(
             mqttClient: mqttClient, options: options)
         XCTAssertNotNil(shadowClient)
@@ -130,11 +91,10 @@ class ShadowClientTests: XCTestCase {
             thingName: thingName, shadowName: shadowName)
         do {
             let _ = try await shadowClient.deleteNamedShadow(request: deleteRequest)
-        } catch {
-            print("cleanup deleteNamedShadow failed")
-        }
+        } catch {}
     }
 
+    // Check the negative response on a non-existent named shadow
     private func checkNonExistentShadow(
         shadowClient: IotShadowClient,
         thingName: String,
@@ -151,6 +111,7 @@ class ShadowClientTests: XCTestCase {
         }
     }
 
+    // Successfully update a named shadow
     private func updateNamedShadow(
         shadowClient: IotShadowClient,
         thingName: String,
@@ -168,12 +129,11 @@ class ShadowClientTests: XCTestCase {
             let _ = try await shadowClient.updateNamedShadow(
                 request: updateRequest)
         } catch {
-            print(error)
             XCTFail("updateNamedShadow failed")
         }
-        print("updateNamedShadow succeeded")
     }
 
+    // Successfully get a named shadow
     private func getNamedShadow(
         shadowClient: IotShadowClient,
         thingName: String,
@@ -182,21 +142,16 @@ class ShadowClientTests: XCTestCase {
         let getRequest: GetNamedShadowRequest = GetNamedShadowRequest(
             thingName: thingName, shadowName: shadowName)
         do {
-            let result = try await shadowClient.getNamedShadow(request: getRequest)
-            print(
-                """
-                Get Named Shadow Result:
-                state: \(result.state?.desired ?? ["null": "null"])
-                """)
+            let _ = try await shadowClient.getNamedShadow(request: getRequest)
         } catch {
             // Try to clean up
             await cleanupDeleteShadow(
                 shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
             XCTFail("getNamedShadow failed")
         }
-        print("getNamedShadow succeeded")
     }
 
+    // Successfully delete a named shadow
     private func deleteNamedShadow(
         shadowClient: IotShadowClient,
         thingName: String,
@@ -209,9 +164,9 @@ class ShadowClientTests: XCTestCase {
         } catch {
             XCTFail("deleteNamedShadow failed")
         }
-        print("deleteNamedShadow succeeded")
     }
 
+    // Test a get named shadow failure
     func testGetNonexistentShadow() async throws {
         let shadowClient: IotShadowClient = try await getShadowClient()
         let thingName = UUID().uuidString
@@ -221,6 +176,7 @@ class ShadowClientTests: XCTestCase {
             shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
     }
 
+    // Test creating/updating, getting, and deleting a named shadow request/response operations
     func testCreateGetDeleteShadow() async throws {
         let shadowClient: IotShadowClient = try await getShadowClient()
         let thingName = UUID().uuidString
@@ -238,42 +194,45 @@ class ShadowClientTests: XCTestCase {
             shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
     }
 
-    func testUpdateShadow() async throws {
+    // Test
+    func testShadowStreams() async throws {
         let shadowClient: IotShadowClient = try await getShadowClient()
         let thingName = UUID().uuidString
         let shadowName = UUID().uuidString
-        let color = "Color Init"
-        let color2 = "Color Update"
-        let updateResult: [String: Any] = ["Color": color2]
-        let stateUpdate = ["Color": color2]
 
-        try await checkNonExistentShadow(
-            shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
+        let colorInitial = "Color Init"
+        let colorUpdated = "Color Update"
+        // Set the shadow's initial state
+        let stateInitial = ["Color": colorInitial]
+        let updateResult: [String: Any] = ["Color": colorUpdated]
+        let stateUpdate = ["Color": colorUpdated]
 
-        let state = ["Color": color]
-        try await updateNamedShadow(
-            shadowClient: shadowClient, thingName: thingName, shadowName: shadowName, state: state)
-
-        try await getNamedShadow(
-            shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
-
+        // Expectations used to confirm update and subscription
         let updateExpectation: XCTestExpectation = XCTestExpectation(
             description: "Expect update")
         let subscribeSuccessExpectation: XCTestExpectation = XCTestExpectation(
             description: "Expect subscription success")
+        let subscribeSuccessExpectation2: XCTestExpectation = XCTestExpectation(
+            description: "Expect subscription success")
+
+        // Insure test shadow doesn't exist
+        try await checkNonExistentShadow(
+            shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
+
+        try await updateNamedShadow(
+            shadowClient: shadowClient, thingName: thingName, shadowName: shadowName,
+            state: stateInitial)
+
+        // Check that we can get the shadow
+        try await getNamedShadow(
+            shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
+
+        // Start a named shadow delta updated stream
         let namedShadowDeltaUpdatedSubscriptionRequest = NamedShadowDeltaUpdatedSubscriptionRequest(
             thingName: thingName, shadowName: shadowName)
         let clientStreamOptions = ClientStreamOptions<ShadowDeltaUpdatedEvent>(
             streamEventHandler: { event in
-                print(
-                    """
-                    ─── streamEventHandler Shadow Delta Updated Event ───────────
-                    code:    \(event.state ?? ["nil":"nil"])
-                    name:    \(event.timestamp?.formatted(.iso8601) ?? "<nil>")
-                    ─────────────────────────────────────────────────────────────
-                    streamEventHandler received \(String(describing: event))
-                    """)
-
+                // Check that the updated state is what we expect
                 XCTAssertNoThrow {
                     let lhs = try self.jsonData(from: event.state!)
                     let rhs = try self.jsonData(from: updateResult)
@@ -283,36 +242,27 @@ class ShadowClientTests: XCTestCase {
             },
             subscriptionEventHandler: { event in
                 if event.event == SubscriptionStatusEventType.established {
-                    print("NamedShadowDeltaUpdatedSubscriptionRequest Subscription established")
                     subscribeSuccessExpectation.fulfill()
                 }
             },
-            deserializationFailureHandler: { _ in }
+            deserializationFailureHandler: { _ in
+                XCTFail("Deserialization Failure")
+            }
         )
         let deltaUpdatedOperation = try shadowClient.createNamedShadowDeltaUpdatedStream(
             request: namedShadowDeltaUpdatedSubscriptionRequest,
             options: clientStreamOptions)
-        try deltaUpdatedOperation.open()
-        await awaitExpectation([subscribeSuccessExpectation], 5)
 
-        let subscribeSuccessExpectation2: XCTestExpectation = XCTestExpectation(
-            description: "Expect subscription success")
+        // Start a named shadow updated stream
         let namedShadowUpdatedSubscriptionRequest = NamedShadowUpdatedSubscriptionRequest(
             thingName: thingName, shadowName: shadowName)
         let clientStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
             streamEventHandler: { event in
-                let previousDesired = event.previous?.state?.desired ?? ["nil": "nil"]
-                let currentDesired = event.current?.state?.desired ?? ["nil": "nil"]
-                print(
-                    """
-                    ─── streamEventHandler Shadow Updated Event ─────────────────
-                    previous desired: \(previousDesired)
-                    current desired:  \(currentDesired)
-                    ─────────────────────────────────────────────────────────────
-                    """)
+                let previousDesired = event.previous?.state?.desired ?? ["error": "error"]
+                let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
                     let lhs = try self.jsonData(from: previousDesired)
-                    let rhs = try self.jsonData(from: state)
+                    let rhs = try self.jsonData(from: stateInitial)
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
@@ -323,7 +273,6 @@ class ShadowClientTests: XCTestCase {
             },
             subscriptionEventHandler: { event in
                 if event.event == SubscriptionStatusEventType.established {
-                    print("NamedShadowUpdatedSubscriptionRequest Subscription established")
                     subscribeSuccessExpectation2.fulfill()
                 }
             },
@@ -332,18 +281,22 @@ class ShadowClientTests: XCTestCase {
         let updatedOperation = try shadowClient.createNamedShadowUpdatedStream(
             request: namedShadowUpdatedSubscriptionRequest,
             options: clientStreamOptions2)
+
+        // open the streams and await their subscriptions to be active
+        try deltaUpdatedOperation.open()
         try updatedOperation.open()
         await awaitExpectation([subscribeSuccessExpectation2], 5)
+        await awaitExpectation([subscribeSuccessExpectation], 5)
 
+        // Update the shadow which should trigger both streams
         try await updateNamedShadow(
             shadowClient: shadowClient, thingName: thingName, shadowName: shadowName,
             state: stateUpdate)
 
         await awaitExpectation([updateExpectation], 5)
 
+        // Clean up the test shadow
         try await deleteNamedShadow(
             shadowClient: shadowClient, thingName: thingName, shadowName: shadowName)
-
-        print("All good")
     }
 }
