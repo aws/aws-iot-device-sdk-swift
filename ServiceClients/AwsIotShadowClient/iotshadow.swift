@@ -3,6 +3,7 @@
 
 // This file is generated
 
+import Foundation
 import AwsIotDeviceSdkSwift
 import Foundation
 
@@ -13,9 +14,7 @@ public class IotShadowClient {
     internal let encoder: JSONEncoder = JSONEncoder()
     internal let decoder: JSONDecoder = JSONDecoder()
 
-    public init(
-        mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
-    ) throws {
+    public init(mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions) throws {
         self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
             mqtt5Client: mqttClient, options: options)
     }
@@ -33,8 +32,7 @@ public class IotShadowClient {
     /// - Throws:
     ///     - `IotShadowClientError`
     public func createNamedShadowDeltaUpdatedStream(
-        request: NamedShadowDeltaUpdatedSubscriptionRequest,
-        options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
+        request: NamedShadowDeltaUpdatedSubscriptionRequest, options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
     ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/delta"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
@@ -42,13 +40,12 @@ public class IotShadowClient {
 
         let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { status in
+            subscriptionStatusCallback:  { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback:  { publish in
                 do {
-                    let event = try self.decoder.decode(
-                        ShadowDeltaUpdatedEvent.self, from: publish.payload)
+                    let event = try self.decoder.decode(ShadowDeltaUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -87,8 +84,7 @@ public class IotShadowClient {
     /// - Throws:
     ///     - `IotShadowClientError`
     public func createNamedShadowUpdatedStream(
-        request: NamedShadowUpdatedSubscriptionRequest,
-        options: ClientStreamOptions<ShadowUpdatedEvent>
+        request: NamedShadowUpdatedSubscriptionRequest, options: ClientStreamOptions<ShadowUpdatedEvent>
     ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/documents"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
@@ -96,13 +92,12 @@ public class IotShadowClient {
 
         let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { status in
+            subscriptionStatusCallback:  { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback:  { publish in
                 do {
-                    let event = try self.decoder.decode(
-                        ShadowUpdatedEvent.self, from: publish.payload)
+                    let event = try self.decoder.decode(ShadowUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -141,21 +136,19 @@ public class IotShadowClient {
     /// - Throws:
     ///     - `IotShadowClientError`
     public func createShadowDeltaUpdatedStream(
-        request: ShadowDeltaUpdatedSubscriptionRequest,
-        options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
+        request: ShadowDeltaUpdatedSubscriptionRequest, options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
     ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/delta"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
         let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { status in
+            subscriptionStatusCallback:  { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback:  { publish in
                 do {
-                    let event = try self.decoder.decode(
-                        ShadowDeltaUpdatedEvent.self, from: publish.payload)
+                    let event = try self.decoder.decode(ShadowDeltaUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -201,13 +194,12 @@ public class IotShadowClient {
 
         let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { status in
+            subscriptionStatusCallback:  { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback:  { publish in
                 do {
-                    let event = try self.decoder.decode(
-                        ShadowUpdatedEvent.self, from: publish.payload)
+                    let event = try self.decoder.decode(ShadowUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -243,9 +235,7 @@ public class IotShadowClient {
     ///
     /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws
-        -> DeleteShadowResponse
-    {
+    public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws -> DeleteShadowResponse {
 
         let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
@@ -258,10 +248,8 @@ public class IotShadowClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/shadow/name/{shadowName}/delete/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{shadowName}", with: request.shadowName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
         subscriptionTopicFilters.append(subscription0)
 
         // Response paths
@@ -269,10 +257,8 @@ public class IotShadowClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -285,16 +271,14 @@ public class IotShadowClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(DeleteShadowResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotShadowClientError.errorResponse
-                throw IotShadowClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotShadowClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
             // Pass along the thrown IotShadowClientError
@@ -330,8 +314,7 @@ public class IotShadowClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/shadow/delete/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscriptionTopicFilters.append(subscription0)
 
         // Response paths
@@ -339,10 +322,8 @@ public class IotShadowClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -355,16 +336,14 @@ public class IotShadowClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(DeleteShadowResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotShadowClientError.errorResponse
-                throw IotShadowClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotShadowClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
             // Pass along the thrown IotShadowClientError
@@ -401,10 +380,8 @@ public class IotShadowClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/shadow/name/{shadowName}/get/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{shadowName}", with: request.shadowName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
         subscriptionTopicFilters.append(subscription0)
 
         // Response paths
@@ -412,10 +389,8 @@ public class IotShadowClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -428,16 +403,14 @@ public class IotShadowClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(GetShadowResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotShadowClientError.errorResponse
-                throw IotShadowClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotShadowClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
             // Pass along the thrown IotShadowClientError
@@ -473,8 +446,7 @@ public class IotShadowClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/shadow/get/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscriptionTopicFilters.append(subscription0)
 
         // Response paths
@@ -482,10 +454,8 @@ public class IotShadowClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -498,16 +468,14 @@ public class IotShadowClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(GetShadowResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotShadowClientError.errorResponse
-                throw IotShadowClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotShadowClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
             // Pass along the thrown IotShadowClientError
@@ -531,9 +499,7 @@ public class IotShadowClient {
     ///
     /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws
-        -> UpdateShadowResponse
-    {
+    public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws -> UpdateShadowResponse {
 
         let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
@@ -545,19 +511,13 @@ public class IotShadowClient {
 
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
-        var subscription0: String =
-            "$aws/things/{thingName}/shadow/name/{shadowName}/update/accepted"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{shadowName}", with: request.shadowName)
+        var subscription0: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/accepted"
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
         subscriptionTopicFilters.append(subscription0)
-        var subscription1: String =
-            "$aws/things/{thingName}/shadow/name/{shadowName}/update/rejected"
-        subscription1 = subscription1.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
-        subscription1 = subscription1.replacingOccurrences(
-            of: "{shadowName}", with: request.shadowName)
+        var subscription1: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/rejected"
+        subscription1 = subscription1.replacingOccurrences(of: "{thingName}", with: request.thingName)
+        subscription1 = subscription1.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
         subscriptionTopicFilters.append(subscription1)
 
         // Response paths
@@ -565,10 +525,8 @@ public class IotShadowClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -581,16 +539,14 @@ public class IotShadowClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(UpdateShadowResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotShadowClientError.errorResponse
-                throw IotShadowClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotShadowClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
             // Pass along the thrown IotShadowClientError
@@ -626,12 +582,10 @@ public class IotShadowClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/shadow/update/accepted"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscriptionTopicFilters.append(subscription0)
         var subscription1: String = "$aws/things/{thingName}/shadow/update/rejected"
-        subscription1 = subscription1.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription1 = subscription1.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscriptionTopicFilters.append(subscription1)
 
         // Response paths
@@ -639,10 +593,8 @@ public class IotShadowClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -655,16 +607,14 @@ public class IotShadowClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(UpdateShadowResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotShadowClientError.errorResponse
-                throw IotShadowClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotShadowClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotShadowClientError {
             // Pass along the thrown IotShadowClientError
@@ -723,8 +673,7 @@ public class ShadowState: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
         self.desired = desiredJSON?.asAnyDictionary()
-        let reportedJSON = try container.decodeIfPresent(
-            [String: JSONValue].self, forKey: .reported)
+        let reportedJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .reported)
         self.reported = reportedJSON?.asAnyDictionary()
     }
 
@@ -797,8 +746,7 @@ public class ShadowStateWithDelta: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
         self.desired = desiredJSON?.asAnyDictionary()
-        let reportedJSON = try container.decodeIfPresent(
-            [String: JSONValue].self, forKey: .reported)
+        let reportedJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .reported)
         self.reported = reportedJSON?.asAnyDictionary()
         let deltaJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .delta)
         self.delta = deltaJSON?.asAnyDictionary()
@@ -947,12 +895,11 @@ public class ShadowDeltaUpdatedEvent: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let stateJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .state)
         self.state = stateJSON?.asAnyDictionary()
-        let metadataJSON = try container.decodeIfPresent(
-            [String: JSONValue].self, forKey: .metadata)
+        let metadataJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .metadata)
         self.metadata = metadataJSON?.asAnyDictionary()
-        self.timestamp = try container.decodeIfPresent(Foundation.Date.self, forKey: .timestamp)
-        self.version = try container.decodeIfPresent(Int.self, forKey: .version)
-        self.clientToken = try container.decodeIfPresent(String.self, forKey: .clientToken)
+        self.timestamp = try container.decodeIfPresent(Foundation.Date.self , forKey: .timestamp)
+        self.version = try container.decodeIfPresent(Int.self , forKey: .version)
+        self.clientToken = try container.decodeIfPresent(String.self , forKey: .clientToken)
     }
 
     /// encode this class containing the document trait into JSON
@@ -1061,8 +1008,7 @@ public class ShadowMetadata: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
         self.desired = desiredJSON?.asAnyDictionary()
-        let reportedJSON = try container.decodeIfPresent(
-            [String: JSONValue].self, forKey: .reported)
+        let reportedJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .reported)
         self.reported = reportedJSON?.asAnyDictionary()
     }
 
@@ -1097,9 +1043,8 @@ public class DeleteNamedShadowRequest: Codable {
 
     /// Initializes a new `DeleteNamedShadowRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
         self.clientToken = nil
@@ -1129,8 +1074,7 @@ public class DeleteShadowRequest: Codable {
 
     /// Initializes a new `DeleteShadowRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
         self.clientToken = nil
     }
@@ -1162,9 +1106,8 @@ public class GetNamedShadowRequest: Codable {
 
     /// Initializes a new `GetNamedShadowRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
         self.clientToken = nil
@@ -1194,8 +1137,7 @@ public class GetShadowRequest: Codable {
 
     /// Initializes a new `GetShadowRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
         self.clientToken = nil
     }
@@ -1233,9 +1175,8 @@ public class UpdateNamedShadowRequest: Codable {
 
     /// Initializes a new `UpdateNamedShadowRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
         self.clientToken = nil
@@ -1289,8 +1230,7 @@ public class UpdateShadowRequest: Codable {
 
     /// Initializes a new `UpdateShadowRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
         self.clientToken = nil
         self.state = nil
@@ -1337,9 +1277,8 @@ public class DeleteNamedShadowSubscriptionRequest: Codable {
 
     /// Initializes a new `DeleteNamedShadowSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1357,8 +1296,7 @@ public class DeleteShadowSubscriptionRequest: Codable {
 
     /// Initializes a new `DeleteShadowSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1378,9 +1316,8 @@ public class GetNamedShadowSubscriptionRequest: Codable {
 
     /// Initializes a new `GetNamedShadowSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1398,8 +1335,7 @@ public class GetShadowSubscriptionRequest: Codable {
 
     /// Initializes a new `GetShadowSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1419,9 +1355,8 @@ public class UpdateNamedShadowSubscriptionRequest: Codable {
 
     /// Initializes a new `UpdateNamedShadowSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1439,8 +1374,7 @@ public class UpdateShadowSubscriptionRequest: Codable {
 
     /// Initializes a new `UpdateShadowSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1460,9 +1394,8 @@ public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
 
     /// Initializes a new `NamedShadowDeltaUpdatedSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1483,9 +1416,8 @@ public class NamedShadowUpdatedSubscriptionRequest: Codable {
 
     /// Initializes a new `NamedShadowUpdatedSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
-    ) {
+                thingName: String,
+                shadowName: String) {
         self.thingName = thingName
         self.shadowName = shadowName
     }
@@ -1503,8 +1435,7 @@ public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
 
     /// Initializes a new `ShadowDeltaUpdatedSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1521,8 +1452,7 @@ public class ShadowUpdatedSubscriptionRequest: Codable {
 
     /// Initializes a new `ShadowUpdatedSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1548,8 +1478,7 @@ public class ErrorResponse: Codable {
 
     /// Initializes a new `ErrorResponse`
     public init(
-        code: Int
-    ) {
+                code: Int) {
         self.code = code
         self.clientToken = nil
         self.message = nil
@@ -1602,11 +1531,10 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
 
     /// Initializes a new `V2ErrorResponse`
     public init(
-        clientToken: String? = nil,
-        code: Int,
-        message: String? = nil,
-        timestamp: Foundation.Date? = nil
-    ) {
+                clientToken: String? = nil,
+                code: Int,
+                message: String? = nil,
+                timestamp: Foundation.Date? = nil) {
         self.clientToken = clientToken
         self.code = code
         self.message = message
@@ -1820,8 +1748,7 @@ public struct ClientStreamOptions<Event: Sendable>: Sendable {
     public init(
         streamEventHandler: @escaping StreamHandler = { _ in },
         subscriptionEventHandler: @escaping SubscriptionHandler = { _ in },
-        deserializationFailureHandler: @escaping FailureHandler = { _ in }
-    ) {
+        deserializationFailureHandler: @escaping FailureHandler = { _ in }) {
         self.streamEventHandler = streamEventHandler
         self.subscriptionEventHandler = subscriptionEventHandler
         self.deserializationFailureHandler = deserializationFailureHandler
@@ -1847,9 +1774,9 @@ public struct DeserializationFailureEvent: Sendable {
     ///   - payload: the payload of the message that triggered the failure.
     ///   - topic: the topic of the message that triggered the failure.
     internal init(cause: Error, payload: Data, topic: String) {
-        self.cause = cause
+        self.cause   = cause
         self.payload = payload
-        self.topic = topic
+        self.topic   = topic
     }
 }
 
@@ -1871,3 +1798,4 @@ public enum IotShadowClientError: Error, Sendable {
     /// concurrency runtime, and user-provided call-backs that threw.
     case underlying(Error)
 }
+

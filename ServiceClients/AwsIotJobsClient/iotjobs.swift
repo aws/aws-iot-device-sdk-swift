@@ -3,6 +3,7 @@
 
 // This file is generated
 
+import Foundation
 import AwsIotDeviceSdkSwift
 import Foundation
 
@@ -13,9 +14,7 @@ public class IotJobsClient {
     internal let encoder: JSONEncoder = JSONEncoder()
     internal let decoder: JSONDecoder = JSONDecoder()
 
-    public init(
-        mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
-    ) throws {
+    public init(mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions) throws {
         self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
             mqtt5Client: mqttClient, options: options)
     }
@@ -33,21 +32,19 @@ public class IotJobsClient {
     /// - Throws:
     ///     - `IotJobsClientError`
     public func createJobExecutionsChangedStream(
-        request: JobExecutionsChangedSubscriptionRequest,
-        options: ClientStreamOptions<JobExecutionsChangedEvent>
+        request: JobExecutionsChangedSubscriptionRequest, options: ClientStreamOptions<JobExecutionsChangedEvent>
     ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/jobs/notify"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
         let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { status in
+            subscriptionStatusCallback:  { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback:  { publish in
                 do {
-                    let event = try self.decoder.decode(
-                        JobExecutionsChangedEvent.self, from: publish.payload)
+                    let event = try self.decoder.decode(JobExecutionsChangedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -86,21 +83,19 @@ public class IotJobsClient {
     /// - Throws:
     ///     - `IotJobsClientError`
     public func createNextJobExecutionChangedStream(
-        request: NextJobExecutionChangedSubscriptionRequest,
-        options: ClientStreamOptions<NextJobExecutionChangedEvent>
+        request: NextJobExecutionChangedSubscriptionRequest, options: ClientStreamOptions<NextJobExecutionChangedEvent>
     ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/jobs/notify-next"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
         let innerOptions: StreamingOperationOptions = StreamingOperationOptions(
             topicFilter: topic,
-            subscriptionStatusCallback: { status in
+            subscriptionStatusCallback:  { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback:  { publish in
                 do {
-                    let event = try self.decoder.decode(
-                        NextJobExecutionChangedEvent.self, from: publish.payload)
+                    let event = try self.decoder.decode(NextJobExecutionChangedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -136,9 +131,7 @@ public class IotJobsClient {
     ///
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func describeJobExecution(request: DescribeJobExecutionRequest) async throws
-        -> DescribeJobExecutionResponse
-    {
+    public func describeJobExecution(request: DescribeJobExecutionRequest) async throws -> DescribeJobExecutionResponse {
 
         let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
@@ -151,8 +144,7 @@ public class IotJobsClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/jobs/{jobId}/get/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscription0 = subscription0.replacingOccurrences(of: "{jobId}", with: request.jobId)
         subscriptionTopicFilters.append(subscription0)
 
@@ -161,10 +153,8 @@ public class IotJobsClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -177,16 +167,14 @@ public class IotJobsClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(DescribeJobExecutionResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotJobsClientError.errorResponse
-                throw IotJobsClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotJobsClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotJobsClientError {
             // Pass along the thrown IotJobsClientError
@@ -210,9 +198,7 @@ public class IotJobsClient {
     ///
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func getPendingJobExecutions(request: GetPendingJobExecutionsRequest) async throws
-        -> GetPendingJobExecutionsResponse
-    {
+    public func getPendingJobExecutions(request: GetPendingJobExecutionsRequest) async throws -> GetPendingJobExecutionsResponse {
 
         let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
@@ -224,8 +210,7 @@ public class IotJobsClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/jobs/get/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscriptionTopicFilters.append(subscription0)
 
         // Response paths
@@ -233,10 +218,8 @@ public class IotJobsClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -249,17 +232,14 @@ public class IotJobsClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
-                return try decoder.decode(
-                    GetPendingJobExecutionsResponse.self, from: response.payload)
+                return try decoder.decode(GetPendingJobExecutionsResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotJobsClientError.errorResponse
-                throw IotJobsClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotJobsClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotJobsClientError {
             // Pass along the thrown IotJobsClientError
@@ -283,9 +263,7 @@ public class IotJobsClient {
     ///
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func startNextPendingJobExecution(request: StartNextPendingJobExecutionRequest)
-        async throws -> StartNextJobExecutionResponse
-    {
+    public func startNextPendingJobExecution(request: StartNextPendingJobExecutionRequest) async throws -> StartNextJobExecutionResponse {
 
         let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
@@ -297,8 +275,7 @@ public class IotJobsClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/jobs/start-next/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscriptionTopicFilters.append(subscription0)
 
         // Response paths
@@ -306,10 +283,8 @@ public class IotJobsClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -322,17 +297,14 @@ public class IotJobsClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
-                return try decoder.decode(
-                    StartNextJobExecutionResponse.self, from: response.payload)
+                return try decoder.decode(StartNextJobExecutionResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotJobsClientError.errorResponse
-                throw IotJobsClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotJobsClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotJobsClientError {
             // Pass along the thrown IotJobsClientError
@@ -356,9 +328,7 @@ public class IotJobsClient {
     ///
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func updateJobExecution(request: UpdateJobExecutionRequest) async throws
-        -> UpdateJobExecutionResponse
-    {
+    public func updateJobExecution(request: UpdateJobExecutionRequest) async throws -> UpdateJobExecutionResponse {
 
         let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
@@ -371,8 +341,7 @@ public class IotJobsClient {
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
         var subscription0: String = "$aws/things/{thingName}/jobs/{jobId}/update/+"
-        subscription0 = subscription0.replacingOccurrences(
-            of: "{thingName}", with: request.thingName)
+        subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
         subscription0 = subscription0.replacingOccurrences(of: "{jobId}", with: request.jobId)
         subscriptionTopicFilters.append(subscription0)
 
@@ -381,10 +350,8 @@ public class IotJobsClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = "clientToken"
         let token2 = "clientToken"
-        let responsePath1: ResponsePath = ResponsePath(
-            topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(
-            topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -397,16 +364,14 @@ public class IotJobsClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(
-                operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
 
-            if response.topic == responseTopic1 {
+            if (response.topic == responseTopic1) {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(UpdateJobExecutionResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotJobsClientError.errorResponse
-                throw IotJobsClientError.errorResponse(
-                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotJobsClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotJobsClientError {
             // Pass along the thrown IotJobsClientError
@@ -638,20 +603,17 @@ public class JobExecutionData: Codable {
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.jobId = try container.decodeIfPresent(String.self, forKey: .jobId)
-        self.thingName = try container.decodeIfPresent(String.self, forKey: .thingName)
-        let jobDocumentJSON = try container.decodeIfPresent(
-            [String: JSONValue].self, forKey: .jobDocument)
+        self.jobId = try container.decodeIfPresent(String.self , forKey: .jobId)
+        self.thingName = try container.decodeIfPresent(String.self , forKey: .thingName)
+        let jobDocumentJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocument = jobDocumentJSON?.asAnyDictionary()
-        self.status = try container.decodeIfPresent(JobStatus.self, forKey: .status)
-        self.statusDetails = try container.decodeIfPresent(
-            [String: String].self, forKey: .statusDetails)
-        self.queuedAt = try container.decodeIfPresent(Foundation.Date.self, forKey: .queuedAt)
-        self.startedAt = try container.decodeIfPresent(Foundation.Date.self, forKey: .startedAt)
-        self.lastUpdatedAt = try container.decodeIfPresent(
-            Foundation.Date.self, forKey: .lastUpdatedAt)
-        self.versionNumber = try container.decodeIfPresent(Int.self, forKey: .versionNumber)
-        self.executionNumber = try container.decodeIfPresent(Int.self, forKey: .executionNumber)
+        self.status = try container.decodeIfPresent(JobStatus.self , forKey: .status)
+        self.statusDetails = try container.decodeIfPresent([String: String].self , forKey: .statusDetails)
+        self.queuedAt = try container.decodeIfPresent(Foundation.Date.self , forKey: .queuedAt)
+        self.startedAt = try container.decodeIfPresent(Foundation.Date.self , forKey: .startedAt)
+        self.lastUpdatedAt = try container.decodeIfPresent(Foundation.Date.self , forKey: .lastUpdatedAt)
+        self.versionNumber = try container.decodeIfPresent(Int.self , forKey: .versionNumber)
+        self.executionNumber = try container.decodeIfPresent(Int.self , forKey: .executionNumber)
     }
 
     /// encode this class containing the document trait into JSON
@@ -742,9 +704,8 @@ public class DescribeJobExecutionRequest: Codable {
 
     /// Initializes a new `DescribeJobExecutionRequest`
     public init(
-        thingName: String,
-        jobId: String
-    ) {
+                thingName: String,
+                jobId: String) {
         self.thingName = thingName
         self.jobId = jobId
         self.clientToken = nil
@@ -792,8 +753,7 @@ public class GetPendingJobExecutionsRequest: Codable {
 
     /// Initializes a new `GetPendingJobExecutionsRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
         self.clientToken = nil
     }
@@ -828,8 +788,7 @@ public class StartNextPendingJobExecutionRequest: Codable {
 
     /// Initializes a new `StartNextPendingJobExecutionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
         self.clientToken = nil
         self.stepTimeoutInMinutes = nil
@@ -900,10 +859,9 @@ public class UpdateJobExecutionRequest: Codable {
 
     /// Initializes a new `UpdateJobExecutionRequest`
     public init(
-        thingName: String,
-        jobId: String,
-        status: JobStatus
-    ) {
+                thingName: String,
+                jobId: String,
+                status: JobStatus) {
         self.thingName = thingName
         self.jobId = jobId
         self.status = status
@@ -988,9 +946,8 @@ public class DescribeJobExecutionSubscriptionRequest: Codable {
 
     /// Initializes a new `DescribeJobExecutionSubscriptionRequest`
     public init(
-        thingName: String,
-        jobId: String
-    ) {
+                thingName: String,
+                jobId: String) {
         self.thingName = thingName
         self.jobId = jobId
     }
@@ -1008,8 +965,7 @@ public class GetPendingJobExecutionsSubscriptionRequest: Codable {
 
     /// Initializes a new `GetPendingJobExecutionsSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1026,8 +982,7 @@ public class JobExecutionsChangedSubscriptionRequest: Codable {
 
     /// Initializes a new `JobExecutionsChangedSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1044,8 +999,7 @@ public class NextJobExecutionChangedSubscriptionRequest: Codable {
 
     /// Initializes a new `NextJobExecutionChangedSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1062,8 +1016,7 @@ public class StartNextPendingJobExecutionSubscriptionRequest: Codable {
 
     /// Initializes a new `StartNextPendingJobExecutionSubscriptionRequest`
     public init(
-        thingName: String
-    ) {
+                thingName: String) {
         self.thingName = thingName
     }
 
@@ -1083,9 +1036,8 @@ public class UpdateJobExecutionSubscriptionRequest: Codable {
 
     /// Initializes a new `UpdateJobExecutionSubscriptionRequest`
     public init(
-        thingName: String,
-        jobId: String
-    ) {
+                thingName: String,
+                jobId: String) {
         self.thingName = thingName
         self.jobId = jobId
     }
@@ -1115,8 +1067,7 @@ public class RejectedError: Codable {
 
     /// Initializes a new `RejectedError`
     public init(
-        code: RejectedErrorCode
-    ) {
+                code: RejectedErrorCode) {
         self.code = code
         self.clientToken = nil
         self.message = nil
@@ -1181,12 +1132,11 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
 
     /// Initializes a new `V2ErrorResponse`
     public init(
-        clientToken: String? = nil,
-        code: RejectedErrorCode,
-        message: String? = nil,
-        timestamp: Foundation.Date? = nil,
-        executionState: JobExecutionState? = nil
-    ) {
+                clientToken: String? = nil,
+                code: RejectedErrorCode,
+                message: String? = nil,
+                timestamp: Foundation.Date? = nil,
+                executionState: JobExecutionState? = nil) {
         self.clientToken = clientToken
         self.code = code
         self.message = message
@@ -1213,9 +1163,8 @@ public class DescribeJobExecutionResponse: Codable {
 
     /// Initializes a new `DescribeJobExecutionResponse`
     public init(
-        execution: JobExecutionData,
-        timestamp: Foundation.Date
-    ) {
+                execution: JobExecutionData,
+                timestamp: Foundation.Date) {
         self.execution = execution
         self.timestamp = timestamp
         self.clientToken = nil
@@ -1354,10 +1303,9 @@ public class UpdateJobExecutionResponse: Codable {
 
     /// Initializes a new `UpdateJobExecutionResponse`
     public init(
-        executionState: JobExecutionState,
-        jobDocument: [String: Any],
-        timestamp: Foundation.Date
-    ) {
+                executionState: JobExecutionState,
+                jobDocument: [String: Any],
+                timestamp: Foundation.Date) {
         self.executionState = executionState
         self.jobDocument = jobDocument
         self.timestamp = timestamp
@@ -1382,11 +1330,11 @@ public class UpdateJobExecutionResponse: Codable {
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.executionState = try container.decode(JobExecutionState.self, forKey: .executionState)
+        self.executionState = try container.decode(JobExecutionState.self , forKey: .executionState)
         let jobDocumentJSON = try container.decode([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocument = jobDocumentJSON.asAnyDictionary()
-        self.timestamp = try container.decode(Foundation.Date.self, forKey: .timestamp)
-        self.clientToken = try container.decodeIfPresent(String.self, forKey: .clientToken)
+        self.timestamp = try container.decode(Foundation.Date.self , forKey: .timestamp)
+        self.clientToken = try container.decodeIfPresent(String.self , forKey: .clientToken)
     }
 
     /// encode this class containing the document trait into JSON
@@ -1414,9 +1362,8 @@ public class JobExecutionsChangedEvent: Codable {
 
     /// Initializes a new `JobExecutionsChangedEvent`
     public init(
-        jobs: [JobStatus: [JobExecutionSummary]],
-        timestamp: Foundation.Date
-    ) {
+                jobs: [JobStatus: [JobExecutionSummary]],
+                timestamp: Foundation.Date) {
         self.jobs = jobs
         self.timestamp = timestamp
     }
@@ -1437,9 +1384,8 @@ public class NextJobExecutionChangedEvent: Codable {
 
     /// Initializes a new `NextJobExecutionChangedEvent`
     public init(
-        execution: JobExecutionData,
-        timestamp: Foundation.Date
-    ) {
+                execution: JobExecutionData,
+                timestamp: Foundation.Date) {
         self.execution = execution
         self.timestamp = timestamp
     }
@@ -1501,8 +1447,7 @@ public struct ClientStreamOptions<Event: Sendable>: Sendable {
     public init(
         streamEventHandler: @escaping StreamHandler = { _ in },
         subscriptionEventHandler: @escaping SubscriptionHandler = { _ in },
-        deserializationFailureHandler: @escaping FailureHandler = { _ in }
-    ) {
+        deserializationFailureHandler: @escaping FailureHandler = { _ in }) {
         self.streamEventHandler = streamEventHandler
         self.subscriptionEventHandler = subscriptionEventHandler
         self.deserializationFailureHandler = deserializationFailureHandler
@@ -1528,9 +1473,9 @@ public struct DeserializationFailureEvent: Sendable {
     ///   - payload: the payload of the message that triggered the failure.
     ///   - topic: the topic of the message that triggered the failure.
     internal init(cause: Error, payload: Data, topic: String) {
-        self.cause = cause
+        self.cause   = cause
         self.payload = payload
-        self.topic = topic
+        self.topic   = topic
     }
 }
 
@@ -1573,3 +1518,4 @@ public enum IotJobsClientError: Error, Sendable {
     /// concurrency runtime, and user-provided call-backs that threw.
     case underlying(Error)
 }
+

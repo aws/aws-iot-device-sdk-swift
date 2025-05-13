@@ -13,7 +13,10 @@ let package = Package(
     products: [
         .library(
             name: "AwsIotDeviceSdkSwift",
-            targets: ["AwsIotDeviceSdkSwift"])
+            targets: ["AwsIotDeviceSdkSwift"]),
+        .library(
+            name: "IotShadowClient",
+            targets: ["IotShadowClient"]),
     ],
     dependencies: [
         .package(
@@ -27,6 +30,13 @@ let package = Package(
                 .product(name: "AwsCommonRuntimeKit", package: "aws-crt-swift")
             ],
             path: "Sources"
+        ),
+        .target(
+            name: "IotShadowClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotShadowClient"
         ),
         .testTarget(
             name: "AwsIotDeviceSdkSwiftTests",
