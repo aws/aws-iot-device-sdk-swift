@@ -3,8 +3,8 @@
 
 // This file is generated
 
-import Foundation
 import AwsIotDeviceSdkSwift
+import Foundation
 
 /// An AWS IoT service that assists with provisioning a device and installing unique client certificates on it
 /// AWS Docs: https://docs.aws.amazon.com/iot/latest/developerguide/provision-wo-cert.html
@@ -13,7 +13,9 @@ public class IotIdentityClient {
     internal let encoder: JSONEncoder = JSONEncoder()
     internal let decoder: JSONDecoder = JSONDecoder()
 
-    public init(mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions) throws {
+    public init(
+        mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
+    ) throws {
         self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
             mqtt5Client: mqttClient, options: options)
     }
@@ -28,7 +30,9 @@ public class IotIdentityClient {
     ///
     /// - Throws: `IotIdentityClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func createCertificateFromCsr(request: CreateCertificateFromCsrRequest) async throws -> CreateCertificateFromCsrResponse {
+    public func createCertificateFromCsr(request: CreateCertificateFromCsrRequest) async throws
+        -> CreateCertificateFromCsrResponse
+    {
 
         let correlationToken: String? = nil
 
@@ -47,8 +51,10 @@ public class IotIdentityClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = ""
         let token2 = ""
-        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -61,14 +67,17 @@ public class IotIdentityClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
 
-            if (response.topic == responseTopic1) {
+            if response.topic == responseTopic1 {
                 // Successful operation ack returns the expected output.
-                return try decoder.decode(CreateCertificateFromCsrResponse.self, from: response.payload)
+                return try decoder.decode(
+                    CreateCertificateFromCsrResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotIdentityClientError.errorResponse
-                throw IotIdentityClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotIdentityClientError.errorResponse(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotIdentityClientError {
             // Pass along the thrown IotIdentityClientError
@@ -92,7 +101,9 @@ public class IotIdentityClient {
     ///
     /// - Throws: `IotIdentityClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
-    public func createKeysAndCertificate(request: CreateKeysAndCertificateRequest) async throws -> CreateKeysAndCertificateResponse {
+    public func createKeysAndCertificate(request: CreateKeysAndCertificateRequest) async throws
+        -> CreateKeysAndCertificateResponse
+    {
 
         let correlationToken: String? = nil
 
@@ -111,8 +122,10 @@ public class IotIdentityClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = ""
         let token2 = ""
-        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -125,14 +138,17 @@ public class IotIdentityClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
 
-            if (response.topic == responseTopic1) {
+            if response.topic == responseTopic1 {
                 // Successful operation ack returns the expected output.
-                return try decoder.decode(CreateKeysAndCertificateResponse.self, from: response.payload)
+                return try decoder.decode(
+                    CreateKeysAndCertificateResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotIdentityClientError.errorResponse
-                throw IotIdentityClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotIdentityClientError.errorResponse(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotIdentityClientError {
             // Pass along the thrown IotIdentityClientError
@@ -166,11 +182,15 @@ public class IotIdentityClient {
 
         // Subscription Topic Filters
         var subscriptionTopicFilters: [String] = []
-        var subscription0: String = "$aws/provisioning-templates/{templateName}/provision/json/accepted"
-        subscription0 = subscription0.replacingOccurrences(of: "{templateName}", with: request.templateName)
+        var subscription0: String =
+            "$aws/provisioning-templates/{templateName}/provision/json/accepted"
+        subscription0 = subscription0.replacingOccurrences(
+            of: "{templateName}", with: request.templateName)
         subscriptionTopicFilters.append(subscription0)
-        var subscription1: String = "$aws/provisioning-templates/{templateName}/provision/json/rejected"
-        subscription1 = subscription1.replacingOccurrences(of: "{templateName}", with: request.templateName)
+        var subscription1: String =
+            "$aws/provisioning-templates/{templateName}/provision/json/rejected"
+        subscription1 = subscription1.replacingOccurrences(
+            of: "{templateName}", with: request.templateName)
         subscriptionTopicFilters.append(subscription1)
 
         // Response paths
@@ -178,8 +198,10 @@ public class IotIdentityClient {
         let responseTopic2: String = topic + "/rejected"
         let token1 = ""
         let token2 = ""
-        let responsePath1: ResponsePath = ResponsePath(topic: responseTopic1, correlationTokenJsonPath: token1)
-        let responsePath2: ResponsePath = ResponsePath(topic: responseTopic2, correlationTokenJsonPath: token2)
+        let responsePath1: ResponsePath = ResponsePath(
+            topic: responseTopic1, correlationTokenJsonPath: token1)
+        let responsePath2: ResponsePath = ResponsePath(
+            topic: responseTopic2, correlationTokenJsonPath: token2)
 
         do {
             // Encode the event into JSON Data.
@@ -192,14 +214,16 @@ public class IotIdentityClient {
                 payload: payload,
                 correlationToken: correlationToken)
 
-            let response = try await rrClient.submitRequest(operationOptions: requestResponseOperationOptions)
+            let response = try await rrClient.submitRequest(
+                operationOptions: requestResponseOperationOptions)
 
-            if (response.topic == responseTopic1) {
+            if response.topic == responseTopic1 {
                 // Successful operation ack returns the expected output.
                 return try decoder.decode(RegisterThingResponse.self, from: response.payload)
             } else {
                 // Unsuccessful operation ack throws IotIdentityClientError.errorResponse
-                throw IotIdentityClientError.errorResponse(try decoder.decode(V2ErrorResponse.self, from: response.payload))
+                throw IotIdentityClientError.errorResponse(
+                    try decoder.decode(V2ErrorResponse.self, from: response.payload))
             }
         } catch let clientErr as IotIdentityClientError {
             // Pass along the thrown IotIdentityClientError
@@ -226,7 +250,8 @@ public class CreateCertificateFromCsrRequest: Codable {
 
     /// Initializes a new `CreateCertificateFromCsrRequest`
     public init(
-                certificateSigningRequest: String) {
+        certificateSigningRequest: String
+    ) {
         self.certificateSigningRequest = certificateSigningRequest
     }
 
@@ -258,8 +283,9 @@ public class RegisterThingRequest: Codable {
 
     /// Initializes a new `RegisterThingRequest`
     public init(
-                templateName: String,
-                certificateOwnershipToken: String) {
+        templateName: String,
+        certificateOwnershipToken: String
+    ) {
         self.templateName = templateName
         self.certificateOwnershipToken = certificateOwnershipToken
         self.parameters = nil
@@ -304,7 +330,8 @@ public class RegisterThingSubscriptionRequest: Codable {
 
     /// Initializes a new `RegisterThingSubscriptionRequest`
     public init(
-                templateName: String) {
+        templateName: String
+    ) {
         self.templateName = templateName
     }
 
@@ -373,9 +400,10 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
 
     /// Initializes a new `V2ErrorResponse`
     public init(
-                statusCode: Int? = nil,
-                errorCode: String? = nil,
-                errorMessage: String? = nil) {
+        statusCode: Int? = nil,
+        errorCode: String? = nil,
+        errorMessage: String? = nil
+    ) {
         self.statusCode = statusCode
         self.errorCode = errorCode
         self.errorMessage = errorMessage
@@ -539,4 +567,3 @@ public enum IotIdentityClientError: Error, Sendable {
     /// concurrency runtime, and user-provided call-backs that threw.
     case underlying(Error)
 }
-
