@@ -335,7 +335,7 @@ jobs:
         run: |
           sed -i '' 's/swift-tools-version: 5\.[0-9][0-9]*/swift-tools-version: 6\.0/' Package.swift
           # Verify that substitution was successful
-          grep -q 'swift-tools-version:6\.0' Package.swift || (echo "No version 5.x found to update" && exit 1)
+          grep -q 'swift-tools-version: 6\.0' Package.swift || (echo "No version 5.x found to update" && exit 1)
       - name: Build ${{ env.PACKAGE_NAME }} + consumers
         run: |
           swift build
