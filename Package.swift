@@ -48,5 +48,19 @@ let package = Package(
             dependencies: ["IotShadowClient"],
             path: "Tests/IotShadowClientTests"
         ),
+        .target(
+            name: "IotIdentityClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotIdentityClient"
+        ),
+        .target(
+            name: "IotJobsClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotJobsClient"
+        ),
     ]
 )
