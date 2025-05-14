@@ -35,7 +35,7 @@ public class IotShadowClient {
     public func createNamedShadowDeltaUpdatedStream(
         request: NamedShadowDeltaUpdatedSubscriptionRequest,
         options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
-    ) async throws -> StreamingOperation {
+    ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/delta"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
         topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
@@ -89,7 +89,7 @@ public class IotShadowClient {
     public func createNamedShadowUpdatedStream(
         request: NamedShadowUpdatedSubscriptionRequest,
         options: ClientStreamOptions<ShadowUpdatedEvent>
-    ) async throws -> StreamingOperation {
+    ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update/documents"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
         topic = topic.replacingOccurrences(of: "{shadowName}", with: request.shadowName)
@@ -143,7 +143,7 @@ public class IotShadowClient {
     public func createShadowDeltaUpdatedStream(
         request: ShadowDeltaUpdatedSubscriptionRequest,
         options: ClientStreamOptions<ShadowDeltaUpdatedEvent>
-    ) async throws -> StreamingOperation {
+    ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/delta"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
@@ -195,7 +195,7 @@ public class IotShadowClient {
     ///     - `IotShadowClientError`
     public func createShadowUpdatedStream(
         request: ShadowUpdatedSubscriptionRequest, options: ClientStreamOptions<ShadowUpdatedEvent>
-    ) async throws -> StreamingOperation {
+    ) throws -> StreamingOperation {
         var topic: String = "$aws/things/{thingName}/shadow/update/documents"
         topic = topic.replacingOccurrences(of: "{thingName}", with: request.thingName)
 
@@ -239,16 +239,15 @@ public class IotShadowClient {
     ///
     /// - Parameters:
     ///     - request: `DeleteNamedShadowRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `DeleteShadowResponse`: with the corresponding response.
+    /// - Returns: `DeleteShadowResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotShadowClientError`
+    /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws
         -> DeleteShadowResponse
     {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -315,14 +314,13 @@ public class IotShadowClient {
     ///
     /// - Parameters:
     ///     - request: `DeleteShadowRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `DeleteShadowResponse`: with the corresponding response.
+    /// - Returns: `DeleteShadowResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotShadowClientError`
+    /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func deleteShadow(request: DeleteShadowRequest) async throws -> DeleteShadowResponse {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -386,14 +384,13 @@ public class IotShadowClient {
     ///
     /// - Parameters:
     ///     - request: `GetNamedShadowRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `GetShadowResponse`: with the corresponding response.
+    /// - Returns: `GetShadowResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotShadowClientError`
+    /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getNamedShadow(request: GetNamedShadowRequest) async throws -> GetShadowResponse {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -460,14 +457,13 @@ public class IotShadowClient {
     ///
     /// - Parameters:
     ///     - request: `GetShadowRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `GetShadowResponse`: with the corresponding response.
+    /// - Returns: `GetShadowResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotShadowClientError`
+    /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getShadow(request: GetShadowRequest) async throws -> GetShadowResponse {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -531,16 +527,15 @@ public class IotShadowClient {
     ///
     /// - Parameters:
     ///     - request: `UpdateNamedShadowRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `UpdateShadowResponse`: with the corresponding response.
+    /// - Returns: `UpdateShadowResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotShadowClientError`
+    /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws
         -> UpdateShadowResponse
     {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -615,14 +610,13 @@ public class IotShadowClient {
     ///
     /// - Parameters:
     ///     - request: `UpdateShadowRequest` modeled request to perform.
-    /// - Returns:
-    ///     - `UpdateShadowResponse`: with the corresponding response.
+    /// - Returns: `UpdateShadowResponse`: with the corresponding response.
     ///
-    /// - Throws:
-    ///     - `IotShadowClientError`
+    /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
+    ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func updateShadow(request: UpdateShadowRequest) async throws -> UpdateShadowResponse {
-        var correlationToken: String? = nil
-        correlationToken = UUID().uuidString
+
+        let correlationToken: String = UUID().uuidString
         request.clientToken = correlationToken
 
         // Publish Topic
@@ -689,7 +683,7 @@ public class IotShadowClient {
 /// (Potentially partial) state of an AWS IoT thing's shadow.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowState: Codable {
 
     /// The desired shadow state (from external services and devices).
@@ -699,9 +693,8 @@ public class ShadowState: Codable {
     public var reported: [String: Any]?
 
     /// Initializes a new `ShadowState`
+    /// - Parameters:
     public init() {
-        self.desired = nil
-        self.reported = nil
     }
 
     /// Assign the desired property a `ShadowState` value
@@ -721,8 +714,8 @@ public class ShadowState: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case desired,
-            reported
+        case desired
+        case reported
     }
 
     /// initialize this class containing the document trait from JSON
@@ -752,7 +745,7 @@ public class ShadowState: Codable {
 /// (Potentially partial) state of an AWS IoT thing's shadow.  Includes the delta between the reported and desired states.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowStateWithDelta: Codable {
 
     /// The desired shadow state (from external services and devices).
@@ -765,10 +758,8 @@ public class ShadowStateWithDelta: Codable {
     public var delta: [String: Any]?
 
     /// Initializes a new `ShadowStateWithDelta`
+    /// - Parameters:
     public init() {
-        self.desired = nil
-        self.reported = nil
-        self.delta = nil
     }
 
     /// Assign the desired property a `ShadowStateWithDelta` value
@@ -796,9 +787,9 @@ public class ShadowStateWithDelta: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case desired,
-            reported,
-            delta
+        case desired
+        case reported
+        case delta
     }
 
     /// initialize this class containing the document trait from JSON
@@ -834,7 +825,7 @@ public class ShadowStateWithDelta: Codable {
 /// A description of the before and after states of a device shadow.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowUpdatedEvent: Codable {
 
     /// Contains the state of the object before the update.
@@ -847,10 +838,8 @@ public class ShadowUpdatedEvent: Codable {
     public var timestamp: Foundation.Date?
 
     /// Initializes a new `ShadowUpdatedEvent`
+    /// - Parameters:
     public init() {
-        self.previous = nil
-        self.current = nil
-        self.timestamp = nil
     }
 
     /// Assign the previous property a `ShadowUpdatedEvent` value
@@ -882,7 +871,7 @@ public class ShadowUpdatedEvent: Codable {
 /// An event generated when a shadow document was updated by a request to AWS IoT.  The event payload contains only the changes requested.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowDeltaUpdatedEvent: Codable {
 
     /// Shadow properties that were updated.
@@ -901,12 +890,8 @@ public class ShadowDeltaUpdatedEvent: Codable {
     public var clientToken: String?
 
     /// Initializes a new `ShadowDeltaUpdatedEvent`
+    /// - Parameters:
     public init() {
-        self.state = nil
-        self.metadata = nil
-        self.timestamp = nil
-        self.version = nil
-        self.clientToken = nil
     }
 
     /// Assign the state property a `ShadowDeltaUpdatedEvent` value
@@ -950,11 +935,11 @@ public class ShadowDeltaUpdatedEvent: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case state,
-            metadata,
-            timestamp,
-            version,
-            clientToken
+        case state
+        case metadata
+        case timestamp
+        case version
+        case clientToken
     }
 
     /// initialize this class containing the document trait from JSON
@@ -990,7 +975,7 @@ public class ShadowDeltaUpdatedEvent: Codable {
 /// Complete state of the (classic) shadow of an AWS IoT Thing.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowUpdatedSnapshot: Codable {
 
     /// Current shadow state.
@@ -1003,10 +988,8 @@ public class ShadowUpdatedSnapshot: Codable {
     public var version: Int?
 
     /// Initializes a new `ShadowUpdatedSnapshot`
+    /// - Parameters:
     public init() {
-        self.state = nil
-        self.metadata = nil
-        self.version = nil
     }
 
     /// Assign the state property a `ShadowUpdatedSnapshot` value
@@ -1038,7 +1021,7 @@ public class ShadowUpdatedSnapshot: Codable {
 /// Contains the last-updated timestamps for each attribute in the desired and reported sections of the shadow state.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowMetadata: Codable {
 
     /// Contains the timestamps for each attribute in the desired section of a shadow's state.
@@ -1048,9 +1031,8 @@ public class ShadowMetadata: Codable {
     public var reported: [String: Any]?
 
     /// Initializes a new `ShadowMetadata`
+    /// - Parameters:
     public init() {
-        self.desired = nil
-        self.reported = nil
     }
 
     /// Assign the desired property a `ShadowMetadata` value
@@ -1070,8 +1052,8 @@ public class ShadowMetadata: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case desired,
-            reported
+        case desired
+        case reported
     }
 
     /// initialize this class containing the document trait from JSON
@@ -1101,7 +1083,7 @@ public class ShadowMetadata: Codable {
 /// Data needed to make a DeleteNamedShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DeleteNamedShadowRequest: Codable {
 
     /// AWS IoT thing to delete a named shadow from.
@@ -1114,10 +1096,6 @@ public class DeleteNamedShadowRequest: Codable {
     public var clientToken: String?
 
     /// Initializes a new `DeleteNamedShadowRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing to delete a named shadow from.
-    ///   - shadowName: `String` Name of the shadow to delete.
     public init(
         thingName: String,
         shadowName: String
@@ -1140,7 +1118,7 @@ public class DeleteNamedShadowRequest: Codable {
 /// Data needed to make a DeleteShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DeleteShadowRequest: Codable {
 
     /// AWS IoT thing to delete the (classic) shadow of.
@@ -1150,10 +1128,9 @@ public class DeleteShadowRequest: Codable {
     public var clientToken: String?
 
     /// Initializes a new `DeleteShadowRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing to delete the (classic) shadow of.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
         self.clientToken = nil
     }
@@ -1171,7 +1148,7 @@ public class DeleteShadowRequest: Codable {
 /// Data needed to make a GetNamedShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetNamedShadowRequest: Codable {
 
     /// AWS IoT thing to get the named shadow for.
@@ -1184,10 +1161,6 @@ public class GetNamedShadowRequest: Codable {
     public var clientToken: String?
 
     /// Initializes a new `GetNamedShadowRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing to get the named shadow for.
-    ///   - shadowName: `String` Name of the shadow to get.
     public init(
         thingName: String,
         shadowName: String
@@ -1210,7 +1183,7 @@ public class GetNamedShadowRequest: Codable {
 /// Data needed to make a GetShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetShadowRequest: Codable {
 
     /// AWS IoT thing to get the (classic) shadow for.
@@ -1220,10 +1193,9 @@ public class GetShadowRequest: Codable {
     public var clientToken: String?
 
     /// Initializes a new `GetShadowRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing to get the (classic) shadow for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
         self.clientToken = nil
     }
@@ -1241,7 +1213,7 @@ public class GetShadowRequest: Codable {
 /// Data needed to make an UpdateNamedShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateNamedShadowRequest: Codable {
 
     /// Aws IoT thing to update a named shadow of.
@@ -1260,10 +1232,6 @@ public class UpdateNamedShadowRequest: Codable {
     public var version: Int?
 
     /// Initializes a new `UpdateNamedShadowRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Aws IoT thing to update a named shadow of.
-    ///   - shadowName: `String` Name of the shadow to update.
     public init(
         thingName: String,
         shadowName: String
@@ -1304,7 +1272,7 @@ public class UpdateNamedShadowRequest: Codable {
 /// Data needed to make an UpdateShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateShadowRequest: Codable {
 
     /// Aws IoT thing to update the (classic) shadow of.
@@ -1320,10 +1288,9 @@ public class UpdateShadowRequest: Codable {
     public var version: Int?
 
     /// Initializes a new `UpdateShadowRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Aws IoT thing to update the (classic) shadow of.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
         self.clientToken = nil
         self.state = nil
@@ -1359,7 +1326,7 @@ public class UpdateShadowRequest: Codable {
 /// Data needed to subscribe to DeleteNamedShadow responses for an AWS IoT thing.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DeleteNamedShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing to subscribe to DeleteNamedShadow operations for.
@@ -1369,10 +1336,6 @@ public class DeleteNamedShadowSubscriptionRequest: Codable {
     public var shadowName: String
 
     /// Initializes a new `DeleteNamedShadowSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing to subscribe to DeleteNamedShadow operations for.
-    ///   - shadowName: `String` Name of the shadow to subscribe to DeleteNamedShadow operations for.
     public init(
         thingName: String,
         shadowName: String
@@ -1386,17 +1349,16 @@ public class DeleteNamedShadowSubscriptionRequest: Codable {
 /// Data needed to subscribe to DeleteShadow responses for an AWS IoT thing.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DeleteShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing to subscribe to DeleteShadow operations for.
     public var thingName: String
 
     /// Initializes a new `DeleteShadowSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing to subscribe to DeleteShadow operations for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1405,7 +1367,7 @@ public class DeleteShadowSubscriptionRequest: Codable {
 /// Data needed to subscribe to GetNamedShadow responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetNamedShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing subscribe to GetNamedShadow responses for.
@@ -1415,10 +1377,6 @@ public class GetNamedShadowSubscriptionRequest: Codable {
     public var shadowName: String
 
     /// Initializes a new `GetNamedShadowSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing subscribe to GetNamedShadow responses for.
-    ///   - shadowName: `String` Name of the shadow to subscribe to GetNamedShadow responses for.
     public init(
         thingName: String,
         shadowName: String
@@ -1432,17 +1390,16 @@ public class GetNamedShadowSubscriptionRequest: Codable {
 /// Data needed to subscribe to GetShadow responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetShadowSubscriptionRequest: Codable {
 
     /// AWS IoT thing subscribe to GetShadow responses for.
     public var thingName: String
 
     /// Initializes a new `GetShadowSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` AWS IoT thing subscribe to GetShadow responses for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1451,7 +1408,7 @@ public class GetShadowSubscriptionRequest: Codable {
 /// Data needed to subscribe to UpdateNamedShadow responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateNamedShadowSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to listen to UpdateNamedShadow responses for.
@@ -1461,10 +1418,6 @@ public class UpdateNamedShadowSubscriptionRequest: Codable {
     public var shadowName: String
 
     /// Initializes a new `UpdateNamedShadowSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the AWS IoT thing to listen to UpdateNamedShadow responses for.
-    ///   - shadowName: `String` Name of the shadow to listen to UpdateNamedShadow responses for.
     public init(
         thingName: String,
         shadowName: String
@@ -1478,17 +1431,16 @@ public class UpdateNamedShadowSubscriptionRequest: Codable {
 /// Data needed to subscribe to UpdateShadow responses.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateShadowSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to listen to UpdateShadow responses for.
     public var thingName: String
 
     /// Initializes a new `UpdateShadowSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the AWS IoT thing to listen to UpdateShadow responses for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1497,7 +1449,7 @@ public class UpdateShadowSubscriptionRequest: Codable {
 /// Data needed to subscribe to a device's NamedShadowDelta events.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get NamedShadowDelta events for.
@@ -1507,10 +1459,6 @@ public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
     public var shadowName: String
 
     /// Initializes a new `NamedShadowDeltaUpdatedSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the AWS IoT thing to get NamedShadowDelta events for.
-    ///   - shadowName: `String` Name of the shadow to get ShadowDelta events for.
     public init(
         thingName: String,
         shadowName: String
@@ -1524,7 +1472,7 @@ public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
 /// Data needed to subscribe to a device's NamedShadowUpdated events.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class NamedShadowUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get NamedShadowUpdated events for.
@@ -1534,10 +1482,6 @@ public class NamedShadowUpdatedSubscriptionRequest: Codable {
     public var shadowName: String
 
     /// Initializes a new `NamedShadowUpdatedSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the AWS IoT thing to get NamedShadowUpdated events for.
-    ///   - shadowName: `String` Name of the shadow to get NamedShadowUpdated events for.
     public init(
         thingName: String,
         shadowName: String
@@ -1551,17 +1495,16 @@ public class NamedShadowUpdatedSubscriptionRequest: Codable {
 /// Data needed to subscribe to a device's ShadowDelta events.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get ShadowDelta events for.
     public var thingName: String
 
     /// Initializes a new `ShadowDeltaUpdatedSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the AWS IoT thing to get ShadowDelta events for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1570,17 +1513,16 @@ public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
 /// Data needed to subscribe to a device's ShadowUpdated events.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ShadowUpdatedSubscriptionRequest: Codable {
 
     /// Name of the AWS IoT thing to get ShadowUpdated events for.
     public var thingName: String
 
     /// Initializes a new `ShadowUpdatedSubscriptionRequest`
-    ///
-    /// - Parameters:
-    ///   - thingName: `String` Name of the AWS IoT thing to get ShadowUpdated events for.
-    public init(thingName: String) {
+    public init(
+        thingName: String
+    ) {
         self.thingName = thingName
     }
 
@@ -1589,14 +1531,14 @@ public class ShadowUpdatedSubscriptionRequest: Codable {
 /// Response document containing details about a failed request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class ErrorResponse: Codable {
-
-    /// Opaque request-response correlation data.  Present only if a client token was used in the request.
-    public var clientToken: String?
 
     /// An HTTP response code that indicates the type of error.
     public var code: Int
+
+    /// Opaque request-response correlation data.  Present only if a client token was used in the request.
+    public var clientToken: String?
 
     /// A text message that provides additional information.
     public var message: String?
@@ -1605,12 +1547,11 @@ public class ErrorResponse: Codable {
     public var timestamp: Foundation.Date?
 
     /// Initializes a new `ErrorResponse`
-    ///
-    /// - Parameters:
-    ///   - code: `Int` An HTTP response code that indicates the type of error.
-    public init(code: Int) {
-        self.clientToken = nil
+    public init(
+        code: Int
+    ) {
         self.code = code
+        self.clientToken = nil
         self.message = nil
         self.timestamp = nil
     }
@@ -1644,53 +1585,31 @@ public class ErrorResponse: Codable {
 /// Response document containing details about a failed request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class V2ErrorResponse: Codable, @unchecked Sendable {
 
-    /// Opaque request-response correlation data.  Present only if a client token was used in the request.
-    public var clientToken: String?
-
     /// An HTTP response code that indicates the type of error.
-    public var code: Int
+    public let code: Int
+
+    /// Opaque request-response correlation data.  Present only if a client token was used in the request.
+    public let clientToken: String?
 
     /// A text message that provides additional information.
-    public var message: String?
+    public let message: String?
 
     /// The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// Initializes a new `V2ErrorResponse`
-    ///
-    /// - Parameters:
-    ///   - code: `Int` An HTTP response code that indicates the type of error.
-    public init(code: Int) {
-        self.clientToken = nil
-        self.code = code
-        self.message = nil
-        self.timestamp = nil
-    }
-
-    /// Assign the clientToken property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Opaque request-response correlation data.  Present only if a client token was used in the request.
-    public func withClientToken(clientToken: String) {
+    public init(
+        clientToken: String? = nil,
+        code: Int,
+        message: String? = nil,
+        timestamp: Foundation.Date? = nil
+    ) {
         self.clientToken = clientToken
-    }
-
-    /// Assign the message property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - message: `String` A text message that provides additional information.
-    public func withMessage(message: String) {
+        self.code = code
         self.message = message
-    }
-
-    /// Assign the timestamp property a `V2ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
-    public func withTimestamp(timestamp: Foundation.Date) {
         self.timestamp = timestamp
     }
 
@@ -1699,7 +1618,7 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
 /// Response payload to a DeleteShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class DeleteShadowResponse: Codable {
 
     /// A client token used to correlate requests and responses.
@@ -1712,10 +1631,8 @@ public class DeleteShadowResponse: Codable {
     public var version: Int?
 
     /// Initializes a new `DeleteShadowResponse`
+    /// - Parameters:
     public init() {
-        self.clientToken = nil
-        self.timestamp = nil
-        self.version = nil
     }
 
     /// Assign the clientToken property a `DeleteShadowResponse` value
@@ -1747,7 +1664,7 @@ public class DeleteShadowResponse: Codable {
 /// Response payload to a GetShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class GetShadowResponse: Codable {
 
     /// An opaque token used to correlate requests and responses.
@@ -1766,12 +1683,8 @@ public class GetShadowResponse: Codable {
     public var version: Int?
 
     /// Initializes a new `GetShadowResponse`
+    /// - Parameters:
     public init() {
-        self.clientToken = nil
-        self.state = nil
-        self.metadata = nil
-        self.timestamp = nil
-        self.version = nil
     }
 
     /// Assign the clientToken property a `GetShadowResponse` value
@@ -1819,7 +1732,7 @@ public class GetShadowResponse: Codable {
 /// Response payload to an UpdateShadow request.
 ///
 /// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after instaitiation.
+/// Use the provided builder with() functions to configure optional properties after initialization.
 public class UpdateShadowResponse: Codable {
 
     /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
@@ -1838,12 +1751,8 @@ public class UpdateShadowResponse: Codable {
     public var version: Int?
 
     /// Initializes a new `UpdateShadowResponse`
+    /// - Parameters:
     public init() {
-        self.clientToken = nil
-        self.state = nil
-        self.metadata = nil
-        self.timestamp = nil
-        self.version = nil
     }
 
     /// Assign the clientToken property a `UpdateShadowResponse` value
@@ -1890,7 +1799,7 @@ public class UpdateShadowResponse: Codable {
 
 /// Configuration options for streaming operations created from service clients
 ///
-/// `Event` is the Type that the stream deserializes MQTT messages into
+/// `Event` is the Type that the stream deserializes MQTT payload messages into
 public struct ClientStreamOptions<Event: Sendable>: Sendable {
     // Type-aliases for clarity
     public typealias StreamHandler = @Sendable (Event) -> Void
@@ -1920,7 +1829,7 @@ public struct ClientStreamOptions<Event: Sendable>: Sendable {
 }
 
 /// An event emitted by a streaming operation when an incoming message fails to deserialize
-public struct DeserializationFailureEvent: Sendable, Error {
+public struct DeserializationFailureEvent: Sendable {
 
     /// The decoding error that triggered the failure.
     public let cause: Error
@@ -1937,7 +1846,7 @@ public struct DeserializationFailureEvent: Sendable, Error {
     ///   - cause: sets the `Error` that triggered the failure.
     ///   - payload: the payload of the message that triggered the failure.
     ///   - topic: the topic of the message that triggered the failure.
-    public init(cause: Error, payload: Data, topic: String) {
+    internal init(cause: Error, payload: Data, topic: String) {
         self.cause = cause
         self.payload = payload
         self.topic = topic

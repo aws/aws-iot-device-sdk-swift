@@ -13,7 +13,10 @@ let package = Package(
     products: [
         .library(
             name: "AwsIotDeviceSdkSwift",
-            targets: ["AwsIotDeviceSdkSwift"])
+            targets: ["AwsIotDeviceSdkSwift"]),
+        .library(
+            name: "IotShadowClient",
+            targets: ["IotShadowClient"]),
     ],
     dependencies: [
         .package(
@@ -32,6 +35,32 @@ let package = Package(
             name: "AwsIotDeviceSdkSwiftTests",
             dependencies: ["AwsIotDeviceSdkSwift"],
             path: "Tests/AwsIotDeviceSdkSwiftTests"
+        ),
+        .target(
+            name: "IotShadowClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotShadowClient"
+        ),
+        .testTarget(
+            name: "IotShadowClientTests",
+            dependencies: ["IotShadowClient"],
+            path: "Tests/IotShadowClientTests"
+        ),
+        .target(
+            name: "IotIdentityClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotIdentityClient"
+        ),
+        .target(
+            name: "IotJobsClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotJobsClient"
         ),
     ]
 )
