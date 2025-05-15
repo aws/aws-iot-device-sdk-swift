@@ -246,9 +246,7 @@ public class IotShadowClient {
     public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws
         -> DeleteShadowResponse
     {
-
-        let correlationToken: String = UUID().uuidString
-        request.clientToken = correlationToken
+        let correlationToken: String = request.clientToken
 
         // Publish Topic
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/delete"
@@ -319,9 +317,7 @@ public class IotShadowClient {
     /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func deleteShadow(request: DeleteShadowRequest) async throws -> DeleteShadowResponse {
-
-        let correlationToken: String = UUID().uuidString
-        request.clientToken = correlationToken
+        let correlationToken: String = request.clientToken
 
         // Publish Topic
         var topic: String = "$aws/things/{thingName}/shadow/delete"
@@ -389,9 +385,7 @@ public class IotShadowClient {
     /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getNamedShadow(request: GetNamedShadowRequest) async throws -> GetShadowResponse {
-
-        let correlationToken: String = UUID().uuidString
-        request.clientToken = correlationToken
+        let correlationToken: String = request.clientToken
 
         // Publish Topic
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/get"
@@ -462,9 +456,7 @@ public class IotShadowClient {
     /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getShadow(request: GetShadowRequest) async throws -> GetShadowResponse {
-
-        let correlationToken: String = UUID().uuidString
-        request.clientToken = correlationToken
+        let correlationToken: String = request.clientToken
 
         // Publish Topic
         var topic: String = "$aws/things/{thingName}/shadow/get"
@@ -534,9 +526,7 @@ public class IotShadowClient {
     public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws
         -> UpdateShadowResponse
     {
-
-        let correlationToken: String = UUID().uuidString
-        request.clientToken = correlationToken
+        let correlationToken: String = request.clientToken
 
         // Publish Topic
         var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update"
@@ -615,9 +605,7 @@ public class IotShadowClient {
     /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func updateShadow(request: UpdateShadowRequest) async throws -> UpdateShadowResponse {
-
-        let correlationToken: String = UUID().uuidString
-        request.clientToken = correlationToken
+        let correlationToken: String = request.clientToken
 
         // Publish Topic
         var topic: String = "$aws/things/{thingName}/shadow/update"
@@ -682,35 +670,20 @@ public class IotShadowClient {
 
 /// (Potentially partial) state of an AWS IoT thing's shadow.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowState: Codable {
+final public class ShadowState: Codable, Sendable {
 
     /// The desired shadow state (from external services and devices).
-    public var desired: [String: Any]?
+    private let desiredInternal: [String: JSONValue]?
 
     /// The (last) reported shadow state from the device.
-    public var reported: [String: Any]?
+    private let reportedInternal: [String: JSONValue]?
 
     /// Initializes a new `ShadowState`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the desired property a `ShadowState` value
-    ///
-    /// - Parameters:
-    ///   - desired: `[String: Any]` The desired shadow state (from external services and devices).
-    public func withDesired(desired: [String: Any]) {
-        self.desired = desired
-    }
-
-    /// Assign the reported property a `ShadowState` value
-    ///
-    /// - Parameters:
-    ///   - reported: `[String: Any]` The (last) reported shadow state from the device.
-    public func withReported(reported: [String: Any]) {
-        self.reported = reported
+    public init(
+        desired: [String: Any]? = nil, reported: [String: Any]? = nil
+    ) {
+        self.desiredInternal = desired?.asJSONValueDictionary()
+        self.reportedInternal = reported?.asJSONValueDictionary()
     }
 
     enum CodingKeys: String, CodingKey {
@@ -718,72 +691,55 @@ public class ShadowState: Codable {
         case reported
     }
 
+    public var desired: [String: Any]? {
+        return desiredInternal?.asAnyDictionary()
+    }
+    public var reported: [String: Any]? {
+        return reportedInternal?.asAnyDictionary()
+    }
+
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
-        self.desired = desiredJSON?.asAnyDictionary()
+        self.desiredInternal = desiredJSON
         let reportedJSON = try container.decodeIfPresent(
             [String: JSONValue].self, forKey: .reported)
-        self.reported = reportedJSON?.asAnyDictionary()
+        self.reportedInternal = reportedJSON
     }
 
     /// encode this class containing the document trait into JSON
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let desired = desired {
-            let desiredJSON = desired.asJSONValueDictionary()
-            try container.encode(desiredJSON, forKey: .desired)
+        if let desiredInternal = desiredInternal {
+            try container.encode(desiredInternal, forKey: .desired)
         }
-        if let reported = reported {
-            let reportedJSON = reported.asJSONValueDictionary()
-            try container.encode(reportedJSON, forKey: .reported)
+        if let reportedInternal = reportedInternal {
+            try container.encode(reportedInternal, forKey: .reported)
         }
     }
 }
 
 /// (Potentially partial) state of an AWS IoT thing's shadow.  Includes the delta between the reported and desired states.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowStateWithDelta: Codable {
+final public class ShadowStateWithDelta: Codable, Sendable {
 
     /// The desired shadow state (from external services and devices).
-    public var desired: [String: Any]?
+    private let desiredInternal: [String: JSONValue]?
 
     /// The (last) reported shadow state from the device.
-    public var reported: [String: Any]?
+    private let reportedInternal: [String: JSONValue]?
 
     /// The delta between the reported and desired states.
-    public var delta: [String: Any]?
+    private let deltaInternal: [String: JSONValue]?
 
     /// Initializes a new `ShadowStateWithDelta`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the desired property a `ShadowStateWithDelta` value
-    ///
-    /// - Parameters:
-    ///   - desired: `[String: Any]` The desired shadow state (from external services and devices).
-    public func withDesired(desired: [String: Any]) {
-        self.desired = desired
-    }
-
-    /// Assign the reported property a `ShadowStateWithDelta` value
-    ///
-    /// - Parameters:
-    ///   - reported: `[String: Any]` The (last) reported shadow state from the device.
-    public func withReported(reported: [String: Any]) {
-        self.reported = reported
-    }
-
-    /// Assign the delta property a `ShadowStateWithDelta` value
-    ///
-    /// - Parameters:
-    ///   - delta: `[String: Any]` The delta between the reported and desired states.
-    public func withDelta(delta: [String: Any]) {
-        self.delta = delta
+    public init(
+        desired: [String: Any]? = nil, reported: [String: Any]? = nil, delta: [String: Any]? = nil
+    ) {
+        self.desiredInternal = desired?.asJSONValueDictionary()
+        self.reportedInternal = reported?.asJSONValueDictionary()
+        self.deltaInternal = delta?.asJSONValueDictionary()
     }
 
     enum CodingKeys: String, CodingKey {
@@ -792,77 +748,63 @@ public class ShadowStateWithDelta: Codable {
         case delta
     }
 
+    public var desired: [String: Any]? {
+        return desiredInternal?.asAnyDictionary()
+    }
+    public var reported: [String: Any]? {
+        return reportedInternal?.asAnyDictionary()
+    }
+    public var delta: [String: Any]? {
+        return deltaInternal?.asAnyDictionary()
+    }
+
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
-        self.desired = desiredJSON?.asAnyDictionary()
+        self.desiredInternal = desiredJSON
         let reportedJSON = try container.decodeIfPresent(
             [String: JSONValue].self, forKey: .reported)
-        self.reported = reportedJSON?.asAnyDictionary()
+        self.reportedInternal = reportedJSON
         let deltaJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .delta)
-        self.delta = deltaJSON?.asAnyDictionary()
+        self.deltaInternal = deltaJSON
     }
 
     /// encode this class containing the document trait into JSON
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let desired = desired {
-            let desiredJSON = desired.asJSONValueDictionary()
-            try container.encode(desiredJSON, forKey: .desired)
+        if let desiredInternal = desiredInternal {
+            try container.encode(desiredInternal, forKey: .desired)
         }
-        if let reported = reported {
-            let reportedJSON = reported.asJSONValueDictionary()
-            try container.encode(reportedJSON, forKey: .reported)
+        if let reportedInternal = reportedInternal {
+            try container.encode(reportedInternal, forKey: .reported)
         }
-        if let delta = delta {
-            let deltaJSON = delta.asJSONValueDictionary()
-            try container.encode(deltaJSON, forKey: .delta)
+        if let deltaInternal = deltaInternal {
+            try container.encode(deltaInternal, forKey: .delta)
         }
     }
 }
 
 /// A description of the before and after states of a device shadow.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowUpdatedEvent: Codable {
+final public class ShadowUpdatedEvent: Codable, Sendable {
 
     /// Contains the state of the object before the update.
-    public var previous: ShadowUpdatedSnapshot?
+    public let previous: ShadowUpdatedSnapshot?
 
     /// Contains the state of the object after the update.
-    public var current: ShadowUpdatedSnapshot?
+    public let current: ShadowUpdatedSnapshot?
 
     /// The time the event was generated by AWS IoT.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// Initializes a new `ShadowUpdatedEvent`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the previous property a `ShadowUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - previous: `ShadowUpdatedSnapshot` Contains the state of the object before the update.
-    public func withPrevious(previous: ShadowUpdatedSnapshot) {
+    public init(
+        previous: ShadowUpdatedSnapshot? = nil, current: ShadowUpdatedSnapshot? = nil,
+        timestamp: Foundation.Date? = nil
+    ) {
         self.previous = previous
-    }
-
-    /// Assign the current property a `ShadowUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - current: `ShadowUpdatedSnapshot` Contains the state of the object after the update.
-    public func withCurrent(current: ShadowUpdatedSnapshot) {
         self.current = current
-    }
-
-    /// Assign the timestamp property a `ShadowUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The time the event was generated by AWS IoT.
-    public func withTimestamp(timestamp: Foundation.Date) {
         self.timestamp = timestamp
     }
 
@@ -870,68 +812,33 @@ public class ShadowUpdatedEvent: Codable {
 
 /// An event generated when a shadow document was updated by a request to AWS IoT.  The event payload contains only the changes requested.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowDeltaUpdatedEvent: Codable {
+final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
 
     /// Shadow properties that were updated.
-    public var state: [String: Any]?
+    private let stateInternal: [String: JSONValue]?
 
     /// Timestamps for the shadow properties that were updated.
-    public var metadata: [String: Any]?
+    private let metadataInternal: [String: JSONValue]?
 
     /// The time the event was generated by AWS IoT.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// The current version of the document for the device's shadow.
-    public var version: Int?
+    public let version: Int?
 
     /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
-    public var clientToken: String?
+    public let clientToken: String
 
     /// Initializes a new `ShadowDeltaUpdatedEvent`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the state property a `ShadowDeltaUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - state: `[String: Any]` Shadow properties that were updated.
-    public func withState(state: [String: Any]) {
-        self.state = state
-    }
-
-    /// Assign the metadata property a `ShadowDeltaUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - metadata: `[String: Any]` Timestamps for the shadow properties that were updated.
-    public func withMetadata(metadata: [String: Any]) {
-        self.metadata = metadata
-    }
-
-    /// Assign the timestamp property a `ShadowDeltaUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The time the event was generated by AWS IoT.
-    public func withTimestamp(timestamp: Foundation.Date) {
+    public init(
+        state: [String: Any]? = nil, metadata: [String: Any]? = nil,
+        timestamp: Foundation.Date? = nil, version: Int? = nil
+    ) {
+        self.stateInternal = state?.asJSONValueDictionary()
+        self.metadataInternal = metadata?.asJSONValueDictionary()
         self.timestamp = timestamp
-    }
-
-    /// Assign the version property a `ShadowDeltaUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` The current version of the document for the device's shadow.
-    public func withVersion(version: Int) {
         self.version = version
-    }
-
-    /// Assign the clientToken property a `ShadowDeltaUpdatedEvent` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
+        self.clientToken = UUID().uuidString
     }
 
     enum CodingKeys: String, CodingKey {
@@ -942,77 +849,59 @@ public class ShadowDeltaUpdatedEvent: Codable {
         case clientToken
     }
 
+    public var state: [String: Any]? {
+        return stateInternal?.asAnyDictionary()
+    }
+    public var metadata: [String: Any]? {
+        return metadataInternal?.asAnyDictionary()
+    }
+
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let stateJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .state)
-        self.state = stateJSON?.asAnyDictionary()
+        self.stateInternal = stateJSON
         let metadataJSON = try container.decodeIfPresent(
             [String: JSONValue].self, forKey: .metadata)
-        self.metadata = metadataJSON?.asAnyDictionary()
+        self.metadataInternal = metadataJSON
         self.timestamp = try container.decodeIfPresent(Foundation.Date.self, forKey: .timestamp)
         self.version = try container.decodeIfPresent(Int.self, forKey: .version)
-        self.clientToken = try container.decodeIfPresent(String.self, forKey: .clientToken)
+        self.clientToken = try container.decode(String.self, forKey: .clientToken)
     }
 
     /// encode this class containing the document trait into JSON
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let state = state {
-            let stateJSON = state.asJSONValueDictionary()
-            try container.encode(stateJSON, forKey: .state)
+        if let stateInternal = stateInternal {
+            try container.encode(stateInternal, forKey: .state)
         }
-        if let metadata = metadata {
-            let metadataJSON = metadata.asJSONValueDictionary()
-            try container.encode(metadataJSON, forKey: .metadata)
+        if let metadataInternal = metadataInternal {
+            try container.encode(metadataInternal, forKey: .metadata)
         }
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(version, forKey: .version)
-        try container.encode(clientToken, forKey: .clientToken)
     }
 }
 
 /// Complete state of the (classic) shadow of an AWS IoT Thing.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowUpdatedSnapshot: Codable {
+final public class ShadowUpdatedSnapshot: Codable, Sendable {
 
     /// Current shadow state.
-    public var state: ShadowState?
+    public let state: ShadowState?
 
     /// Contains the timestamps for each attribute in the desired and reported sections of the state.
-    public var metadata: ShadowMetadata?
+    public let metadata: ShadowMetadata?
 
     /// The current version of the document for the device's shadow.
-    public var version: Int?
+    public let version: Int?
 
     /// Initializes a new `ShadowUpdatedSnapshot`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the state property a `ShadowUpdatedSnapshot` value
-    ///
-    /// - Parameters:
-    ///   - state: `ShadowState` Current shadow state.
-    public func withState(state: ShadowState) {
+    public init(
+        state: ShadowState? = nil, metadata: ShadowMetadata? = nil, version: Int? = nil
+    ) {
         self.state = state
-    }
-
-    /// Assign the metadata property a `ShadowUpdatedSnapshot` value
-    ///
-    /// - Parameters:
-    ///   - metadata: `ShadowMetadata` Contains the timestamps for each attribute in the desired and reported sections of the state.
-    public func withMetadata(metadata: ShadowMetadata) {
         self.metadata = metadata
-    }
-
-    /// Assign the version property a `ShadowUpdatedSnapshot` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` The current version of the document for the device's shadow.
-    public func withVersion(version: Int) {
         self.version = version
     }
 
@@ -1020,35 +909,20 @@ public class ShadowUpdatedSnapshot: Codable {
 
 /// Contains the last-updated timestamps for each attribute in the desired and reported sections of the shadow state.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowMetadata: Codable {
+final public class ShadowMetadata: Codable, Sendable {
 
     /// Contains the timestamps for each attribute in the desired section of a shadow's state.
-    public var desired: [String: Any]?
+    private let desiredInternal: [String: JSONValue]?
 
     /// Contains the timestamps for each attribute in the reported section of a shadow's state.
-    public var reported: [String: Any]?
+    private let reportedInternal: [String: JSONValue]?
 
     /// Initializes a new `ShadowMetadata`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the desired property a `ShadowMetadata` value
-    ///
-    /// - Parameters:
-    ///   - desired: `[String: Any]` Contains the timestamps for each attribute in the desired section of a shadow's state.
-    public func withDesired(desired: [String: Any]) {
-        self.desired = desired
-    }
-
-    /// Assign the reported property a `ShadowMetadata` value
-    ///
-    /// - Parameters:
-    ///   - reported: `[String: Any]` Contains the timestamps for each attribute in the reported section of a shadow's state.
-    public func withReported(reported: [String: Any]) {
-        self.reported = reported
+    public init(
+        desired: [String: Any]? = nil, reported: [String: Any]? = nil
+    ) {
+        self.desiredInternal = desired?.asJSONValueDictionary()
+        self.reportedInternal = reported?.asJSONValueDictionary()
     }
 
     enum CodingKeys: String, CodingKey {
@@ -1056,289 +930,196 @@ public class ShadowMetadata: Codable {
         case reported
     }
 
+    public var desired: [String: Any]? {
+        return desiredInternal?.asAnyDictionary()
+    }
+    public var reported: [String: Any]? {
+        return reportedInternal?.asAnyDictionary()
+    }
+
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let desiredJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .desired)
-        self.desired = desiredJSON?.asAnyDictionary()
+        self.desiredInternal = desiredJSON
         let reportedJSON = try container.decodeIfPresent(
             [String: JSONValue].self, forKey: .reported)
-        self.reported = reportedJSON?.asAnyDictionary()
+        self.reportedInternal = reportedJSON
     }
 
     /// encode this class containing the document trait into JSON
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        if let desired = desired {
-            let desiredJSON = desired.asJSONValueDictionary()
-            try container.encode(desiredJSON, forKey: .desired)
+        if let desiredInternal = desiredInternal {
+            try container.encode(desiredInternal, forKey: .desired)
         }
-        if let reported = reported {
-            let reportedJSON = reported.asJSONValueDictionary()
-            try container.encode(reportedJSON, forKey: .reported)
+        if let reportedInternal = reportedInternal {
+            try container.encode(reportedInternal, forKey: .reported)
         }
     }
 }
 
 /// Data needed to make a DeleteNamedShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class DeleteNamedShadowRequest: Codable {
+final public class DeleteNamedShadowRequest: Codable, Sendable {
 
     /// AWS IoT thing to delete a named shadow from.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to delete.
-    public var shadowName: String
+    public let shadowName: String
 
-    /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public var clientToken: String?
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `DeleteNamedShadowRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
-        self.clientToken = nil
-    }
-
-    /// Assign the clientToken property a `DeleteNamedShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Data needed to make a DeleteShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class DeleteShadowRequest: Codable {
+final public class DeleteShadowRequest: Codable, Sendable {
 
     /// AWS IoT thing to delete the (classic) shadow of.
-    public var thingName: String
+    public let thingName: String
 
-    /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public var clientToken: String?
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `DeleteShadowRequest`
     public init(
         thingName: String
     ) {
         self.thingName = thingName
-        self.clientToken = nil
-    }
-
-    /// Assign the clientToken property a `DeleteShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Data needed to make a GetNamedShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class GetNamedShadowRequest: Codable {
+final public class GetNamedShadowRequest: Codable, Sendable {
 
     /// AWS IoT thing to get the named shadow for.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to get.
-    public var shadowName: String
+    public let shadowName: String
 
-    /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public var clientToken: String?
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `GetNamedShadowRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
-        self.clientToken = nil
-    }
-
-    /// Assign the clientToken property a `GetNamedShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Data needed to make a GetShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class GetShadowRequest: Codable {
+final public class GetShadowRequest: Codable, Sendable {
 
     /// AWS IoT thing to get the (classic) shadow for.
-    public var thingName: String
+    public let thingName: String
 
-    /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public var clientToken: String?
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `GetShadowRequest`
     public init(
         thingName: String
     ) {
         self.thingName = thingName
-        self.clientToken = nil
-    }
-
-    /// Assign the clientToken property a `GetShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Data needed to make an UpdateNamedShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class UpdateNamedShadowRequest: Codable {
+final public class UpdateNamedShadowRequest: Codable, Sendable {
 
     /// Aws IoT thing to update a named shadow of.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to update.
-    public var shadowName: String
-
-    /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public var clientToken: String?
+    public let shadowName: String
 
     /// Requested changes to shadow state.  Updates affect only the fields specified.
-    public var state: ShadowState?
+    public let state: ShadowState?
 
     /// (Optional) The Device Shadow service applies the update only if the specified version matches the latest version.
-    public var version: Int?
+    public let version: Int?
+
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `UpdateNamedShadowRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String, state: ShadowState? = nil, version: Int? = nil
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
-        self.clientToken = nil
-        self.state = nil
-        self.version = nil
-    }
-
-    /// Assign the clientToken property a `UpdateNamedShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
-    }
-
-    /// Assign the state property a `UpdateNamedShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - state: `ShadowState` Requested changes to shadow state.  Updates affect only the fields specified.
-    public func withState(state: ShadowState) {
         self.state = state
-    }
-
-    /// Assign the version property a `UpdateNamedShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` (Optional) The Device Shadow service applies the update only if the specified version matches the latest version.
-    public func withVersion(version: Int) {
         self.version = version
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Data needed to make an UpdateShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class UpdateShadowRequest: Codable {
+final public class UpdateShadowRequest: Codable, Sendable {
 
     /// Aws IoT thing to update the (classic) shadow of.
-    public var thingName: String
-
-    /// Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public var clientToken: String?
+    public let thingName: String
 
     /// Requested changes to the shadow state.  Updates affect only the fields specified.
-    public var state: ShadowState?
+    public let state: ShadowState?
 
     /// (Optional) The Device Shadow service processes the update only if the specified version matches the latest version.
-    public var version: Int?
+    public let version: Int?
+
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `UpdateShadowRequest`
     public init(
-        thingName: String
+        thingName: String, state: ShadowState? = nil, version: Int? = nil
     ) {
         self.thingName = thingName
-        self.clientToken = nil
-        self.state = nil
-        self.version = nil
-    }
-
-    /// Assign the clientToken property a `UpdateShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Optional. A client token used to correlate requests and responses. Enter an arbitrary value here and it is reflected in the response.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
-    }
-
-    /// Assign the state property a `UpdateShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - state: `ShadowState` Requested changes to the shadow state.  Updates affect only the fields specified.
-    public func withState(state: ShadowState) {
         self.state = state
-    }
-
-    /// Assign the version property a `UpdateShadowRequest` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` (Optional) The Device Shadow service processes the update only if the specified version matches the latest version.
-    public func withVersion(version: Int) {
         self.version = version
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Data needed to subscribe to DeleteNamedShadow responses for an AWS IoT thing.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class DeleteNamedShadowSubscriptionRequest: Codable {
+final public class DeleteNamedShadowSubscriptionRequest: Codable, Sendable {
 
     /// AWS IoT thing to subscribe to DeleteNamedShadow operations for.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to subscribe to DeleteNamedShadow operations for.
-    public var shadowName: String
+    public let shadowName: String
 
     /// Initializes a new `DeleteNamedShadowSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
@@ -1348,12 +1129,10 @@ public class DeleteNamedShadowSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to DeleteShadow responses for an AWS IoT thing.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class DeleteShadowSubscriptionRequest: Codable {
+final public class DeleteShadowSubscriptionRequest: Codable, Sendable {
 
     /// AWS IoT thing to subscribe to DeleteShadow operations for.
-    public var thingName: String
+    public let thingName: String
 
     /// Initializes a new `DeleteShadowSubscriptionRequest`
     public init(
@@ -1366,20 +1145,17 @@ public class DeleteShadowSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to GetNamedShadow responses.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class GetNamedShadowSubscriptionRequest: Codable {
+final public class GetNamedShadowSubscriptionRequest: Codable, Sendable {
 
     /// AWS IoT thing subscribe to GetNamedShadow responses for.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to subscribe to GetNamedShadow responses for.
-    public var shadowName: String
+    public let shadowName: String
 
     /// Initializes a new `GetNamedShadowSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
@@ -1389,12 +1165,10 @@ public class GetNamedShadowSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to GetShadow responses.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class GetShadowSubscriptionRequest: Codable {
+final public class GetShadowSubscriptionRequest: Codable, Sendable {
 
     /// AWS IoT thing subscribe to GetShadow responses for.
-    public var thingName: String
+    public let thingName: String
 
     /// Initializes a new `GetShadowSubscriptionRequest`
     public init(
@@ -1407,20 +1181,17 @@ public class GetShadowSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to UpdateNamedShadow responses.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class UpdateNamedShadowSubscriptionRequest: Codable {
+final public class UpdateNamedShadowSubscriptionRequest: Codable, Sendable {
 
     /// Name of the AWS IoT thing to listen to UpdateNamedShadow responses for.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to listen to UpdateNamedShadow responses for.
-    public var shadowName: String
+    public let shadowName: String
 
     /// Initializes a new `UpdateNamedShadowSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
@@ -1430,12 +1201,10 @@ public class UpdateNamedShadowSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to UpdateShadow responses.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class UpdateShadowSubscriptionRequest: Codable {
+final public class UpdateShadowSubscriptionRequest: Codable, Sendable {
 
     /// Name of the AWS IoT thing to listen to UpdateShadow responses for.
-    public var thingName: String
+    public let thingName: String
 
     /// Initializes a new `UpdateShadowSubscriptionRequest`
     public init(
@@ -1448,20 +1217,17 @@ public class UpdateShadowSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to a device's NamedShadowDelta events.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
+final public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable, Sendable {
 
     /// Name of the AWS IoT thing to get NamedShadowDelta events for.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to get ShadowDelta events for.
-    public var shadowName: String
+    public let shadowName: String
 
     /// Initializes a new `NamedShadowDeltaUpdatedSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
@@ -1471,20 +1237,17 @@ public class NamedShadowDeltaUpdatedSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to a device's NamedShadowUpdated events.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class NamedShadowUpdatedSubscriptionRequest: Codable {
+final public class NamedShadowUpdatedSubscriptionRequest: Codable, Sendable {
 
     /// Name of the AWS IoT thing to get NamedShadowUpdated events for.
-    public var thingName: String
+    public let thingName: String
 
     /// Name of the shadow to get NamedShadowUpdated events for.
-    public var shadowName: String
+    public let shadowName: String
 
     /// Initializes a new `NamedShadowUpdatedSubscriptionRequest`
     public init(
-        thingName: String,
-        shadowName: String
+        thingName: String, shadowName: String
     ) {
         self.thingName = thingName
         self.shadowName = shadowName
@@ -1494,12 +1257,10 @@ public class NamedShadowUpdatedSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to a device's ShadowDelta events.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
+final public class ShadowDeltaUpdatedSubscriptionRequest: Codable, Sendable {
 
     /// Name of the AWS IoT thing to get ShadowDelta events for.
-    public var thingName: String
+    public let thingName: String
 
     /// Initializes a new `ShadowDeltaUpdatedSubscriptionRequest`
     public init(
@@ -1512,12 +1273,10 @@ public class ShadowDeltaUpdatedSubscriptionRequest: Codable {
 
 /// Data needed to subscribe to a device's ShadowUpdated events.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ShadowUpdatedSubscriptionRequest: Codable {
+final public class ShadowUpdatedSubscriptionRequest: Codable, Sendable {
 
     /// Name of the AWS IoT thing to get ShadowUpdated events for.
-    public var thingName: String
+    public let thingName: String
 
     /// Initializes a new `ShadowUpdatedSubscriptionRequest`
     public init(
@@ -1530,69 +1289,10 @@ public class ShadowUpdatedSubscriptionRequest: Codable {
 
 /// Response document containing details about a failed request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class ErrorResponse: Codable {
-
-    /// An HTTP response code that indicates the type of error.
-    public var code: Int
-
-    /// Opaque request-response correlation data.  Present only if a client token was used in the request.
-    public var clientToken: String?
-
-    /// A text message that provides additional information.
-    public var message: String?
-
-    /// The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
-    public var timestamp: Foundation.Date?
-
-    /// Initializes a new `ErrorResponse`
-    public init(
-        code: Int
-    ) {
-        self.code = code
-        self.clientToken = nil
-        self.message = nil
-        self.timestamp = nil
-    }
-
-    /// Assign the clientToken property a `ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` Opaque request-response correlation data.  Present only if a client token was used in the request.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
-    }
-
-    /// Assign the message property a `ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - message: `String` A text message that provides additional information.
-    public func withMessage(message: String) {
-        self.message = message
-    }
-
-    /// Assign the timestamp property a `ErrorResponse` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
-    public func withTimestamp(timestamp: Foundation.Date) {
-        self.timestamp = timestamp
-    }
-
-}
-
-/// Response document containing details about a failed request.
-///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class V2ErrorResponse: Codable, @unchecked Sendable {
+final public class ErrorResponse: Codable, Sendable {
 
     /// An HTTP response code that indicates the type of error.
     public let code: Int
-
-    /// Opaque request-response correlation data.  Present only if a client token was used in the request.
-    public let clientToken: String?
 
     /// A text message that provides additional information.
     public let message: String?
@@ -1600,199 +1300,135 @@ public class V2ErrorResponse: Codable, @unchecked Sendable {
     /// The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
     public let timestamp: Foundation.Date?
 
-    /// Initializes a new `V2ErrorResponse`
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
+
+    /// Initializes a new `ErrorResponse`
     public init(
-        clientToken: String? = nil,
-        code: Int,
-        message: String? = nil,
-        timestamp: Foundation.Date? = nil
+        code: Int, message: String? = nil, timestamp: Foundation.Date? = nil
     ) {
-        self.clientToken = clientToken
         self.code = code
         self.message = message
         self.timestamp = timestamp
+        self.clientToken = UUID().uuidString
+    }
+
+}
+
+/// Response document containing details about a failed request.
+///
+final public class V2ErrorResponse: Codable, Sendable {
+
+    /// An HTTP response code that indicates the type of error.
+    public let code: Int
+
+    /// A text message that provides additional information.
+    public let message: String?
+
+    /// The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
+    public let timestamp: Foundation.Date?
+
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
+
+    /// Initializes a new `V2ErrorResponse`
+    public init(
+        code: Int, message: String? = nil, timestamp: Foundation.Date? = nil
+    ) {
+        self.code = code
+        self.message = message
+        self.timestamp = timestamp
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Response payload to a DeleteShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class DeleteShadowResponse: Codable {
-
-    /// A client token used to correlate requests and responses.
-    public var clientToken: String?
+final public class DeleteShadowResponse: Codable, Sendable {
 
     /// The time the response was generated by AWS IoT.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// The current version of the document for the device's shadow.
-    public var version: Int?
+    public let version: Int?
+
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `DeleteShadowResponse`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the clientToken property a `DeleteShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` A client token used to correlate requests and responses.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
-    }
-
-    /// Assign the timestamp property a `DeleteShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The time the response was generated by AWS IoT.
-    public func withTimestamp(timestamp: Foundation.Date) {
+    public init(
+        timestamp: Foundation.Date? = nil, version: Int? = nil
+    ) {
         self.timestamp = timestamp
-    }
-
-    /// Assign the version property a `DeleteShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` The current version of the document for the device's shadow.
-    public func withVersion(version: Int) {
         self.version = version
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Response payload to a GetShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class GetShadowResponse: Codable {
-
-    /// An opaque token used to correlate requests and responses.
-    public var clientToken: String?
+final public class GetShadowResponse: Codable, Sendable {
 
     /// The (classic) shadow state of the AWS IoT thing.
-    public var state: ShadowStateWithDelta?
+    public let state: ShadowStateWithDelta?
 
     /// Contains the timestamps for each attribute in the desired and reported sections of the state.
-    public var metadata: ShadowMetadata?
+    public let metadata: ShadowMetadata?
 
     /// The time the response was generated by AWS IoT.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// The current version of the document for the device's shadow shared in AWS IoT. It is increased by one over the previous version of the document.
-    public var version: Int?
+    public let version: Int?
+
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `GetShadowResponse`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the clientToken property a `GetShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` An opaque token used to correlate requests and responses.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
-    }
-
-    /// Assign the state property a `GetShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - state: `ShadowStateWithDelta` The (classic) shadow state of the AWS IoT thing.
-    public func withState(state: ShadowStateWithDelta) {
+    public init(
+        state: ShadowStateWithDelta? = nil, metadata: ShadowMetadata? = nil,
+        timestamp: Foundation.Date? = nil, version: Int? = nil
+    ) {
         self.state = state
-    }
-
-    /// Assign the metadata property a `GetShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - metadata: `ShadowMetadata` Contains the timestamps for each attribute in the desired and reported sections of the state.
-    public func withMetadata(metadata: ShadowMetadata) {
         self.metadata = metadata
-    }
-
-    /// Assign the timestamp property a `GetShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The time the response was generated by AWS IoT.
-    public func withTimestamp(timestamp: Foundation.Date) {
         self.timestamp = timestamp
-    }
-
-    /// Assign the version property a `GetShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` The current version of the document for the device's shadow shared in AWS IoT. It is increased by one over the previous version of the document.
-    public func withVersion(version: Int) {
         self.version = version
+        self.clientToken = UUID().uuidString
     }
 
 }
 
 /// Response payload to an UpdateShadow request.
 ///
-/// This class initializes with all optional properties set to 'nil'.
-/// Use the provided builder with() functions to configure optional properties after initialization.
-public class UpdateShadowResponse: Codable {
-
-    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
-    public var clientToken: String?
+final public class UpdateShadowResponse: Codable, Sendable {
 
     /// Updated device shadow state.
-    public var state: ShadowState?
+    public let state: ShadowState?
 
     /// Contains the timestamps for each attribute in the desired and reported sections so that you can determine when the state was updated.
-    public var metadata: ShadowMetadata?
+    public let metadata: ShadowMetadata?
 
     /// The time the response was generated by AWS IoT.
-    public var timestamp: Foundation.Date?
+    public let timestamp: Foundation.Date?
 
     /// The current version of the document for the device's shadow shared in AWS IoT. It is increased by one over the previous version of the document.
-    public var version: Int?
+    public let version: Int?
+
+    /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+    public let clientToken: String
 
     /// Initializes a new `UpdateShadowResponse`
-    /// - Parameters:
-    public init() {
-    }
-
-    /// Assign the clientToken property a `UpdateShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - clientToken: `String` An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
-    public func withClientToken(clientToken: String) {
-        self.clientToken = clientToken
-    }
-
-    /// Assign the state property a `UpdateShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - state: `ShadowState` Updated device shadow state.
-    public func withState(state: ShadowState) {
+    public init(
+        state: ShadowState? = nil, metadata: ShadowMetadata? = nil,
+        timestamp: Foundation.Date? = nil, version: Int? = nil
+    ) {
         self.state = state
-    }
-
-    /// Assign the metadata property a `UpdateShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - metadata: `ShadowMetadata` Contains the timestamps for each attribute in the desired and reported sections so that you can determine when the state was updated.
-    public func withMetadata(metadata: ShadowMetadata) {
         self.metadata = metadata
-    }
-
-    /// Assign the timestamp property a `UpdateShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - timestamp: `Foundation.Date` The time the response was generated by AWS IoT.
-    public func withTimestamp(timestamp: Foundation.Date) {
         self.timestamp = timestamp
-    }
-
-    /// Assign the version property a `UpdateShadowResponse` value
-    ///
-    /// - Parameters:
-    ///   - version: `Int` The current version of the document for the device's shadow shared in AWS IoT. It is increased by one over the previous version of the document.
-    public func withVersion(version: Int) {
         self.version = version
+        self.clientToken = UUID().uuidString
     }
 
 }

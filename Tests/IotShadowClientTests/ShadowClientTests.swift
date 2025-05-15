@@ -118,12 +118,10 @@ class ShadowClientTests: XCTestCase {
         shadowName: String,
         state: [String: Any]
     ) async throws {
-        let shadowState: ShadowState = ShadowState()
-        shadowState.withDesired(desired: state)
+        let shadowState: ShadowState = ShadowState(desired: state)
 
         let updateRequest: UpdateNamedShadowRequest = UpdateNamedShadowRequest(
-            thingName: thingName, shadowName: shadowName)
-        updateRequest.withState(state: shadowState)
+            thingName: thingName, shadowName: shadowName, state: shadowState)
 
         do {
             let _ = try await shadowClient.updateNamedShadow(
