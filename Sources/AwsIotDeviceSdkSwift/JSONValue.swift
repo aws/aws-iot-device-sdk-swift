@@ -1,6 +1,6 @@
 import Foundation
 
-public enum JSONValue: Codable {
+public enum JSONValue: Codable, Sendable {
     case string(String)
     case int(Int)
     case double(Double)
@@ -28,7 +28,8 @@ public enum JSONValue: Codable {
         } else {
             throw DecodingError.dataCorruptedError(
                 in: container,
-                debugDescription: "Unsupported JSON type")
+                debugDescription: "Unsupported JSON type"
+            )
         }
     }
 
