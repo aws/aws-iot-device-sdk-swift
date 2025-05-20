@@ -14,8 +14,8 @@ enum MqttTestError: Error {
 class Mqtt5ClientTests: XCBaseTestCase {
 
     // DEBUG WIP this can be reduced to remove things we don't test at the SDK level
-    class MqttTestContext {
-        public var contextName: String
+    final class MqttTestContext: @unchecked Sendable {
+        public let contextName: String
 
         public var onPublishReceived: OnPublishReceived?
         public var onLifecycleEventStopped: OnLifecycleEventStopped?
