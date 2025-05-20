@@ -47,7 +47,7 @@ public class IotShadowClient {
             },
             incomingPublishCallback: { publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try JSONDecoder().decode(
                         ShadowDeltaUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
@@ -101,7 +101,7 @@ public class IotShadowClient {
             },
             incomingPublishCallback: { publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try JSONDecoder().decode(
                         ShadowUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
@@ -154,7 +154,7 @@ public class IotShadowClient {
             },
             incomingPublishCallback: { publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try JSONDecoder().decode(
                         ShadowDeltaUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
@@ -206,7 +206,7 @@ public class IotShadowClient {
             },
             incomingPublishCallback: { publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try JSONDecoder().decode(
                         ShadowUpdatedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {

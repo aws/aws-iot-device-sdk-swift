@@ -46,7 +46,7 @@ public class IotJobsClient {
             },
             incomingPublishCallback: { publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try JSONDecoder().decode(
                         JobExecutionsChangedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
@@ -99,7 +99,7 @@ public class IotJobsClient {
             },
             incomingPublishCallback: { publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try JSONDecoder().decode(
                         NextJobExecutionChangedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
