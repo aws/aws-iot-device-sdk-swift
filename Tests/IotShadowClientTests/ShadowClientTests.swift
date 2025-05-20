@@ -20,6 +20,11 @@ class ShadowClientTests: XCTestCase {
         return result
     }
 
+    // Helper function that tries to serialize
+    let jsonData: ([String: Any]) throws -> Data = { dict in
+        try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
+    }
+
     override func setUp() {
         super.setUp()
         IotDeviceSdk.initialize()
@@ -40,9 +45,9 @@ class ShadowClientTests: XCTestCase {
         #endif
     }
 
-    func jsonData(from dict: [String: Any]) throws -> Data {
-        try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
-    }
+    // func jsonData(from dict: [String: Any]) throws -> Data {
+    //     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
+    // }
 
     // Helper function that creates an MqttClient, connects the client, uses the client to create an
     // IotShadowClient, then returns the shadow client in a ready for use state.
@@ -204,6 +209,9 @@ class ShadowClientTests: XCTestCase {
         let stateInitial = ["Color": colorInitial]
         let updateResult: [String: Any] = ["Color": colorUpdated]
         let stateUpdate = ["Color": colorUpdated]
+        let expectedInitial = stateInitial
+        let expectedUpdate = stateUpdate
+        let expectedResult = updateResult
 
         // Expectations used to confirm update and subscription
         let updateExpectation: XCTestExpectation = XCTestExpectation(
@@ -232,8 +240,8 @@ class ShadowClientTests: XCTestCase {
             streamEventHandler: { event in
                 // Check that the updated state is what we expect
                 XCTAssertNoThrow {
-                    let lhs = try self.jsonData(from: event.state!)
-                    let rhs = try self.jsonData(from: updateResult)
+                    let lhs = try jsonData(from: event.state!)
+                    let rhs = try jsonData(from: updateResult)
                     XCTAssertEqual(lhs, rhs)
                 }
                 updateExpectation.fulfill()
@@ -259,13 +267,13 @@ class ShadowClientTests: XCTestCase {
                 let previousDesired = event.previous?.state?.desired ?? ["error": "error"]
                 let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
-                    let lhs = try self.jsonData(from: previousDesired)
-                    let rhs = try self.jsonData(from: stateInitial)
+                    let lhs = try jsonData(from: previousDesired)
+                    let rhs = try jsonData(from: stateInitial)
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
-                    let lhs = try self.jsonData(from: currentDesired)
-                    let rhs = try self.jsonData(from: stateUpdate)
+                    let lhs = try jsonData(from: currentDesired)
+                    let rhs = try jsonData(from: stateUpdate)
                     XCTAssertEqual(lhs, rhs)
                 }
             },
