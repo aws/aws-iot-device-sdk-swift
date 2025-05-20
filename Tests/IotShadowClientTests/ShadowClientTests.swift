@@ -11,6 +11,11 @@ enum MqttTestError: Error {
     case stopFail
 }
 
+// Helper function that tries to serialize
+let jsonData: ([String: Any]) throws -> Data = { dict in
+    try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
+}
+
 class ShadowClientTests: XCTestCase {
     // Helper function that checks for an environment variable and skips test if it's missing.
     func getEnvironmentVarOrSkipTest(environmentVarName name: String) throws -> String {
@@ -18,11 +23,6 @@ class ShadowClientTests: XCTestCase {
             throw XCTSkip("Skipping test because required environment variable \(name) is missing.")
         }
         return result
-    }
-
-    // Helper function that tries to serialize
-    let jsonData: ([String: Any]) throws -> Data = { dict in
-        try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
     }
 
     override func setUp() {
