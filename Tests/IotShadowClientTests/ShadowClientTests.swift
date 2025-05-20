@@ -240,8 +240,8 @@ class ShadowClientTests: XCTestCase {
             streamEventHandler: { event in
                 // Check that the updated state is what we expect
                 XCTAssertNoThrow {
-                    let lhs = try jsonData(from: event.state!)
-                    let rhs = try jsonData(from: updateResult)
+                    let lhs = try jsonData(event.state!)
+                    let rhs = try jsonData(updateResult)
                     XCTAssertEqual(lhs, rhs)
                 }
                 updateExpectation.fulfill()
@@ -267,13 +267,13 @@ class ShadowClientTests: XCTestCase {
                 let previousDesired = event.previous?.state?.desired ?? ["error": "error"]
                 let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
-                    let lhs = try jsonData(from: previousDesired)
-                    let rhs = try jsonData(from: stateInitial)
+                    let lhs = try jsonData(previousDesired)
+                    let rhs = try jsonData(stateInitial)
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
-                    let lhs = try jsonData(from: currentDesired)
-                    let rhs = try jsonData(from: stateUpdate)
+                    let lhs = try jsonData(currentDesired)
+                    let rhs = try jsonData(stateUpdate)
                     XCTAssertEqual(lhs, rhs)
                 }
             },
