@@ -12,7 +12,7 @@ enum MqttTestError: Error {
 }
 
 // Helper function that tries to serialize
-let jsonData: @Sendable ([String: Any]) throws -> Data = { dict in
+let jsonData: ([String: Any]) throws -> Data = { @Sendable dict in
     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
 }
 
