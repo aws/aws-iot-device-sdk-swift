@@ -206,9 +206,9 @@ class ShadowClientTests: XCTestCase {
         let colorInitial = "Color Init"
         let colorUpdated = "Color Update"
         // Set the shadow's initial state
-        let stateInitial: [String: String] = ["Color": colorInitial]
-        let updateResult: [String: String] = ["Color": colorUpdated]
-        let stateUpdate: [String: String] = ["Color": colorUpdated]
+        let stateInitial = try jsonData(["Color": colorInitial])
+        let updateResult = try jsonData(["Color": colorUpdated])
+        let stateUpdate = try jsonData(["Color": colorUpdated])
 
         // Expectations used to confirm update and subscription
         let updateExpectation: XCTestExpectation = XCTestExpectation(
@@ -238,7 +238,7 @@ class ShadowClientTests: XCTestCase {
                 // Check that the updated state is what we expect
                 XCTAssertNoThrow {
                     let lhs = try jsonData(event.state!)
-                    let rhs = try jsonData(updateResult)
+                    let rhs = updateResult
                     XCTAssertEqual(lhs, rhs)
                 }
                 updateExpectation.fulfill()
@@ -265,12 +265,12 @@ class ShadowClientTests: XCTestCase {
                 let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
                     let lhs = try jsonData(previousDesired)
-                    let rhs = try jsonData(stateInitial)
+                    let rhs = stateInitial
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
                     let lhs = try jsonData(currentDesired)
-                    let rhs = try jsonData(stateUpdate)
+                    let rhs = stateUpdate
                     XCTAssertEqual(lhs, rhs)
                 }
             },
