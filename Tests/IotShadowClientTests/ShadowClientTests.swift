@@ -12,7 +12,7 @@ enum MqttTestError: Error {
 }
 
 // Helper function that tries to serialize
-let jsonData: ([String: Any]) throws -> Data = { dict in
+let jsonData: @Sendable ([String: Any]) throws -> Data = { dict in
     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
 }
 
@@ -241,7 +241,7 @@ class ShadowClientTests: XCTestCase {
                 // Check that the updated state is what we expect
                 XCTAssertNoThrow {
                     let lhs = try jsonData(event.state!)
-                    let rhs = try jsonData(updateResult)
+                    let rhs = try jsonData(expectedResult)
                     XCTAssertEqual(lhs, rhs)
                 }
                 updateExpectation.fulfill()
@@ -268,12 +268,12 @@ class ShadowClientTests: XCTestCase {
                 let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
                     let lhs = try jsonData(previousDesired)
-                    let rhs = try jsonData(stateInitial)
+                    let rhs = try jsonData(expectedInitial)
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
                     let lhs = try jsonData(currentDesired)
-                    let rhs = try jsonData(stateUpdate)
+                    let rhs = try jsonData(expectedUpdate)
                     XCTAssertEqual(lhs, rhs)
                 }
             },
