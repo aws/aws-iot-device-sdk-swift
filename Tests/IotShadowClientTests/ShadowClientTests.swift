@@ -53,11 +53,11 @@ class ShadowClientTests: XCTestCase {
     // Helper function that creates an MqttClient, connects the client, uses the client to create an
     // IotShadowClient, then returns the shadow client in a ready for use state.
     private func getShadowClient() async throws -> IotShadowClient {
-        // Obtain required endpoint and files from the envirotnment or skip test.
-        let certPath = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
-        let keyPath = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+        // Obtain required endpoint and files from the environment or skip test.
+        let pkcs12Path = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
+        let pkcs12Password = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
         let endpoint = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
@@ -69,8 +69,8 @@ class ShadowClientTests: XCTestCase {
         }
 
         // Build the Mqtt5 Client
-        let builder = try Mqtt5ClientBuilder.mtlsFromPath(
-            certPath: certPath, keyPath: keyPath, endpoint: endpoint)
+        let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
+            pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
         builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
         let mqttClient = try builder.build()
         XCTAssertNotNil(mqttClient)
