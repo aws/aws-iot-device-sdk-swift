@@ -12,7 +12,8 @@ enum MqttTestError: Error {
 }
 
 // Helper function that tries to serialize
-let jsonData: ([String: Any]) throws -> Data = { @Sendable dict in
+@Sendable
+func jsonData(_ dict: [String: Any]) throws -> Data {
     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
 }
 
@@ -206,9 +207,13 @@ class ShadowClientTests: XCTestCase {
         let colorInitial = "Color Init"
         let colorUpdated = "Color Update"
         // Set the shadow's initial state
-        let stateInitial = try jsonData(["Color": colorInitial])
-        let updateResult = try jsonData(["Color": colorUpdated])
-        let stateUpdate = try jsonData(["Color": colorUpdated])
+        let stateInitial = ["Color": colorInitial]
+        let updateResult = ["Color": colorUpdated]
+        let stateUpdate = ["Color": colorUpdated]
+
+        let stateInitialData = try jsonData(stateInitial)
+        let updateResultData = try jsonData(updateResult)
+        let stateUpdateData = try jsonData(stateUpdate)
 
         // Expectations used to confirm update and subscription
         let updateExpectation: XCTestExpectation = XCTestExpectation(
@@ -238,7 +243,7 @@ class ShadowClientTests: XCTestCase {
                 // Check that the updated state is what we expect
                 XCTAssertNoThrow {
                     let lhs = try jsonData(event.state!)
-                    let rhs = updateResult
+                    let rhs = updateResultData
                     XCTAssertEqual(lhs, rhs)
                 }
                 updateExpectation.fulfill()
@@ -265,12 +270,12 @@ class ShadowClientTests: XCTestCase {
                 let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
                     let lhs = try jsonData(previousDesired)
-                    let rhs = stateInitial
+                    let rhs = stateInitialData
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
                     let lhs = try jsonData(currentDesired)
-                    let rhs = stateUpdate
+                    let rhs = stateUpdateData
                     XCTAssertEqual(lhs, rhs)
                 }
             },
