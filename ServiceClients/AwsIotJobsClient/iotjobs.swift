@@ -44,10 +44,11 @@ public class IotJobsClient {
             subscriptionStatusCallback: { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback: { [decoder = self.decoder] publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try decoder.decode(
                         JobExecutionsChangedEvent.self, from: publish.payload)
+                    print( "[CreateJobExecutionsChangedStream] Incoming publish : " + String(data: publish.payload, encoding: .utf8)!)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -55,6 +56,9 @@ public class IotJobsClient {
                         payload: publish.payload,
                         topic: publish.topic
                     )
+                    print( "[CreateJobExecutionsChangedStream] Incoming publish decoder failed with error: " + String(describing: error))
+                    print( "[CreateJobExecutionsChangedStream] Incoming publish decoder failed with payload: " + String(data: publish.payload, encoding: .utf8)!)
+                    
                     options.deserializationFailureHandler(failure)
                 }
             })
@@ -97,9 +101,9 @@ public class IotJobsClient {
             subscriptionStatusCallback: { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { publish in
+            incomingPublishCallback: { [decoder = self.decoder] publish in
                 do {
-                    let event = try self.decoder.decode(
+                    let event = try decoder.decode(
                         NextJobExecutionChangedEvent.self, from: publish.payload)
                     options.streamEventHandler(event)
                 } catch {
@@ -1152,23 +1156,34 @@ public struct DeserializationFailureEvent: Sendable {
 }
 
 /// The status of the job execution.
-public enum JobStatus: Int, Codable, Sendable {
+public enum JobStatus: String, Codable, Sendable {
 
-    case QUEUED
+    case QUEUED = "QUEUED"
 
-    case IN_PROGRESS
+    case IN_PROGRESS = "IN_PROGRESS"
 
-    case TIMED_OUT
+    case TIMED_OUT = "TIMED_OUT"
 
-    case FAILED
+    case FAILED = "FAILED"
 
-    case SUCCEEDED
+    case SUCCEEDED = "SUCCEEDED"
 
-    case CANCELED
+    case CANCELED = "CANCELED"
 
-    case REJECTED
+    case REJECTED = "REJECTED"
 
-    case REMOVED
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let stringVal = try? container.decode(String.self) {
+            self = .init(rawValue: stringVal)!
+        } else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unsupported JSON type"
+            )
+        }
+    }
 
 }
 
