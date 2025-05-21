@@ -8,7 +8,7 @@ class XCodeTests(Builder.Action):
         commands =[
             'xcodebuild',
             '-scheme',
-            'AwsIotDeviceSdkSwift',
+            'AwsIotDeviceSdkSwift-Package',
             'test',
             '-destination',
             "platform={}".format(destination)
