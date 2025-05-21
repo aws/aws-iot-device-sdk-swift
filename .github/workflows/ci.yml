@@ -7,7 +7,7 @@ on:
             - 'docs'
 
 env:
-    BUILDER_VERSION: v0.9.77
+    BUILDER_VERSION: v0.9.81
     BUILDER_SOURCE: releases
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
@@ -56,10 +56,10 @@ jobs:
         matrix:
           # This matrix runs tests on Mac, on oldest & newest supported Xcodes
           runner:
-            - macos-13 # x64
             - macos-14
-            - macos-13-xlarge
             - macos-14-large #x64
+            - macos-15
+            - macos-15-large #x64
       permissions:
         id-token: write
       steps:
@@ -89,43 +89,34 @@ jobs:
         matrix:
           # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
           runner:
-            - macos-13 # x64
             - macos-14
-            - macos-13-xlarge
             - macos-14-large #x64
+            - macos-15
           target:
-            [{ os: ios, destination: 'iOS Simulator,OS=16.1,name=iPhone 14'},
-            { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'},
-            { os: tvos, destination: 'tvOS Simulator,OS=16.1,name=Apple TV 4K (3rd generation) (at 1080p)'},
-            { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)'}]
+            [{ os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'},
+            { os: ios, destination: 'iOS Simulator,OS=18.1,name=iPhone 16'},
+            { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)'},
+            { os: tvos, destination: 'tvOS Simulator,OS=18.1,name=Apple TV 4K (3rd generation) (at 1080p)'}]
           xcode:
-            - Xcode_14.1
             - Xcode_15.2
+            - Xcode_16.1
           exclude:
             # Don't run old macOS with new Xcode
-            - runner: macos-13-xlarge
-              xcode: Xcode_15.2
-            - runner: macos-13
-              xcode: Xcode_15.2
-            - runner: macos-13-xlarge
-              target: { os: ios, destination: 'iOS Simulator,OS=16.1,name=iPhone 14'}
-            - runner: macos-13
-              target: { os: ios, destination: 'iOS Simulator,OS=16.1,name=iPhone 14'}
-            # Don't run new macOS with old Xcode
-            - runner: macos-14-large
-              xcode: Xcode_14.1
             - runner: macos-14
-              xcode: Xcode_14.1
+              xcode: Xcode_16.1
+            # Don't run new macOS with old Xcode
+            - runner: macos-15
+              xcode: Xcode_15.2
             # Don't run old simulators with new Xcode
-            - target: { os: tvos, destination: 'tvOS Simulator,OS=16.1,name=Apple TV 4K (3rd generation) (at 1080p)'}
-              xcode: Xcode_15.2
-            - target: { os: ios, destination: 'iOS Simulator,OS=16.1,name=iPhone 14'}
-              xcode: Xcode_15.2
+            - target: { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)' }
+              xcode: Xcode_16.1
+            - target: { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15' }
+              xcode: Xcode_16.1
             # Don't run new simulators with old Xcode
-            - target: { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)'}
-              xcode: Xcode_14.1
-            - target: { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'}
-              xcode: Xcode_14.1
+            - target: { os: tvos, destination: 'tvOS Simulator,OS=18.1,name=Apple TV 4K (3rd generation) (at 1080p)' }
+              xcode: Xcode_15.2
+            - target: { os: ios, destination: 'iOS Simulator,OS=18.1,name=iPhone 16' }
+              xcode: Xcode_15.2
       permissions:
         id-token: write
       steps:
@@ -149,7 +140,7 @@ jobs:
         strategy:
             matrix:
                 runner:
-                    - macos-13
+                    - macos-14
                     - macos-latest
         permissions:
             id-token: write
