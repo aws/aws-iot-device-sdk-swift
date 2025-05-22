@@ -17,6 +17,10 @@ func jsonData(_ dict: [String: Any]) throws -> Data {
     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
 }
 
+func createClientId() -> String {
+    return "test-iot-device-sdk-swift-" + UUID().uuidString
+}
+
 class ShadowClientTests: XCTestCase {
     // Helper function that checks for an environment variable and skips test if it's missing.
     func getEnvironmentVarOrSkipTest(environmentVarName name: String) throws -> String {
@@ -46,10 +50,6 @@ class ShadowClientTests: XCTestCase {
         #endif
     }
 
-    // func jsonData(from dict: [String: Any]) throws -> Data {
-    //     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
-    // }
-
     // Helper function that creates an MqttClient, connects the client, uses the client to create an
     // IotShadowClient, then returns the shadow client in a ready for use state.
     private func getShadowClient() async throws -> IotShadowClient {
@@ -71,6 +71,7 @@ class ShadowClientTests: XCTestCase {
         // Build the Mqtt5 Client
         let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
             pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+        builder.withClientId(createClientId())
         builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
         let mqttClient = try builder.build()
         XCTAssertNotNil(mqttClient)
@@ -201,8 +202,8 @@ class ShadowClientTests: XCTestCase {
     // Test
     func testShadowStreams() async throws {
         let shadowClient: IotShadowClient = try await getShadowClient()
-        let thingName = UUID().uuidString
-        let shadowName = UUID().uuidString
+        let thingName = "test-thing-" + UUID().uuidString
+        let shadowName = "test-shadow-" + UUID().uuidString
 
         let colorInitial = "Color Init"
         let colorUpdated = "Color Update"
