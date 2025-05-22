@@ -1064,7 +1064,7 @@ final public class NextJobExecutionChangedEvent: Codable, Sendable {
 }
 
 /// A value indicating the kind of error encountered while processing an AWS IoT Jobs request
-public enum RejectedErrorCode: String, Codable, Sendable {
+public enum RejectedErrorCode: String, Codable, Sendable, CodingKeyRepresentable {
 
     /// The request was sent to a topic in the AWS IoT Jobs namespace that does not map to any API.
     case INVALID_TOPIC = "INVALID_TOPIC"
@@ -1152,7 +1152,7 @@ public struct DeserializationFailureEvent: Sendable {
 }
 
 /// The status of the job execution.
-public enum JobStatus: String, Codable, Sendable {
+public enum JobStatus: String, Codable, Sendable, CodingKeyRepresentable {
 
     case QUEUED = "QUEUED"
 
