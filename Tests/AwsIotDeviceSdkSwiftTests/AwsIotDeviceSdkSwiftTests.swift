@@ -14,8 +14,8 @@ enum MqttTestError: Error {
 class Mqtt5ClientTests: XCBaseTestCase {
 
     // DEBUG WIP this can be reduced to remove things we don't test at the SDK level
-    class MqttTestContext {
-        public var contextName: String
+    final class MqttTestContext: @unchecked Sendable {
+        public let contextName: String
 
         public var onPublishReceived: OnPublishReceived?
         public var onLifecycleEventStopped: OnLifecycleEventStopped?
@@ -242,33 +242,36 @@ class Mqtt5ClientTests: XCBaseTestCase {
         try disconnectClientCleanup(client: mqttClient, testContext: context)
     }
 
-    func testMqttBuilderMTLSFromPKCS12() throws {
-        let pkcs12Path = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
-        let pkcs12Password = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
-        let endpoint = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    // Only Apple supports PKCS12
+    #if os(iOS) || os(tvOS) || os(macOS)
+        func testMqttBuilderMTLSFromPKCS12() throws {
+            let pkcs12Path = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
+            let pkcs12Password = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
+            let endpoint = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-        let context = MqttTestContext(contextName: "MTLSFromPKCS12")
-        let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
-            pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+            let context = MqttTestContext(contextName: "MTLSFromPKCS12")
+            let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
+                pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
 
-        builder.withCallbacks(
-            onPublishReceived: context.onPublishReceived,
-            onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-            onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-            onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-            onLifecycleEventStopped: context.onLifecycleEventStopped)
+            builder.withCallbacks(
+                onPublishReceived: context.onPublishReceived,
+                onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
+                onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
+                onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
+                onLifecycleEventStopped: context.onLifecycleEventStopped)
 
-        builder.withClientId(createClientId())
+            builder.withClientId(createClientId())
 
-        let mqttClient = try builder.build()
+            let mqttClient = try builder.build()
 
-        XCTAssertNotNil(mqttClient)
-        try connectClient(client: mqttClient, testContext: context)
-        try disconnectClientCleanup(client: mqttClient, testContext: context)
-    }
+            XCTAssertNotNil(mqttClient)
+            try connectClient(client: mqttClient, testContext: context)
+            try disconnectClientCleanup(client: mqttClient, testContext: context)
+        }
+    #endif
 
     func testMqttWebsocketWithDefaultAWSSigning() async throws {
         let region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_WS_REGION")

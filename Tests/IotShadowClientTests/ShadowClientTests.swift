@@ -11,6 +11,16 @@ enum MqttTestError: Error {
     case stopFail
 }
 
+// Helper function that tries to serialize
+@Sendable
+func jsonData(_ dict: [String: Any]) throws -> Data {
+    try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
+}
+
+func createClientId() -> String {
+    return "test-iot-device-sdk-swift-" + UUID().uuidString
+}
+
 class ShadowClientTests: XCTestCase {
     // Helper function that checks for an environment variable and skips test if it's missing.
     func getEnvironmentVarOrSkipTest(environmentVarName name: String) throws -> String {
@@ -40,20 +50,29 @@ class ShadowClientTests: XCTestCase {
         #endif
     }
 
-    func jsonData(from dict: [String: Any]) throws -> Data {
-        try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
-    }
-
     // Helper function that creates an MqttClient, connects the client, uses the client to create an
     // IotShadowClient, then returns the shadow client in a ready for use state.
     private func getShadowClient() async throws -> IotShadowClient {
-        // Obtain required endpoint and files from the envirotnment or skip test.
-        let certPath = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
-        let keyPath = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+        // Obtain required endpoint and files from the environment or skip test.
         let endpoint = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+
+        // only iOS and tvOS should use PKCS12. macOS and Linux should use X509 cert/key
+        #if os(iOS) || os(tvOS)
+            let pkcs12Path = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
+            let pkcs12Password = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
+            let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
+                pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+        #else
+            let certPath = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
+            let keyPath = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+            let builder = try Mqtt5ClientBuilder.mtlsFromPath(
+                certPath: certPath, keyPath: keyPath, endpoint: endpoint)
+        #endif
 
         // Used to track whether the Mqtt5 Client connection is successful.
         let connectionExpectation: XCTestExpectation = expectation(
@@ -63,8 +82,7 @@ class ShadowClientTests: XCTestCase {
         }
 
         // Build the Mqtt5 Client
-        let builder = try Mqtt5ClientBuilder.mtlsFromPath(
-            certPath: certPath, keyPath: keyPath, endpoint: endpoint)
+        builder.withClientId(createClientId())
         builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
         let mqttClient = try builder.build()
         XCTAssertNotNil(mqttClient)
@@ -195,15 +213,19 @@ class ShadowClientTests: XCTestCase {
     // Test
     func testShadowStreams() async throws {
         let shadowClient: IotShadowClient = try await getShadowClient()
-        let thingName = UUID().uuidString
-        let shadowName = UUID().uuidString
+        let thingName = "test-thing-" + UUID().uuidString
+        let shadowName = "test-shadow-" + UUID().uuidString
 
         let colorInitial = "Color Init"
         let colorUpdated = "Color Update"
         // Set the shadow's initial state
         let stateInitial = ["Color": colorInitial]
-        let updateResult: [String: Any] = ["Color": colorUpdated]
+        let updateResult = ["Color": colorUpdated]
         let stateUpdate = ["Color": colorUpdated]
+
+        let stateInitialData = try jsonData(stateInitial)
+        let updateResultData = try jsonData(updateResult)
+        let stateUpdateData = try jsonData(stateUpdate)
 
         // Expectations used to confirm update and subscription
         let updateExpectation: XCTestExpectation = XCTestExpectation(
@@ -232,8 +254,8 @@ class ShadowClientTests: XCTestCase {
             streamEventHandler: { event in
                 // Check that the updated state is what we expect
                 XCTAssertNoThrow {
-                    let lhs = try self.jsonData(from: event.state!)
-                    let rhs = try self.jsonData(from: updateResult)
+                    let lhs = try jsonData(event.state!)
+                    let rhs = updateResultData
                     XCTAssertEqual(lhs, rhs)
                 }
                 updateExpectation.fulfill()
@@ -259,13 +281,13 @@ class ShadowClientTests: XCTestCase {
                 let previousDesired = event.previous?.state?.desired ?? ["error": "error"]
                 let currentDesired = event.current?.state?.desired ?? ["error": "error"]
                 XCTAssertNoThrow {
-                    let lhs = try self.jsonData(from: previousDesired)
-                    let rhs = try self.jsonData(from: stateInitial)
+                    let lhs = try jsonData(previousDesired)
+                    let rhs = stateInitialData
                     XCTAssertEqual(lhs, rhs)
                 }
                 XCTAssertNoThrow {
-                    let lhs = try self.jsonData(from: currentDesired)
-                    let rhs = try self.jsonData(from: stateUpdate)
+                    let lhs = try jsonData(currentDesired)
+                    let rhs = stateUpdateData
                     XCTAssertEqual(lhs, rhs)
                 }
             },

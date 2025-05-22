@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -21,7 +21,7 @@ let package = Package(
     dependencies: [
         .package(
             // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
-            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming")
+            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming")  // TODO WIP revert this to point to the main branch
     ],
     targets: [
         .target(
@@ -49,18 +49,18 @@ let package = Package(
             path: "Tests/IotShadowClientTests"
         ),
         .target(
-            name: "IotIdentityClient",
-            dependencies: [
-                .target(name: "AwsIotDeviceSdkSwift")
-            ],
-            path: "ServiceClients/AwsIotIdentityClient"
-        ),
-        .target(
             name: "IotJobsClient",
             dependencies: [
                 .target(name: "AwsIotDeviceSdkSwift")
             ],
             path: "ServiceClients/AwsIotJobsClient"
+        ),
+        .target(
+            name: "IotIdentityClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotIdentityClient"
         ),
     ]
 )
