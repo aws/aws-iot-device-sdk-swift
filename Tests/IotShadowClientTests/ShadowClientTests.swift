@@ -54,12 +54,25 @@ class ShadowClientTests: XCTestCase {
     // IotShadowClient, then returns the shadow client in a ready for use state.
     private func getShadowClient() async throws -> IotShadowClient {
         // Obtain required endpoint and files from the environment or skip test.
-        let pkcs12Path = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
-        let pkcs12Password = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
         let endpoint = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+
+        // only iOS and tvOS should use PKCS12. macOS and Linux should use X509 cert/key
+        #if os(iOS) || os(tvOS)
+            let pkcs12Path = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
+            let pkcs12Password = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
+            let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
+                pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+        #else
+            let certPath = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
+            let keyPath = try getEnvironmentVarOrSkipTest(
+                environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+            let builder = try Mqtt5ClientBuilder.mtlsFromPath(
+                certPath: certPath, keyPath: keyPath, endpoint: endpoint)
+        #endif
 
         // Used to track whether the Mqtt5 Client connection is successful.
         let connectionExpectation: XCTestExpectation = expectation(
@@ -69,8 +82,6 @@ class ShadowClientTests: XCTestCase {
         }
 
         // Build the Mqtt5 Client
-        let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
-            pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
         builder.withClientId(createClientId())
         builder.withOnLifecycleEventConnectionSuccess(onLifecycleEventConnectionSuccess)
         let mqttClient = try builder.build()
