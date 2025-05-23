@@ -94,6 +94,13 @@ class IdentityClientTests: XCTestCase {
     private func cleanUpThing(certificateId: String?, thingName: String?) async throws {
         print("cleanUpThing()")
 
+        let accessKey = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_ACCESS_KEY_ID")
+        let secretAccessKey = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_SECRET_ACCESS_KEY")
+        let sessioinToken = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_SESSION_TOKEN")
+
         print("IoTClient()")
         let iotClient = try await withTimeout(seconds: 5) {
             try await AWSIoT.IoTClient(
