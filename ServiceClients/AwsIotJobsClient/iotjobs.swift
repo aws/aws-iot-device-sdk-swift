@@ -1012,7 +1012,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
 
     /// Initializes a new `UpdateJobExecutionResponse`
     public init(
-        executionState: JobExecutionState? = nil, jobDocument: [String: Any]?,
+        executionState: JobExecutionState? = nil, jobDocument: [String: Any],
         timestamp: Foundation.Date
     ) {
         self.executionState = executionState
@@ -1035,7 +1035,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let jobDocumentJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .jobDocument)
+        let jobDocumentJSON = try container.decode([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocumentInternal = jobDocumentJSON
         self.timestamp = try container.decode(Foundation.Date.self, forKey: .timestamp)
         self.executionState = try container.decodeIfPresent(
@@ -1096,31 +1096,31 @@ final public class NextJobExecutionChangedEvent: Codable, Sendable {
 public enum RejectedErrorCode: String, Codable, Sendable, CodingKeyRepresentable {
 
     /// The request was sent to a topic in the AWS IoT Jobs namespace that does not map to any API.
-    case INVALID_TOPIC = "INVALID_TOPIC"
+    case INVALID_TOPIC = "InvalidTopic"
 
     /// The contents of the request could not be interpreted as valid UTF-8-encoded JSON.
-    case INVALID_JSON = "INVALID_JSON"
+    case INVALID_JSON = "InvalidJson"
 
     /// The contents of the request were invalid. The message contains details about the error.
-    case INVALID_REQUEST = "INVALID_REQUEST"
+    case INVALID_REQUEST = "InvalidRequest"
 
     /// An update attempted to change the job execution to a state that is invalid because of the job execution's current state. In this case, the body of the error message also contains the executionState field.
-    case INVALID_STATE_TRANSITION = "INVALID_STATE_TRANSITION"
+    case INVALID_STATE_TRANSITION = "InvalidStateTransition"
 
     /// The JobExecution specified by the request topic does not exist.
-    case RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND"
+    case RESOURCE_NOT_FOUND = "ResourceNotFound"
 
     /// The expected version specified in the request does not match the version of the job execution in the AWS IoT Jobs service. In this case, the body of the error message also contains the executionState field.
-    case VERSION_MISMATCH = "VERSION_MISMATCH"
+    case VERSION_MISMATCH = "VersionMismatch"
 
     /// There was an internal error during the processing of the request.
-    case INTERNAL_ERROR = "INTERNAL_ERROR"
+    case INTERNAL_ERROR = "InternalError"
 
     /// The request was throttled.
-    case REQUEST_THROTTLED = "REQUEST_THROTTLED"
+    case REQUEST_THROTTLED = "RequestThrottled"
 
     /// Occurs when a command to describe a job is performed on a job that is in a terminal state.
-    case TERMINAL_STATE_REACHED = "TERMINAL_STATE_REACHED"
+    case TERMINAL_STATE_REACHED = "TerminalStateReached"
 
 }
 
