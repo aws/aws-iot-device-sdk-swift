@@ -62,5 +62,10 @@ let package = Package(
             ],
             path: "ServiceClients/AwsIotIdentityClient"
         ),
+        .testTarget(
+            name: "IotIdentityClientTests",
+            dependencies: ["IotIdentityClient"],
+            path: "Tests/IotIdentityClientTests"
+        ),
     ]
 )
