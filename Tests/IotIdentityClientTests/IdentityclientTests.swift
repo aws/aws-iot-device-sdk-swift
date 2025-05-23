@@ -136,6 +136,7 @@ class IdentityClientTests: XCTestCase {
     func testIdentityClientProvisionWithCertAndKey() async throws {
         let templateName: String = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
+
         // Check that credential env variables have been set or skip test
         let accessKey = try getEnvironmentVarOrSkipTest(
             environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
@@ -189,6 +190,7 @@ class IdentityClientTests: XCTestCase {
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
         let csrPath: String = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_CSR_PATH")
+
         // Check that credential env variables have been set or skip test
         let accessKey = try getEnvironmentVarOrSkipTest(
             environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
