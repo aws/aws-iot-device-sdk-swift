@@ -138,11 +138,11 @@ class IdentityClientTests: XCTestCase {
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
         // Check that credential env variables have been set or skip test
         let accessKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_ACCESS_KEY_ID")
+            environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
         let secretKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_SECRET_ACCESS_KEY")
+            environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
         let sessionToken = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_SESSION_TOKEN")
+            environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
         let region = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_DEFAULT_REGION")
 
@@ -191,11 +191,11 @@ class IdentityClientTests: XCTestCase {
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_CSR_PATH")
         // Check that credential env variables have been set or skip test
         let accessKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_ACCESS_KEY_ID")
+            environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
         let secretKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_SECRET_ACCESS_KEY")
+            environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
         let sessionToken = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_SESSION_TOKEN")
+            environmentVarName: "TEST_RUNNER_AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
         let region = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_DEFAULT_REGION")
 
