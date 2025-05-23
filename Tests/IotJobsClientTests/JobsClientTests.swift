@@ -16,7 +16,7 @@ enum MqttTestError: Error {
 class TestContext: @unchecked Sendable {
   var jobExecutionChangedEvents: [JobExecutionsChangedEvent] = []
   var nextJobChangedEvents: [NextJobExecutionChangedEvent] = []
-  var serilizedFailed = false
+  var serializedFailed = false
   var jobId: String?
   var thingGroupName: String?
   var thingName: String?
@@ -40,6 +40,8 @@ class JobsClientTests: XCTestCase {
   }
 
   override func tearDown() {
+    // TODO: The cleanup will be deadlock if we are using aws-sdk-swift, which also called cleanup on crt library.
+    // IotDeviceSdk.cleanUp()
     super.tearDown()
   }
 
@@ -70,7 +72,7 @@ class JobsClientTests: XCTestCase {
     // Used to track whether the Mqtt5 Client connection is successful.
     let connectionExpectation: XCTestExpectation = expectation(
       description: "Connection Success")
-    let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { successData in
+    let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { _ in
       connectionExpectation.fulfill()
     }
 
@@ -232,14 +234,14 @@ class JobsClientTests: XCTestCase {
               nextJobExecutionChangedEstablishedExpectation.fulfill()
             }
           },
-          deserializationFailureHandler: { [testContext] event in
-            testContext.serilizedFailed = true
+          deserializationFailureHandler: { [testContext] _ in
+            testContext.serializedFailed = true
           }
         ))
       try nextJobExecutionChanged.open()
       await awaitExpectation([nextJobExecutionChangedEstablishedExpectation])
 
-      XCTAssertFalse(testContext.serilizedFailed)
+      XCTAssertFalse(testContext.serializedFailed)
 
       // Verify there is no jobs in progress/pending
       try await verifyNoPendingJobs(testContext: testContext)
@@ -251,8 +253,8 @@ class JobsClientTests: XCTestCase {
       await awaitExpectation(
         [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)
-      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution.jobId == testContext.jobId)
-      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution.status == JobStatus.QUEUED)
+      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.jobId == testContext.jobId)
+      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.status == JobStatus.QUEUED)
       XCTAssertNotNil(testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED])
       XCTAssertTrue(
         testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED]?[0].jobId
@@ -270,7 +272,7 @@ class JobsClientTests: XCTestCase {
       XCTAssertTrue(describeJobResult.execution.jobId == testContext.jobId!)
 
       // Update the job status to succeed
-      let _ = try await iotJobsClient.updateJobExecution(
+      _ = try await iotJobsClient.updateJobExecution(
         request: UpdateJobExecutionRequest(
           thingName: testContext.thingName!, jobId: testContext.jobId!, status: JobStatus.SUCCEEDED)
       )
