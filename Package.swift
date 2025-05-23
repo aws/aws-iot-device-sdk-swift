@@ -22,6 +22,7 @@ let package = Package(
         .package(
             // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
             url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming"),  // TODO WIP revert this to point to the main branch
+        // aws-sdk-swift is only used in test targets to help with setup and cleanup of testing service clients
         .package(
             url: "https://github.com/awslabs/aws-sdk-swift.git", from: "1.3.19"),
     ],

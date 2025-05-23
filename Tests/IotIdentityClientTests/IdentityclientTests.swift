@@ -21,7 +21,7 @@ class IdentityClientTests: XCTestCase {
     override func setUp() {
         super.setUp()
         IotDeviceSdk.initialize()
-        try? Logger.initialize(target: .standardOutput, level: .error)
+        // try? Logger.initialize(target: .standardOutput, level: .error)
     }
 
     override func tearDown() {
@@ -92,8 +92,10 @@ class IdentityClientTests: XCTestCase {
     // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
     // in the identity tests.
     private func cleanUpThing(certificateId: String?, thingName: String?) async throws {
-        let iotClient = try await AWSIoT.IoTClient(
-            config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+        let iotClient = try await withTimeout(seconds: 5) {
+            try await AWSIoT.IoTClient(
+                config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+        }
 
         // feed certificate ID to get the certificate Arn
         let describeCertificateOutput = try await iotClient.describeCertificate(
@@ -104,7 +106,7 @@ class IdentityClientTests: XCTestCase {
                 _ = try await iotClient.detachThingPrincipal(
                     input: DetachThingPrincipalInput(
                         principal: certificateArn, thingName: thingName))
-
+                print("Deleting thingName: \(thingName ?? "no thingName")")
                 _ = try await iotClient.deleteThing(
                     input: DeleteThingInput(thingName: thingName))
             } else {
@@ -112,6 +114,29 @@ class IdentityClientTests: XCTestCase {
             }
         } else {
             print("Certificate Description not found")
+        }
+    }
+
+    // Helper wrapper to provide a timeout
+    func withTimeout<T>(
+        seconds timeout: TimeInterval,
+        operation: @escaping @Sendable () async throws -> T
+    ) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                try await operation()
+            }
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+                throw NSError(
+                    domain: "TimeoutError", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Operation timed out"])
+            }
+            guard let result = try await group.next() else {
+                throw NSError(domain: "UnexpectedNil", code: 2)
+            }
+            group.cancelAll()
+            return result
         }
     }
 
