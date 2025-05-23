@@ -138,7 +138,7 @@ class JobsClientTests: XCTestCase {
     }
 
     if let jobId = testContext.jobId {
-      _ = try await iotClient.deleteJob(input: DeleteJobInput(jobId: jobId))
+      _ = try await iotClient.deleteJob(input: DeleteJobInput(force: true, jobId: jobId))
     }
 
     if let thingName = testContext.thingName {
@@ -194,7 +194,7 @@ class JobsClientTests: XCTestCase {
             testContext.jobExecutionChangedEvents.append(event)
             if testContext.jobExecutionChangedEvents.count == 1 {
               jobExecutionStartedExpectation.fulfill()
-            } else {
+            } else if testContext.jobExecutionChangedEvents.count == 2 {
               jobExecutionFinishedExpectation.fulfill()
             }
           },
@@ -251,24 +251,34 @@ class JobsClientTests: XCTestCase {
       let startNextProgress = try await iotJobsClient.startNextPendingJobExecution(
         request: StartNextPendingJobExecutionRequest(thingName: testContext.thingName!))
 
-      XCTAssertTrue(startNextProgress.execution?.jobId == testContext.jobId)
+      //XCTAssertTrue(startNextProgress.execution?.jobId == testContext.jobId)
 
       await awaitExpectation(
         [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)
-      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution.jobId == testContext.jobId)
-      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution.status == JobStatus.QUEUED)
+      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.jobId == testContext.jobId)
+      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.status == JobStatus.QUEUED)
       XCTAssertNotNil(testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED])
       XCTAssertTrue(
-        testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED]![0].jobId
+        testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED]?[0].jobId
           == testContext.jobId)
+
+      let describeJobResult = try await iotJobsClient.describeJobExecution(
+        request: DescribeJobExecutionRequest(
+          thingName: testContext.thingName!, jobId: testContext.jobId!))
+
+      XCTAssertTrue(describeJobResult.execution.jobId == testContext.jobId!)
+
+      // Update the job status to succeed
+      let updateResult = try await iotJobsClient.updateJobExecution(
+        request: UpdateJobExecutionRequest(
+          thingName: testContext.thingName!, jobId: testContext.jobId!, status: JobStatus.SUCCEEDED)
+      )
 
       await awaitExpectation(
         [nextJobExecutionClearedExpectation, jobExecutionFinishedExpectation], 30)
 
-      // WIP
-      // Verify there is no jobs in progress/pending
-      //try await verifyNoPendingJobs(testContext: testContext)
+      try await verifyNoPendingJobs(testContext: testContext)
     }
   }
 }

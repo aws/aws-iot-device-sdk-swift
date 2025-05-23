@@ -21,7 +21,8 @@ let package = Package(
     dependencies: [
         .package(
             // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
-            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming")  // TODO WIP revert this to point to the main branch
+            path: "../aws-crt-swift"),
+        .package(url: "https://github.com/awslabs/aws-sdk-swift.git", from: "1.3.19")
     ],
     targets: [
         .target(
@@ -55,6 +56,13 @@ let package = Package(
             ],
             path: "ServiceClients/AwsIotJobsClient"
         ),
+        .testTarget(
+            name: "IotJobsClientTests",
+            dependencies: [
+                "IotJobsClient",
+                .product(name:"AWSIoT", package: "aws-sdk-swift")
+            ],
+            path: "Tests/IotJobsClientTests"),
         .target(
             name: "IotIdentityClient",
             dependencies: [
