@@ -972,7 +972,7 @@ final public class StartNextJobExecutionResponse: Codable, Sendable {
 final public class UpdateJobExecutionResponse: Codable, Sendable {
 
     /// A UTF-8 encoded JSON document that contains information that your devices need to perform the job.
-    private let jobDocumentInternal: [String: JSONValue]
+    private let jobDocumentInternal: [String: JSONValue]?
 
     /// The time when the message was sent.
     public let timestamp: Foundation.Date
@@ -1001,14 +1001,14 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
         case clientToken
     }
 
-    public var jobDocument: [String: Any] {
-        return jobDocumentInternal.asAnyDictionary()
+    public var jobDocument: [String: Any]? {
+        return jobDocumentInternal?.asAnyDictionary()
     }
 
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let jobDocumentJSON = try container.decode([String: JSONValue].self, forKey: .jobDocument)
+        let jobDocumentJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocumentInternal = jobDocumentJSON
         self.timestamp = try container.decode(Foundation.Date.self, forKey: .timestamp)
         self.executionState = try container.decodeIfPresent(
@@ -1050,14 +1050,14 @@ final public class JobExecutionsChangedEvent: Codable, Sendable {
 final public class NextJobExecutionChangedEvent: Codable, Sendable {
 
     /// Contains data about a job execution.
-    public let execution: JobExecutionData
+    public let execution: JobExecutionData?
 
     /// The time when the message was sent.
     public let timestamp: Foundation.Date
 
     /// Initializes a new `NextJobExecutionChangedEvent`
     public init(
-        execution: JobExecutionData, timestamp: Foundation.Date
+        execution: JobExecutionData?, timestamp: Foundation.Date
     ) {
         self.execution = execution
         self.timestamp = timestamp
