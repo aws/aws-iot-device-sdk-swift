@@ -44,7 +44,7 @@ public class IotJobsClient {
             subscriptionStatusCallback: { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { [decoder = self.decoder] publish in
+            incomingPublishCallback: { publish in
                 do {
                     let event = try JSONDecoder().decode(
                         JobExecutionsChangedEvent.self, from: publish.payload)
@@ -97,7 +97,7 @@ public class IotJobsClient {
             subscriptionStatusCallback: { status in
                 options.subscriptionEventHandler(status)
             },
-            incomingPublishCallback: { [decoder = self.decoder] publish in
+            incomingPublishCallback: { publish in
                 do {
                     let event = try JSONDecoder().decode(
                         NextJobExecutionChangedEvent.self, from: publish.payload)
@@ -888,33 +888,6 @@ final public class V2ErrorResponse: Codable, Sendable {
         self.clientToken = UUID().uuidString
     }
 
-    enum CodingKeys: String, CodingKey {
-        case code
-        case message
-        case timestamp
-        case executionState
-        case clientToken
-    }
-
-    /// initialize this class containing the document trait from JSON
-    public required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.code = try container.decode(RejectedErrorCode.self, forKey: .code)
-        self.message = try container.decodeIfPresent(String.self, forKey: .message)
-        self.timestamp = try container.decodeIfPresent(Foundation.Date.self, forKey: .timestamp)
-        self.executionState = try container.decodeIfPresent(
-            JobExecutionState.self, forKey: .executionState)
-        self.clientToken = try container.decode(String.self, forKey: .clientToken)
-    }
-
-    /// encode this class containing the document trait into JSON
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(code, forKey: .code)
-        try container.encode(message, forKey: .message)
-        try container.encode(timestamp, forKey: .timestamp)
-        try container.encode(executionState, forKey: .executionState)
-    }
 }
 
 /// Response payload to a DescribeJobExecution request.
@@ -1016,7 +989,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
         timestamp: Foundation.Date
     ) {
         self.executionState = executionState
-        self.jobDocumentInternal = jobDocument?.asJSONValueDictionary()
+        self.jobDocumentInternal = jobDocument.asJSONValueDictionary()
         self.timestamp = timestamp
         self.clientToken = UUID().uuidString
     }
@@ -1035,7 +1008,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let jobDocumentJSON = try container.decode([String: JSONValue].self, forKey: .jobDocument)
+        let jobDocumentJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocumentInternal = jobDocumentJSON
         self.timestamp = try container.decode(Foundation.Date.self, forKey: .timestamp)
         self.executionState = try container.decodeIfPresent(

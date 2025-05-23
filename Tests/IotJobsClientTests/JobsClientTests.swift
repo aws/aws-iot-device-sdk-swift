@@ -251,8 +251,8 @@ class JobsClientTests: XCTestCase {
       await awaitExpectation(
         [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)
-      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.jobId == testContext.jobId)
-      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.status == JobStatus.QUEUED)
+      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution.jobId == testContext.jobId)
+      XCTAssertTrue(testContext.nextJobChangedEvents[0].execution.status == JobStatus.QUEUED)
       XCTAssertNotNil(testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED])
       XCTAssertTrue(
         testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED]?[0].jobId
