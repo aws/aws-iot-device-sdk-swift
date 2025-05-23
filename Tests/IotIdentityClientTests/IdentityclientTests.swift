@@ -1,3 +1,4 @@
+import AWSIoT
 import AwsIotDeviceSdkSwift
 import Foundation
 import XCTest
@@ -88,6 +89,32 @@ class IdentityClientTests: XCTestCase {
         return identityClient
     }
 
+    // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
+    // in the identity tests.
+    private func cleanUpThing(certificateId: String?, thingName: String?) async throws {
+        let iotClient = try await AWSIoT.IoTClient(
+            config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+
+        // feed certificate ID to get the certificate Arn
+        let describeCertificateOutput = try await iotClient.describeCertificate(
+            input: DescribeCertificateInput(
+                certificateId: certificateId))
+        if let certDescription = describeCertificateOutput.certificateDescription {
+            if let certificateArn: String = certDescription.certificateArn {
+                _ = try await iotClient.detachThingPrincipal(
+                    input: DetachThingPrincipalInput(
+                        principal: certificateArn, thingName: thingName))
+
+                _ = try await iotClient.deleteThing(
+                    input: DeleteThingInput(thingName: thingName))
+            } else {
+                print("Certificate ARN not found")
+            }
+        } else {
+            print("Certificate Description not found")
+        }
+    }
+
     func testIdentityClientCreateDestroy() async throws {
         let identityClient = try await getIdentityClient()
         XCTAssertNotNil(identityClient)
@@ -126,6 +153,11 @@ class IdentityClientTests: XCTestCase {
         // Make sure we've gotten a proper response
         XCTAssertNotNil(registerThingResponse.deviceConfiguration)
         XCTAssertNotNil(registerThingResponse.thingName)
+
+        print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
+        try await cleanUpThing(
+            certificateId: createKeysAndCertificateResponse.certificateId,
+            thingName: registerThingResponse.thingName)
     }
 
     func testIdentityClientProvisionWithCSR() async throws {
@@ -162,5 +194,10 @@ class IdentityClientTests: XCTestCase {
         // Make sure we've gotten a proper response
         XCTAssertNotNil(registerThingResponse.deviceConfiguration)
         XCTAssertNotNil(registerThingResponse.thingName)
+
+        print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
+        try await cleanUpThing(
+            certificateId: createCertificateFromCsrResponse.certificateId,
+            thingName: registerThingResponse.thingName)
     }
 }
