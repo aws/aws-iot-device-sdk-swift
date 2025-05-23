@@ -244,7 +244,7 @@ class JobsClientTests: XCTestCase {
       // Verify there is no jobs in progress/pending
       try await verifyNoPendingJobs(testContext: testContext)
 
-      let addOutput = try await testContext.iotClient?.addThingToThingGroup(
+      _ = try await testContext.iotClient?.addThingToThingGroup(
         input: AddThingToThingGroupInput(
           thingGroupName: testContext.thingGroupName, thingName: testContext.thingName))
 
