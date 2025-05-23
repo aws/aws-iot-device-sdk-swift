@@ -103,12 +103,17 @@ class IdentityClientTests: XCTestCase {
                 certificateId: certificateId))
         if let certDescription = describeCertificateOutput.certificateDescription {
             if let certificateArn: String = certDescription.certificateArn {
-                _ = try await iotClient.detachThingPrincipal(
-                    input: DetachThingPrincipalInput(
-                        principal: certificateArn, thingName: thingName))
+
+                _ = try await withTimeout(seconds: 5) {
+                    try await iotClient.detachThingPrincipal(
+                        input: DetachThingPrincipalInput(
+                            principal: certificateArn, thingName: thingName))
+                }
                 print("Deleting thingName: \(thingName ?? "no thingName")")
-                _ = try await iotClient.deleteThing(
-                    input: DeleteThingInput(thingName: thingName))
+                _ = try await withTimeout(seconds: 5) {
+                    try await iotClient.deleteThing(
+                        input: DeleteThingInput(thingName: thingName))
+                }
             } else {
                 print("Certificate ARN not found")
             }
@@ -118,7 +123,7 @@ class IdentityClientTests: XCTestCase {
     }
 
     // Helper wrapper to provide a timeout
-    func withTimeout<T>(
+    func withTimeout<T: Sendable>(
         seconds timeout: TimeInterval,
         operation: @escaping @Sendable () async throws -> T
     ) async throws -> T {
