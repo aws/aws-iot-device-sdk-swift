@@ -223,7 +223,7 @@ class JobsClientTests: XCTestCase {
             testContext.nextJobChangedEvents.append(event)
             if testContext.nextJobChangedEvents.count == 1 {
               nextJobExecutionQueuedExpectation.fulfill()
-            } else {
+            } else if testContext.nextJobChangedEvents.count == 2 {
               nextJobExecutionClearedExpectation.fulfill()
             }
           },
@@ -248,11 +248,6 @@ class JobsClientTests: XCTestCase {
         input: AddThingToThingGroupInput(
           thingGroupName: testContext.thingGroupName, thingName: testContext.thingName))
 
-      let startNextProgress = try await iotJobsClient.startNextPendingJobExecution(
-        request: StartNextPendingJobExecutionRequest(thingName: testContext.thingName!))
-
-      //XCTAssertTrue(startNextProgress.execution?.jobId == testContext.jobId)
-
       await awaitExpectation(
         [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)
@@ -263,6 +258,11 @@ class JobsClientTests: XCTestCase {
         testContext.jobExecutionChangedEvents[0].jobs[JobStatus.QUEUED]?[0].jobId
           == testContext.jobId)
 
+      let startNextProgress = try await iotJobsClient.startNextPendingJobExecution(
+        request: StartNextPendingJobExecutionRequest(thingName: testContext.thingName!))
+
+      XCTAssertTrue(startNextProgress.execution?.jobId == testContext.jobId)
+
       let describeJobResult = try await iotJobsClient.describeJobExecution(
         request: DescribeJobExecutionRequest(
           thingName: testContext.thingName!, jobId: testContext.jobId!))
@@ -270,7 +270,7 @@ class JobsClientTests: XCTestCase {
       XCTAssertTrue(describeJobResult.execution.jobId == testContext.jobId!)
 
       // Update the job status to succeed
-      let updateResult = try await iotJobsClient.updateJobExecution(
+      let _ = try await iotJobsClient.updateJobExecution(
         request: UpdateJobExecutionRequest(
           thingName: testContext.thingName!, jobId: testContext.jobId!, status: JobStatus.SUCCEEDED)
       )

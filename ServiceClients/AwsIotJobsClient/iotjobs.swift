@@ -48,7 +48,6 @@ public class IotJobsClient {
                 do {
                     let event = try JSONDecoder().decode(
                         JobExecutionsChangedEvent.self, from: publish.payload)
-                    print( "[CreateJobExecutionsChangedStream] Incoming publish : " + String(data: publish.payload, encoding: .utf8)!)
                     options.streamEventHandler(event)
                 } catch {
                     let failure = DeserializationFailureEvent(
@@ -56,9 +55,6 @@ public class IotJobsClient {
                         payload: publish.payload,
                         topic: publish.topic
                     )
-                    print( "[CreateJobExecutionsChangedStream] Incoming publish decoder failed with error: " + String(describing: error))
-                    print( "[CreateJobExecutionsChangedStream] Incoming publish decoder failed with payload: " + String(data: publish.payload, encoding: .utf8)!)
-                    
                     options.deserializationFailureHandler(failure)
                 }
             })
@@ -892,6 +888,33 @@ final public class V2ErrorResponse: Codable, Sendable {
         self.clientToken = UUID().uuidString
     }
 
+    enum CodingKeys: String, CodingKey {
+        case code
+        case message
+        case timestamp
+        case executionState
+        case clientToken
+    }
+
+    /// initialize this class containing the document trait from JSON
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.code = try container.decode(RejectedErrorCode.self, forKey: .code)
+        self.message = try container.decodeIfPresent(String.self, forKey: .message)
+        self.timestamp = try container.decodeIfPresent(Foundation.Date.self, forKey: .timestamp)
+        self.executionState = try container.decodeIfPresent(
+            JobExecutionState.self, forKey: .executionState)
+        self.clientToken = try container.decode(String.self, forKey: .clientToken)
+    }
+
+    /// encode this class containing the document trait into JSON
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(code, forKey: .code)
+        try container.encode(message, forKey: .message)
+        try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(executionState, forKey: .executionState)
+    }
 }
 
 /// Response payload to a DescribeJobExecution request.
@@ -975,24 +998,25 @@ final public class StartNextJobExecutionResponse: Codable, Sendable {
 ///
 final public class UpdateJobExecutionResponse: Codable, Sendable {
 
-    /// Contains data about the state of a job execution.
-    public let executionState: JobExecutionState
-
     /// A UTF-8 encoded JSON document that contains information that your devices need to perform the job.
-    private let jobDocumentInternal: [String: JSONValue]
+    private let jobDocumentInternal: [String: JSONValue]?
 
     /// The time when the message was sent.
     public let timestamp: Foundation.Date
+
+    /// Contains data about the state of a job execution.
+    public let executionState: JobExecutionState?
 
     /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
     public let clientToken: String
 
     /// Initializes a new `UpdateJobExecutionResponse`
     public init(
-        executionState: JobExecutionState, jobDocument: [String: Any], timestamp: Foundation.Date
+        executionState: JobExecutionState? = nil, jobDocument: [String: Any]?,
+        timestamp: Foundation.Date
     ) {
         self.executionState = executionState
-        self.jobDocumentInternal = jobDocument.asJSONValueDictionary()
+        self.jobDocumentInternal = jobDocument?.asJSONValueDictionary()
         self.timestamp = timestamp
         self.clientToken = UUID().uuidString
     }
@@ -1004,26 +1028,27 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
         case clientToken
     }
 
-    public var jobDocument: [String: Any] {
-        return jobDocumentInternal.asAnyDictionary()
+    public var jobDocument: [String: Any]? {
+        return jobDocumentInternal?.asAnyDictionary()
     }
 
     /// initialize this class containing the document trait from JSON
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.executionState = try container.decode(JobExecutionState.self, forKey: .executionState)
-        let jobDocumentJSON = try container.decode([String: JSONValue].self, forKey: .jobDocument)
+        let jobDocumentJSON = try container.decodeIfPresent([String: JSONValue].self, forKey: .jobDocument)
         self.jobDocumentInternal = jobDocumentJSON
         self.timestamp = try container.decode(Foundation.Date.self, forKey: .timestamp)
+        self.executionState = try container.decodeIfPresent(
+            JobExecutionState.self, forKey: .executionState)
         self.clientToken = try container.decode(String.self, forKey: .clientToken)
     }
 
     /// encode this class containing the document trait into JSON
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(executionState, forKey: .executionState)
         try container.encode(jobDocumentInternal, forKey: .jobDocument)
         try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(executionState, forKey: .executionState)
     }
 }
 
@@ -1052,14 +1077,14 @@ final public class JobExecutionsChangedEvent: Codable, Sendable {
 final public class NextJobExecutionChangedEvent: Codable, Sendable {
 
     /// Contains data about a job execution.
-    public let execution: JobExecutionData
+    public let execution: JobExecutionData?
 
     /// The time when the message was sent.
     public let timestamp: Foundation.Date
 
     /// Initializes a new `NextJobExecutionChangedEvent`
     public init(
-        execution: JobExecutionData, timestamp: Foundation.Date
+        execution: JobExecutionData?, timestamp: Foundation.Date
     ) {
         self.execution = execution
         self.timestamp = timestamp
