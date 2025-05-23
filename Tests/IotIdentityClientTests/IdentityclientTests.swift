@@ -1,3 +1,4 @@
+import AWSClientRuntime
 import AWSIoT
 import AWSSDKIdentity
 import AwsIotDeviceSdkSwift
@@ -94,22 +95,27 @@ class IdentityClientTests: XCTestCase {
     // in the identity tests.
     private func cleanUpThing(certificateId: String?, thingName: String?) async throws {
         // Check that credential env variables have been set or skip test
-        let _ = try getEnvironmentVarOrSkipTest(
+        let accessKey = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_ACCESS_KEY_ID")
-        let _ = try getEnvironmentVarOrSkipTest(
+        let secretKey = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_SECRET_ACCESS_KEY")
-        let _ = try getEnvironmentVarOrSkipTest(
+        let sessionToken = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_SESSION_TOKEN")
         let region = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_DEFAULT_REGION")
 
-        let envAWSCredResolver = try EnvironmentAWSCredentialIdentityResolver()
+        // let envAWSCredResolver = try EnvironmentAWSCredentialIdentityResolver()
+        // let crtCreds = envAWSCredResolver.crtAWSCredentialIdentityResolver
+
+        let awsCredentialIdentity = AWSCredentialIdentity(
+            accessKey: accessKey, secret: secretKey, sessionToken: sessionToken)
+        let staticAWSCredIdent = try StaticAWSCredentialIdentityResolver(awsCredentialIdentity)
+
         let iotClientConfig = try await IoTClient.IoTClientConfiguration(
-            awsCredentialIdentityResolver: envAWSCredResolver, region: region)
+            awsCredentialIdentityResolver: staticAWSCredIdent, region: region)
 
         print("IoTClient()")
-        let iotClient = try await AWSIoT.IoTClient(
-            config: iotClientConfig)
+        let iotClient = AWSIoT.IoTClient(config: iotClientConfig)
 
         // feed certificate ID to get the certificate Arn
         print("describeCertificate()")
