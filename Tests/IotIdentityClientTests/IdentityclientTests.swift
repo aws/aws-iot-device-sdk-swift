@@ -1,4 +1,5 @@
 import AWSIoT
+import AWSSDKIdentity
 import AwsIotDeviceSdkSwift
 import Foundation
 import XCTest
@@ -92,71 +93,46 @@ class IdentityClientTests: XCTestCase {
     // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
     // in the identity tests.
     private func cleanUpThing(certificateId: String?, thingName: String?) async throws {
-        print("cleanUpThing()")
-
-        let accessKey = try getEnvironmentVarOrSkipTest(
+        // Check that credential env variables have been set or skip test
+        let _ = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_ACCESS_KEY_ID")
-        let secretAccessKey = try getEnvironmentVarOrSkipTest(
+        let _ = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_SECRET_ACCESS_KEY")
-        let sessioinToken = try getEnvironmentVarOrSkipTest(
+        let _ = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_SESSION_TOKEN")
+        let region = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_DEFAULT_REGION")
+
+        let envAWSCredResolver = try EnvironmentAWSCredentialIdentityResolver()
+        let iotClientConfig = try await IoTClient.IoTClientConfiguration(
+            awsCredentialIdentityResolver: envAWSCredResolver, region: region)
 
         print("IoTClient()")
-        let iotClient = try await withTimeout(seconds: 5) {
-            try await AWSIoT.IoTClient(
-                config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-        }
+        let iotClient = try await AWSIoT.IoTClient(
+            config: iotClientConfig)
 
         // feed certificate ID to get the certificate Arn
         print("describeCertificate()")
-        let describeCertificateOutput = try await withTimeout(seconds: 5) {
-            try await iotClient.describeCertificate(
-                input: DescribeCertificateInput(
-                    certificateId: certificateId))
-        }
+        let describeCertificateOutput = try await iotClient.describeCertificate(
+            input: DescribeCertificateInput(
+                certificateId: certificateId))
 
         if let certDescription = describeCertificateOutput.certificateDescription {
             if let certificateArn: String = certDescription.certificateArn {
 
                 print("detachThingPrincipal()")
-                _ = try await withTimeout(seconds: 5) {
-                    try await iotClient.detachThingPrincipal(
-                        input: DetachThingPrincipalInput(
-                            principal: certificateArn, thingName: thingName))
-                }
+                _ = try await iotClient.detachThingPrincipal(
+                    input: DetachThingPrincipalInput(
+                        principal: certificateArn, thingName: thingName))
+
                 print("Deleting thingName: \(thingName ?? "no thingName")")
-                _ = try await withTimeout(seconds: 5) {
-                    try await iotClient.deleteThing(
-                        input: DeleteThingInput(thingName: thingName))
-                }
+                _ = try await iotClient.deleteThing(
+                    input: DeleteThingInput(thingName: thingName))
             } else {
                 print("Certificate ARN not found")
             }
         } else {
             print("Certificate Description not found")
-        }
-    }
-
-    // Helper wrapper to provide a timeout
-    func withTimeout<T: Sendable>(
-        seconds timeout: TimeInterval,
-        operation: @escaping @Sendable () async throws -> T
-    ) async throws -> T {
-        try await withThrowingTaskGroup(of: T.self) { group in
-            group.addTask {
-                try await operation()
-            }
-            group.addTask {
-                try await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
-                throw NSError(
-                    domain: "TimeoutError", code: 1,
-                    userInfo: [NSLocalizedDescriptionKey: "Operation timed out"])
-            }
-            guard let result = try await group.next() else {
-                throw NSError(domain: "UnexpectedNil", code: 2)
-            }
-            group.cancelAll()
-            return result
         }
     }
 
