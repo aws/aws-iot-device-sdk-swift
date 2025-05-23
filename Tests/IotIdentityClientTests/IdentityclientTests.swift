@@ -92,18 +92,26 @@ class IdentityClientTests: XCTestCase {
     // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
     // in the identity tests.
     private func cleanUpThing(certificateId: String?, thingName: String?) async throws {
+        print("cleanUpThing()")
+
+        print("IoTClient()")
         let iotClient = try await withTimeout(seconds: 5) {
             try await AWSIoT.IoTClient(
                 config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
         }
 
         // feed certificate ID to get the certificate Arn
-        let describeCertificateOutput = try await iotClient.describeCertificate(
-            input: DescribeCertificateInput(
-                certificateId: certificateId))
+        print("describeCertificate()")
+        let describeCertificateOutput = try await withTimeout(seconds: 5) {
+            try await iotClient.describeCertificate(
+                input: DescribeCertificateInput(
+                    certificateId: certificateId))
+        }
+
         if let certDescription = describeCertificateOutput.certificateDescription {
             if let certificateArn: String = certDescription.certificateArn {
 
+                print("detachThingPrincipal()")
                 _ = try await withTimeout(seconds: 5) {
                     try await iotClient.detachThingPrincipal(
                         input: DetachThingPrincipalInput(
