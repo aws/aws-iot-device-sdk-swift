@@ -252,6 +252,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     let request: GetShadowRequest = GetShadowRequest(thingName: thingName)
                     do {
                         let response = try await shadowClient.getShadow(request: request)
+                        
                         print(
                             """
                             ─── Get Shadow Response ───────────────────────────────────────────────
