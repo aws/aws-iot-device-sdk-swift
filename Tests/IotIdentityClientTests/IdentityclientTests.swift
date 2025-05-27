@@ -23,7 +23,7 @@ class IdentityClientTests: XCTestCase {
     override func setUp() {
         super.setUp()
         IotDeviceSdk.initialize()
-        // try? Logger.initialize(target: .standardOutput, level: .error)
+        try? Logger.initialize(target: .standardOutput, level: .error)
     }
 
     override func tearDown() {
