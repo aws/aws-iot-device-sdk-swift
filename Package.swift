@@ -62,7 +62,7 @@ let package = Package(
             name: "IotJobsClientTests",
             dependencies: [
                 "IotJobsClient",
-                .product(name:"AWSIoT", package: "aws-sdk-swift")
+                .product(name: "AWSIoT", package: "aws-sdk-swift")
             ],
             path: "Tests/IotJobsClientTests"),
         .target(

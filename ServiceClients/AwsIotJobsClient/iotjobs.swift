@@ -137,8 +137,7 @@ public class IotJobsClient {
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func describeJobExecution(request: DescribeJobExecutionRequest) async throws
-        -> DescribeJobExecutionResponse
-    {
+        -> DescribeJobExecutionResponse {
         let correlationToken: String = request.clientToken
 
         // Publish Topic
@@ -209,8 +208,7 @@ public class IotJobsClient {
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func getPendingJobExecutions(request: GetPendingJobExecutionsRequest) async throws
-        -> GetPendingJobExecutionsResponse
-    {
+        -> GetPendingJobExecutionsResponse {
         let correlationToken: String = request.clientToken
 
         // Publish Topic
@@ -280,8 +278,7 @@ public class IotJobsClient {
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func startNextPendingJobExecution(request: StartNextPendingJobExecutionRequest)
-        async throws -> StartNextJobExecutionResponse
-    {
+        async throws -> StartNextJobExecutionResponse {
         let correlationToken: String = request.clientToken
 
         // Publish Topic
@@ -351,8 +348,7 @@ public class IotJobsClient {
     /// - Throws: `IotJobsClientError` Thrown when the provided request is rejected or when
     ///             a low-level `CRTError` or other underlying `Error` is thrown.
     public func updateJobExecution(request: UpdateJobExecutionRequest) async throws
-        -> UpdateJobExecutionResponse
-    {
+        -> UpdateJobExecutionResponse {
         let correlationToken: String = request.clientToken
 
         // Publish Topic
@@ -1139,18 +1135,6 @@ public struct DeserializationFailureEvent: Sendable {
 
     /// Topic from which the payload was received.
     public let topic: String
-
-    /// Initializes a new `DeserializationFailureEvent`
-    ///
-    /// - Parameters:
-    ///   - cause: sets the `Error` that triggered the failure.
-    ///   - payload: the payload of the message that triggered the failure.
-    ///   - topic: the topic of the message that triggered the failure.
-    internal init(cause: Error, payload: Data, topic: String) {
-        self.cause = cause
-        self.payload = payload
-        self.topic = topic
-    }
 }
 
 /// The status of the job execution.

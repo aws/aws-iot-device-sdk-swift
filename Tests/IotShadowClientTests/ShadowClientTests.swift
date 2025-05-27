@@ -77,7 +77,7 @@ class ShadowClientTests: XCTestCase {
         // Used to track whether the Mqtt5 Client connection is successful.
         let connectionExpectation: XCTestExpectation = expectation(
             description: "Connection Success")
-        let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { successData in
+        let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { _ in
             connectionExpectation.fulfill()
         }
 
@@ -103,12 +103,11 @@ class ShadowClientTests: XCTestCase {
 
     // Helper function to clean up
     func cleanupDeleteShadow(shadowClient: IotShadowClient, thingName: String, shadowName: String)
-        async
-    {
+        async {
         let deleteRequest: DeleteNamedShadowRequest = DeleteNamedShadowRequest(
             thingName: thingName, shadowName: shadowName)
         do {
-            let _ = try await shadowClient.deleteNamedShadow(request: deleteRequest)
+            _ = try await shadowClient.deleteNamedShadow(request: deleteRequest)
         } catch {}
     }
 
@@ -121,7 +120,7 @@ class ShadowClientTests: XCTestCase {
         let request: GetNamedShadowRequest = GetNamedShadowRequest(
             thingName: thingName, shadowName: shadowName)
         do {
-            let _ = try await shadowClient.getNamedShadow(request: request)
+            _ = try await shadowClient.getNamedShadow(request: request)
         } catch IotShadowClientError.errorResponse(let errorResponse) {
             XCTAssertEqual(
                 errorResponse.code, 404,
@@ -142,7 +141,7 @@ class ShadowClientTests: XCTestCase {
             thingName: thingName, shadowName: shadowName, state: shadowState)
 
         do {
-            let _ = try await shadowClient.updateNamedShadow(
+            _ = try await shadowClient.updateNamedShadow(
                 request: updateRequest)
         } catch {
             XCTFail("updateNamedShadow failed")
@@ -158,7 +157,7 @@ class ShadowClientTests: XCTestCase {
         let getRequest: GetNamedShadowRequest = GetNamedShadowRequest(
             thingName: thingName, shadowName: shadowName)
         do {
-            let _ = try await shadowClient.getNamedShadow(request: getRequest)
+            _ = try await shadowClient.getNamedShadow(request: getRequest)
         } catch {
             // Try to clean up
             await cleanupDeleteShadow(
@@ -176,7 +175,7 @@ class ShadowClientTests: XCTestCase {
         let deleteRequest: DeleteNamedShadowRequest = DeleteNamedShadowRequest(
             thingName: thingName, shadowName: shadowName)
         do {
-            let _ = try await shadowClient.deleteNamedShadow(request: deleteRequest)
+            _ = try await shadowClient.deleteNamedShadow(request: deleteRequest)
         } catch {
             XCTFail("deleteNamedShadow failed")
         }
