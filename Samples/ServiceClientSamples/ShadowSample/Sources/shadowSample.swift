@@ -23,14 +23,12 @@ struct Mqtt5Sample: AsyncParsableCommand {
     @Argument(help: "The path to the private key file.")
     var key: String
 
+    @Argument(help: "AWS IoT thing name.")
+    var thingName: String
+
     @Argument(
         help: "Client id to use (optional). Please make sure the client id matches the policy.")
     var clientId: String = "test-" + UUID().uuidString
-
-    @Argument(
-        help: "thing name to use for shadow service"
-    )
-    var thingName: String = "thingName"
 
     /// Displays available Commands
     func showMenu() {
@@ -38,14 +36,16 @@ struct Mqtt5Sample: AsyncParsableCommand {
             """
 
             Commands:
-            get shadow - Gets state of shadow for \(thingName)
-            get named shadow <shadow name> - Gets state of \(thingName) for <shadow name>
-            update shadow <color> - Updates state of shadow \(thingName) to <color>
-            update named shadow <shadow name> <color> - Updates state of \(thingName) for <shadow name> to <color>
-            delete shadow - Deletes \(thingName) shadow
-            delete named shadow <shadow name> - Deletes <shadow name> of \(thingName)
-            help - Display available commands
-            exit - Exit the program
+            get - Gets the current full state of the classic (unamed) shadow.
+            delete - Deletes the classic (unnamed) shadow completely.
+            update-desired <desired-state-json-document> - Applies an update to the classic shadow's desired state component.
+                Properties in the JSON document set to non-null will be set to new values. Properties in the JSON document set
+                to null will be removed.
+            update-reported <reported-state-json-document> - Applies an update to the classic shadow's reporeted state component.
+                Properties in the JSON docuemnt set to non-null will be set to new values. Properties in the JSON document set
+                to null will be removed.
+            help - Prints the set of supported commands.
+            quit - Quits the sample application.
 
             """)
     }
@@ -62,11 +62,17 @@ struct Mqtt5Sample: AsyncParsableCommand {
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
             clientBuilder.withClientId(clientId)
 
+            // Use the builder to create an Mqtt5 Client and connect it.
             let client = try await buildAndConnect(from: clientBuilder)
 
+            // Setup options for the MqttRequestResponseClient
             let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
                 operationTimeout: 5)
+
+            // Create an IotShadowClient using the Mqtt5 Client and MqttRequestResponseClientOptions
             let shadowClient = try IotShadowClient(mqttClient: client, options: options)
+
+            startStreamingOperations(shadowClient: shadowClient)
 
             // Display commands.
             showMenu()
@@ -75,7 +81,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
             await interactiveLoop(client: client, shadowClient: shadowClient)
 
         } catch {
-            print("Failed to setup client.")
+            print("Failed to setup client with error: \(error).")
         }
     }
 
@@ -83,40 +89,91 @@ struct Mqtt5Sample: AsyncParsableCommand {
     /// either succeeds or fails.
     ///
     /// - Returns: The connected `Mqtt5Client` instance.
-    /// - Throws:  `CRTError` (wrapped in `LifecycleConnectionFailureData`) or any
-    ///            synchronous error thrown by `build()` / `start()`.
+    /// - Throws:  `CRTError` from a connection failure or any synchronous error thrown by `build()` / `start()`.
     func buildAndConnect(
         from builder: Mqtt5ClientBuilder
     ) async throws -> Mqtt5Client {
 
         try await withCheckedThrowingContinuation { cont in
             // We'll need this variable inside the callbacks to hand the client back
-            var clientRef: Mqtt5Client?
+            var client: Mqtt5Client?
 
-            // Install *one‑shot* callbacks that resume the continuation.
+            // Setup callbacks that resume the continuation.
             builder.withCallbacks(
                 onLifecycleEventAttemptingConnect: { @Sendable _ in
-                    print("Mqtt5Client: AttemptingConnect")
+                    print("Mqtt5Client: Attempting Connection.")
                 },
                 onLifecycleEventConnectionSuccess: { @Sendable _ in
-                    guard let c = clientRef else { return }  // should always be set
-                    cont.resume(returning: c)
+                    print("Mqtt5Client: Connection Successful.")
+                    guard let client = client else { return }  // should always be set
+                    cont.resume(returning: client)
                 },
                 onLifecycleEventConnectionFailure: { @Sendable data in
                     print(
-                        "Mqtt5Client: ConnectionFailure \(data.crtError.code): \(data.crtError.message)"
+                        "Mqtt5Client: Connection Failed with error \(data.crtError.code): \(data.crtError.message)"
                     )
-                    // cont.resume(throwing: data.crtError)
+                    cont.resume(throwing: CommonRunTimeError.crtError(data.crtError))
                 })
 
             // Build the client *after* the callbacks are attached.
             do {
-                let client = try builder.build()
-                clientRef = client  // make it visible to the callbacks
-                try client.start()  // begins async connect attempt
+                // Build the Mqtt5Client using the builder.
+                client = try builder.build()
+
+                guard let client = client else { return }
+                // Attempt to connect the Mqtt5 Client
+                try client.start()
             } catch {
-                cont.resume(throwing: error)  // build() or start() failed
+                // build() or start() failed.
+                cont.resume(throwing: error)
             }
+        }
+    }
+
+    func startStreamingOperations(shadowClient: IotShadowClient) {
+        do {
+            // Start a shadow delta updated stream
+            let shadowDeltaUpdatedSubscriptionRequest = ShadowDeltaUpdatedSubscriptionRequest(
+                thingName: thingName)
+            let clientStreamOptions = ClientStreamOptions<ShadowDeltaUpdatedEvent>(
+                streamEventHandler: { event in
+                    print("streamEvent: \(event)")
+                },
+                subscriptionEventHandler: { event in
+                    print("ShadowDeltaUpdatedSubscriptionRequest Subscription event")
+                },
+                deserializationFailureHandler: { _ in
+                    print("Deserialization Failure")
+                }
+            )
+            let deltaUpdatedOperation = try shadowClient.createShadowDeltaUpdatedStream(
+                request: shadowDeltaUpdatedSubscriptionRequest,
+                options: clientStreamOptions)
+
+            // Start a named shadow updated stream
+            let shadowUpdatedSubscriptionRequest = ShadowUpdatedSubscriptionRequest(
+                thingName: thingName)
+            let clientStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
+                streamEventHandler: { event in
+                    print("streamEvent \(event)")
+                },
+                subscriptionEventHandler: { event in
+                    print("ShadowUpdatedSubscriptionRequest Subscription event")
+                },
+                deserializationFailureHandler: { _ in
+                    print("Deserialization Failure")
+                }
+            )
+            let updatedOperation = try shadowClient.createShadowUpdatedStream(
+                request: shadowUpdatedSubscriptionRequest,
+                options: clientStreamOptions2)
+
+            // open the streams
+            print("Opening Streams")
+            try deltaUpdatedOperation.open()
+            try updatedOperation.open()
+        } catch {
+            print("Error while attempting to setup Shadow Client streams \(error)")
         }
     }
 
@@ -191,6 +248,24 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     print("Exiting MQTT5 Sample")
                     shouldExit = true
 
+                case "get":
+                    let request: GetShadowRequest = GetShadowRequest(thingName: thingName)
+                    do {
+                        let response = try await shadowClient.getShadow(request: request)
+                        print(
+                            """
+                            ─── Get Shadow Response ───────────────────────────────────────────────
+                            state: \(response.state?.desired ?? ["<nil>":"<nil>"])
+                            metadata.desired: \(response.metadata?.desired ?? ["<nil>":"<nil>"])
+                            timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
+                            ───────────────────────────────────────────────────────────────────────
+                            """)
+                    } catch {
+                        logShadowClientError(error)
+                    }
+                case "delete":
+                    print("setup delete")
+
                 default:
                     do {
                         let tokens = input.split(separator: " ")
@@ -200,7 +275,9 @@ struct Mqtt5Sample: AsyncParsableCommand {
                         }
                         let secondWord = String(tokens[1])
 
-                        if lowercasedInput.hasPrefix("get") {
+                        if lowercasedInput.hasPrefix("update-desired") {
+                        } else if lowercasedInput.hasPrefix("update-reported") {
+                        } else if lowercasedInput.hasPrefix("get") {
                             switch secondWord {
                             case "shadow":
                                 print(
@@ -261,10 +338,10 @@ struct Mqtt5Sample: AsyncParsableCommand {
                                     \n
                                     """)
                                 let request: UpdateShadowRequest = UpdateShadowRequest(
-                                    thingName: thingName)
-                                let shadowState: ShadowState = ShadowState()
-                                shadowState.withDesired(desired: ["Color": String(tokens[2])])
-                                request.withState(state: shadowState)
+                                    thingName: thingName,
+                                    state: ShadowState(desired: [
+                                        "Color": String(tokens[2])
+                                    ]))
                                 let response = try await shadowClient.updateShadow(request: request)
                                 print(
                                     """
@@ -287,10 +364,8 @@ struct Mqtt5Sample: AsyncParsableCommand {
                                     """)
                                 let request: UpdateNamedShadowRequest = UpdateNamedShadowRequest(
                                     thingName: thingName,
-                                    shadowName: String(tokens[3]))
-                                let shadowState: ShadowState = ShadowState()
-                                shadowState.withDesired(desired: ["Color": String(tokens[4])])
-                                request.withState(state: shadowState)
+                                    shadowName: String(tokens[3]),
+                                    state: ShadowState(desired: ["Color": String(tokens[4])]))
                                 let response = try await shadowClient.updateNamedShadow(
                                     request: request)
                                 print(
