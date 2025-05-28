@@ -12,7 +12,8 @@ Once connected, the sample supports the following shadow-related commands:
 * `update-desired <desired-state-json-document>` - applies an update to the classic shadow's desired state component.  Properties in the JSON document set to non-null will be set to new values.  Properties in the JSON document set to null will be removed.
 * `update-reported <reported-state-json-document>` - applies an update to the classic shadow's reported state component.  Properties in the JSON document set to non-null will be set to new values.  Properties in the JSON document set to null will be removed.
 
-Two additional commands are supported:
+Three additional commands are supported:
+* `toggle-full-details` - By default, tuncated response details are printed. This command will toggle on/off the full contents of responses received from the Shadow service. More information on full details can be found at the bottom of the README [here](#toggle-full-details)
 * `help` - prints the set of supported commands
 * `quit` - quits the sample application
 
@@ -303,4 +304,70 @@ yields something like
 ─── DeleteShadowResponse ──────────────────────────────────────────────
 timestamp: 2056-05-28T18:21:57Z
 version:   80
+```
+
+## toggle-full-details
+The various response modeled objects sent from the Shadow service have been truncated in the output of this sample for ease of use. When full details are turned on, the output will provide everything that you have access to in the responses. For example the command:
+```
+update-reported {"Color":"green"}
+```
+
+which yeilded:
+```
+─── UpdateShadowResponse ────────────────────────────────────────────
+reported state: ["Color": "green"]
+
+─── ShadowUpdatedEvent ────────────────────────────────────────────────
+current reported state:  ["Color": "green"]
+```
+
+will instead output:
+```
+─── UpdateShadowResponse ────────────────────────────────────────────
+{
+  "clientToken" : "2BCE4DBE-5602-4EC3-91F9-3EB6A858DEB3",
+  "metadata" : {
+    "reported" : {
+      "Color" : {
+        "timestamp" : 1748466937
+      }
+    }
+  },
+  "state" : {
+    "reported" : {
+      "Color" : "green"
+    }
+  },
+  "timestamp" : 1748466937,
+  "version" : 108
+}
+
+─── ShadowUpdatedEvent ────────────────────────────────────────────────
+{
+  "current" : {
+    "metadata" : {
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748466937
+        }
+      }
+    },
+    "state" : {
+      "reported" : {
+        "Color" : "green"
+      }
+    },
+    "version" : 108
+  },
+  "previous" : {
+    "metadata" : {
+
+    },
+    "state" : {
+
+    },
+    "version" : 107
+  },
+  "timestamp" : 1748466937
+}
 ```

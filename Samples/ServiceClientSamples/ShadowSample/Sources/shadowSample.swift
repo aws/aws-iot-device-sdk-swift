@@ -36,13 +36,32 @@ struct Mqtt5Sample: AsyncParsableCommand {
             """
 
             Usage:
-            get -- gets the thing's current shadow document
-            delete -- deletes the thing's shadow document
-            update-desired <Desired state JSON> -- updates the desired component of the thing's shadow document
+            SHADOW COMMANDS
+            get                                   -- gets the thing's current shadow document
+            delete                                -- deletes the thing's shadow document
+            update-desired <Desired state JSON>   -- updates the desired component of the thing's shadow document
             update-reported <Reported state JSON> -- updates the reported component of the thing's shadow document
-            quit -- exit the application
+
+            SAMPLE COMMANDS
+            toggle-full-details                   -- Toggles between minimal and full printout of responses
+            quit                                  -- exit the application
 
             """)
+    }
+
+    func prettyPrint<T: Encodable>(_ object: T) -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        do {
+            let data = try encoder.encode(object)
+            if let json = String(data: data, encoding: .utf8) {
+                return json
+            }
+        } catch {
+            return "Failed to encode object: \(error)"
+        }
+        return "Failed to encode object"
     }
 
     mutating func run() async throws {
@@ -57,8 +76,10 @@ struct Mqtt5Sample: AsyncParsableCommand {
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
             clientBuilder.withClientId(clientId)
 
+            let clientState = ClientState()
+
             // Use the builder to create an Mqtt5 Client and connect it.
-            let client = try await buildAndConnect(from: clientBuilder)
+            let client = try await buildAndConnect(from: clientBuilder, state: clientState)
 
             // Setup options for the MqttRequestResponseClient
             let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
@@ -68,7 +89,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
             let shadowClient = try IotShadowClient(mqttClient: client, options: options)
 
             let (deltaUpdatedOperation, updatedOperation) = try startStreamingOperations(
-                shadowClient: shadowClient)
+                shadowClient: shadowClient, clientState: clientState)
 
             try deltaUpdatedOperation.open()
             try updatedOperation.open()
@@ -77,7 +98,8 @@ struct Mqtt5Sample: AsyncParsableCommand {
             showMenu()
 
             // Enter the interactive loop.
-            await interactiveLoop(client: client, shadowClient: shadowClient)
+            await interactiveLoop(
+                client: client, shadowClient: shadowClient, clientState: clientState)
 
         } catch {
             print("Failed to setup client with error: \(error).")
@@ -90,11 +112,10 @@ struct Mqtt5Sample: AsyncParsableCommand {
     /// - Returns: The connected `Mqtt5Client` instance.
     /// - Throws:  `CRTError` from a connection failure or any synchronous error thrown by `build()` / `start()`.
     func buildAndConnect(
-        from builder: Mqtt5ClientBuilder
+        from builder: Mqtt5ClientBuilder, state: ClientState
     ) async throws -> Mqtt5Client {
 
         try await withCheckedThrowingContinuation { cont in
-            let state = ClientState()
 
             // Setup callbacks that resume the continuation.
             builder.withCallbacks(
@@ -129,23 +150,30 @@ struct Mqtt5Sample: AsyncParsableCommand {
         }
     }
 
-    func startStreamingOperations(shadowClient: IotShadowClient) throws -> (
-        StreamingOperation, StreamingOperation
-    ) {
+    func startStreamingOperations(shadowClient: IotShadowClient, clientState: ClientState) throws
+        -> (
+            StreamingOperation, StreamingOperation
+        )
+    {
         do {
             // Start a shadow delta updated stream
             let shadowDeltaUpdatedSubscriptionRequest = ShadowDeltaUpdatedSubscriptionRequest(
                 thingName: thingName)
             let clientStreamOptions = ClientStreamOptions<ShadowDeltaUpdatedEvent>(
                 streamEventHandler: { event in
-                    print(
-                        """
+                    if clientState.fullDetails {
+                        print(
+                            "\n─── ShadowDeltaUpdatedEvent ───────────────────────────────────────────\n"
+                                + prettyPrint(event) + "\n\n")
+                    } else {
+                        print(
+                            """
 
-                        ─── ShadowDeltaUpdatedEvent ───────────────────────────────────────────
-                        Updated State
-                        state:     \(event.state ?? ["<nil>":"<nil>"])                        
+                            ─── ShadowDeltaUpdatedEvent ───────────────────────────────────────────
+                            state:     \(event.state ?? ["<nil>":"<nil>"])
 
-                        """)
+                            """)
+                    }
                 },
                 subscriptionEventHandler: { _ in
                 },
@@ -161,25 +189,35 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 thingName: thingName)
             let clientStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
                 streamEventHandler: { event in
-                    var output =
-                        "\n─── ShadowUpdatedEvent ────────────────────────────────────────────────\n"
+                    if clientState.fullDetails {
+                        print(
+                            "\n─── ShadowUpdatedEvent ────────────────────────────────────────────────\n"
+                                + prettyPrint(event) + "\n\n")
 
-                    if let currentReported = event.current?.state?.reported {
-                        output += "current reported state:  \(currentReported)\n"
-                    }
+                    } else {
+                        var output =
+                            "\n─── ShadowUpdatedEvent ────────────────────────────────────────────────\n"
 
-                    if let prevReported = event.previous?.state?.reported {
-                        output += "previous reported state: \(prevReported)\n"
-                    }
+                        if let currentReported = event.current?.state?.reported {
+                            output += "current reported state:  \(currentReported)\n"
+                        }
 
-                    if let currentDesired = event.current?.state?.desired {
-                        output += "current desired state:   \(currentDesired)\n"
-                    }
+                        if let prevReported = event.previous?.state?.reported {
+                            output += "previous reported state: \(prevReported)\n"
+                        }
 
-                    if let prevDesired = event.previous?.state?.desired {
-                        output += "previous desired state:  \(prevDesired)\n"
+                        if let currentDesired = event.current?.state?.desired {
+                            output += "current desired state:   \(currentDesired)\n"
+                        }
+
+                        if let prevDesired = event.previous?.state?.desired {
+                            output += "previous desired state:  \(prevDesired)\n"
+                        }
+
+                        output += "\n"
+
+                        print(output)
                     }
-                    print(output)
                 },
                 subscriptionEventHandler: { _ in
                 },
@@ -274,8 +312,11 @@ struct Mqtt5Sample: AsyncParsableCommand {
     }
 
     // Main loop that runs while the sample is active
-    func interactiveLoop(client: Mqtt5Client, shadowClient: IotShadowClient) async {
+    func interactiveLoop(
+        client: Mqtt5Client, shadowClient: IotShadowClient, clientState: ClientState
+    ) async {
         var shouldExit = false
+        var fullDetails = false
         while !shouldExit {
             try? await Task.sleep(nanoseconds: 500_000_000)
 
@@ -296,18 +337,25 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     let request: GetShadowRequest = GetShadowRequest(thingName: thingName)
                     do {
                         let response = try await shadowClient.getShadow(request: request)
-                        print(
-                            "\n─── GetShadowResponse ─────────────────────────────────────────────────"
-                        )
-                        if let state = response.state {
-                            if let reported = state.reported {
-                                print("reported state: \(reported)")
-                            }
-                            if let desired = state.desired {
-                                print("desired state:  \(desired)")
+                        if fullDetails {
+                            print(
+                                "\n─── GetShadowResponse ─────────────────────────────────────────────────\n"
+                                    + prettyPrint(response) + "\n\n")
+                        } else {
+                            if let state = response.state {
+                                var output =
+                                    "\n─── GetShadowResponse ─────────────────────────────────────────────────\n"
+                                if let reported = state.reported {
+                                    output += "reported state: \(reported)\n"
+                                }
+                                if let desired = state.desired {
+                                    output += "desired state:  \(desired)\n"
+                                }
+
+                                output += "\n"
+                                print(output)
                             }
                         }
-                        print(" ")
                     } catch {
                         logShadowClientError(error)
                     }
@@ -317,17 +365,34 @@ struct Mqtt5Sample: AsyncParsableCommand {
                         thingName: thingName)
                     do {
                         let response = try await shadowClient.deleteShadow(request: request)
-                        print(
-                            """
 
-                            ─── DeleteShadowResponse ──────────────────────────────────────────────
-                            timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                            version:   \(response.version ?? 0)
+                        if fullDetails {
+                            print(
+                                "\n─── DeleteShadowResponse ──────────────────────────────────────────────\n"
+                                    + prettyPrint(response) + "\n\n")
+                        } else {
+                            print(
+                                """
 
-                            """)
+                                ─── DeleteShadowResponse ──────────────────────────────────────────────
+                                timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
+                                version:   \(response.version ?? 0)
+
+                                """)
+                        }
+
                     } catch {
                         logShadowClientError(error)
                     }
+
+                case "toggle-full-details":
+                    if fullDetails {
+                        print("Toggling full details off\n\n")
+                    } else {
+                        print("Toggling full details on\n\n")
+                    }
+                    fullDetails = !fullDetails
+                    clientState.fullDetails = fullDetails
 
                 default:
                     do {
@@ -345,13 +410,20 @@ struct Mqtt5Sample: AsyncParsableCommand {
                                 let request = UpdateShadowRequest(
                                     thingName: thingName, state: desiredState)
                                 let response = try await shadowClient.updateShadow(request: request)
-                                print(
-                                    """
+                                if fullDetails {
+                                    print(
+                                        "\n─── UpdateShadowResponse ────────────────────────────────────────────\n"
+                                            + prettyPrint(response) + "\n\n")
+                                } else {
+                                    print(
+                                        """
 
-                                    ─── UpdateShadowResponse ────────────────────────────────────────────
-                                    desired state:  \(response.state?.desired ?? ["<nil>":"<nil>"])
+                                        ─── UpdateShadowResponse ────────────────────────────────────────────
+                                        desired state:  \(response.state?.desired ?? ["<nil>":"<nil>"])
 
-                                    """)
+                                        """
+                                    )
+                                }
                             }
                         } else if lowercasedInput.hasPrefix("update-reported") {
                             let inputJSON = tokens.dropFirst().joined(separator: " ")
@@ -360,13 +432,20 @@ struct Mqtt5Sample: AsyncParsableCommand {
                                 let request: UpdateShadowRequest = UpdateShadowRequest(
                                     thingName: thingName, state: reportedState)
                                 let response = try await shadowClient.updateShadow(request: request)
-                                print(
-                                    """
+                                if fullDetails {
+                                    print(
+                                        "\n─── UpdateShadowResponse ────────────────────────────────────────────\n"
+                                            + prettyPrint(response) + "\n\n")
+                                } else {
+                                    print(
+                                        """
 
-                                    ─── UpdateShadowResponse ────────────────────────────────────────────
-                                    reported state: \(response.state?.reported ?? ["<nil>":"<nil>"])
+                                        ─── UpdateShadowResponse ────────────────────────────────────────────
+                                        reported state: \(response.state?.reported ?? ["<nil>":"<nil>"])
 
-                                    """)
+                                        """
+                                    )
+                                }
                             }
                         }
                     } catch {
@@ -380,6 +459,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
 
 final class ClientState {
     var client: Mqtt5Client?
+    var fullDetails = false
     private var isResumed = false
     private let lock = NSLock()
 
