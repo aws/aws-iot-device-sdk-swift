@@ -35,17 +35,12 @@ struct Mqtt5Sample: AsyncParsableCommand {
         print(
             """
 
-            Commands:
-            get - Gets the current full state of the classic (unamed) shadow.
-            delete - Deletes the classic (unnamed) shadow completely.
-            update-desired <desired-state-json-document> - Applies an update to the classic shadow's desired state component.
-                Properties in the JSON document set to non-null will be set to new values. Properties in the JSON document set
-                to null will be removed.
-            update-reported <reported-state-json-document> - Applies an update to the classic shadow's reporeted state component.
-                Properties in the JSON docuemnt set to non-null will be set to new values. Properties in the JSON document set
-                to null will be removed.
-            help - Prints the set of supported commands.
-            quit - Quits the sample application.
+            Usage:
+            get -- gets the thing's current shadow document
+            delete -- deletes the thing's shadow document
+            update-desired <Desired state JSON> -- updates the desired component of the thing's shadow document
+            update-reported <Reported state JSON> -- updates the reported component of the thing's shadow document
+            quit -- exit the application
 
             """)
     }
@@ -72,7 +67,11 @@ struct Mqtt5Sample: AsyncParsableCommand {
             // Create an IotShadowClient using the Mqtt5 Client and MqttRequestResponseClientOptions
             let shadowClient = try IotShadowClient(mqttClient: client, options: options)
 
-            startStreamingOperations(shadowClient: shadowClient)
+            let (deltaUpdatedOperation, updatedOperation) = try startStreamingOperations(
+                shadowClient: shadowClient)
+
+            try deltaUpdatedOperation.open()
+            try updatedOperation.open()
 
             // Display commands.
             showMenu()
@@ -95,8 +94,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
     ) async throws -> Mqtt5Client {
 
         try await withCheckedThrowingContinuation { cont in
-            // We'll need this variable inside the callbacks to hand the client back
-            var client: Mqtt5Client?
+            let state = ClientState()
 
             // Setup callbacks that resume the continuation.
             builder.withCallbacks(
@@ -105,45 +103,53 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 },
                 onLifecycleEventConnectionSuccess: { @Sendable _ in
                     print("Mqtt5Client: Connection Successful.")
-                    guard let client = client else { return }  // should always be set
-                    cont.resume(returning: client)
+                    guard let client = state.client else { return }
+                    state.tryResumeOnce {
+                        cont.resume(returning: client)
+                    }
                 },
                 onLifecycleEventConnectionFailure: { @Sendable data in
                     print(
                         "Mqtt5Client: Connection Failed with error \(data.crtError.code): \(data.crtError.message)"
                     )
-                    cont.resume(throwing: CommonRunTimeError.crtError(data.crtError))
                 })
 
             // Build the client *after* the callbacks are attached.
             do {
                 // Build the Mqtt5Client using the builder.
-                client = try builder.build()
-
-                guard let client = client else { return }
-                // Attempt to connect the Mqtt5 Client
+                let client = try builder.build()
+                state.client = client
                 try client.start()
             } catch {
-                // build() or start() failed.
-                cont.resume(throwing: error)
+                state.tryResumeOnce {
+                    // build() or start() failed.
+                    cont.resume(throwing: error)
+                }
             }
         }
     }
 
-    func startStreamingOperations(shadowClient: IotShadowClient) {
+    func startStreamingOperations(shadowClient: IotShadowClient) throws -> (
+        StreamingOperation, StreamingOperation
+    ) {
         do {
             // Start a shadow delta updated stream
             let shadowDeltaUpdatedSubscriptionRequest = ShadowDeltaUpdatedSubscriptionRequest(
                 thingName: thingName)
             let clientStreamOptions = ClientStreamOptions<ShadowDeltaUpdatedEvent>(
                 streamEventHandler: { event in
-                    print("streamEvent: \(event)")
+                    print(
+                        """
+
+                        ─── ShadowDeltaUpdatedEvent ───────────────────────────────────────────
+                        Updated State
+                        state:     \(event.state ?? ["<nil>":"<nil>"])                        
+
+                        """)
                 },
-                subscriptionEventHandler: { event in
-                    print("ShadowDeltaUpdatedSubscriptionRequest Subscription event")
+                subscriptionEventHandler: { _ in
                 },
                 deserializationFailureHandler: { _ in
-                    print("Deserialization Failure")
                 }
             )
             let deltaUpdatedOperation = try shadowClient.createShadowDeltaUpdatedStream(
@@ -155,25 +161,39 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 thingName: thingName)
             let clientStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
                 streamEventHandler: { event in
-                    print("streamEvent \(event)")
+                    var output =
+                        "\n─── ShadowUpdatedEvent ────────────────────────────────────────────────\n"
+
+                    if let currentReported = event.current?.state?.reported {
+                        output += "current reported state:  \(currentReported)\n"
+                    }
+
+                    if let prevReported = event.previous?.state?.reported {
+                        output += "previous reported state: \(prevReported)\n"
+                    }
+
+                    if let currentDesired = event.current?.state?.desired {
+                        output += "current desired state:   \(currentDesired)\n"
+                    }
+
+                    if let prevDesired = event.previous?.state?.desired {
+                        output += "previous desired state:  \(prevDesired)\n"
+                    }
+                    print(output)
                 },
-                subscriptionEventHandler: { event in
-                    print("ShadowUpdatedSubscriptionRequest Subscription event")
+                subscriptionEventHandler: { _ in
                 },
                 deserializationFailureHandler: { _ in
-                    print("Deserialization Failure")
                 }
             )
             let updatedOperation = try shadowClient.createShadowUpdatedStream(
                 request: shadowUpdatedSubscriptionRequest,
                 options: clientStreamOptions2)
 
-            // open the streams
-            print("Opening Streams")
-            try deltaUpdatedOperation.open()
-            try updatedOperation.open()
+            return (deltaUpdatedOperation, updatedOperation)
         } catch {
             print("Error while attempting to setup Shadow Client streams \(error)")
+            throw error
         }
     }
 
@@ -203,31 +223,53 @@ struct Mqtt5Sample: AsyncParsableCommand {
         case .crt(let crt):
             print(
                 """
+
                 ─── CRT error ─────────────────────────────────────────────────────────
                 code:    \(crt.code)
                 name:    \(crt.name)
                 message: \(crt.message)
-                ───────────────────────────────────────────────────────────────────────
+
                 """)
 
         case .errorResponse(let errorResponse):
             print(
                 """
-                ─── Service rejected request ────────────────────────────
-                clientToken: \(errorResponse.clientToken ?? "<nil>")
+
+                ─── Service Request Rejected ────────────────────────────
                 code:        \(errorResponse.code)
                 message:     \(errorResponse.message ?? "<nil>")
-                timestamp:   \(errorResponse.timestamp?.formatted(.iso8601) ?? "<nil>")
-                ───────────────────────────────────────────────────────────
+
                 """)
 
         case .underlying(let swiftErr):
             print(
                 """
+
                 ─── Underlying Swift Error ────────────────────────────────────────────
                 \(swiftErr)
-                ───────────────────────────────────────────────────────────────────────
+
                 """)
+        }
+    }
+
+    func parseJSONStringToDictionary(_ json: String) -> [String: Any]? {
+        guard let data = json.data(using: .utf8) else {
+            print("Failed to encode string to Data")
+            return nil
+        }
+
+        do {
+            let dictionary =
+                try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            return dictionary
+        } catch {
+            print(
+                """
+                Failed to parse provided JSON string into Shadow State
+                Example of properly formatted JSON Shadow State: {"Status":"Great"}
+
+                """)
+            return nil
         }
     }
 
@@ -235,6 +277,8 @@ struct Mqtt5Sample: AsyncParsableCommand {
     func interactiveLoop(client: Mqtt5Client, shadowClient: IotShadowClient) async {
         var shouldExit = false
         while !shouldExit {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+
             if let input = await asyncReadLine(prompt: "Enter command:\n") {
                 let lowercasedInput = input.lowercased()
                 switch lowercasedInput {
@@ -252,184 +296,78 @@ struct Mqtt5Sample: AsyncParsableCommand {
                     let request: GetShadowRequest = GetShadowRequest(thingName: thingName)
                     do {
                         let response = try await shadowClient.getShadow(request: request)
-                        
+                        print(
+                            "\n─── GetShadowResponse ─────────────────────────────────────────────────"
+                        )
+                        if let state = response.state {
+                            if let reported = state.reported {
+                                print("reported state: \(reported)")
+                            }
+                            if let desired = state.desired {
+                                print("desired state:  \(desired)")
+                            }
+                        }
+                        print(" ")
+                    } catch {
+                        logShadowClientError(error)
+                    }
+
+                case "delete":
+                    let request: DeleteShadowRequest = DeleteShadowRequest(
+                        thingName: thingName)
+                    do {
+                        let response = try await shadowClient.deleteShadow(request: request)
                         print(
                             """
-                            ─── Get Shadow Response ───────────────────────────────────────────────
-                            state: \(response.state?.desired ?? ["<nil>":"<nil>"])
-                            metadata.desired: \(response.metadata?.desired ?? ["<nil>":"<nil>"])
+
+                            ─── DeleteShadowResponse ──────────────────────────────────────────────
                             timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                            ───────────────────────────────────────────────────────────────────────
+                            version:   \(response.version ?? 0)
+
                             """)
                     } catch {
                         logShadowClientError(error)
                     }
-                case "delete":
-                    print("setup delete")
 
                 default:
                     do {
                         let tokens = input.split(separator: " ")
                         guard tokens.count > 1 else {
                             print("Invalid shadow command")
+                            showMenu()
                             break
                         }
-                        let secondWord = String(tokens[1])
 
                         if lowercasedInput.hasPrefix("update-desired") {
-                        } else if lowercasedInput.hasPrefix("update-reported") {
-                        } else if lowercasedInput.hasPrefix("get") {
-                            switch secondWord {
-                            case "shadow":
-                                print(
-                                    """
-                                    \n
-                                    ==== Getting \(thingName) state ====
-                                    \n
-                                    """)
-                                let request: GetShadowRequest = GetShadowRequest(
-                                    thingName: thingName)
-                                let response = try await shadowClient.getShadow(request: request)
-                                print(
-                                    """
-                                    ─── Get Shadow Response ───────────────────────────────────────────────
-                                    state: \(response.state?.desired ?? ["<nil>":"<nil>"])
-                                    metadata.desired: \(response.metadata?.desired ?? ["<nil>":"<nil>"])
-                                    timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                                    ───────────────────────────────────────────────────────────────────────
-                                    """)
-                            case "named":
-                                guard tokens.count > 3 else {
-                                    print("Invalid shadow command")
-                                    break
-                                }
-                                print(
-                                    """
-                                    \n
-                                    ==== Getting \(thingName):\(tokens[3]) state ====
-                                    \n
-                                    """)
-                                let request: GetNamedShadowRequest = GetNamedShadowRequest(
-                                    thingName: thingName,
-                                    shadowName: String(tokens[3]))
-                                let response = try await shadowClient.getNamedShadow(
-                                    request: request)
-                                print(
-                                    """
-                                    ─── Get Named Shadow Response ─────────────────────────────────────────
-                                    state: \(response.state?.desired ?? ["<nil>":"<nil>"])
-                                    metadata.desired: \(response.metadata?.desired ?? ["<nil>":"<nil>"])
-                                    timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                                    ───────────────────────────────────────────────────────────────────────
-                                    """)
-                            default:
-                                print("Unknown Command")
-                            }
-                        } else if lowercasedInput.hasPrefix("update") {
-                            switch secondWord {
-                            case "shadow":
-                                guard tokens.count > 2 else {
-                                    print("Invalid shadow command")
-                                    break
-                                }
-                                print(
-                                    """
-                                    \n
-                                    ==== Updating \(thingName) state to \(tokens[2]) ====
-                                    \n
-                                    """)
-                                let request: UpdateShadowRequest = UpdateShadowRequest(
-                                    thingName: thingName,
-                                    state: ShadowState(desired: [
-                                        "Color": String(tokens[2])
-                                    ]))
+                            let inputJSON = tokens.dropFirst().joined(separator: " ")
+                            if let desiredDict = parseJSONStringToDictionary(inputJSON) {
+                                let desiredState = ShadowState(desired: desiredDict)
+                                let request = UpdateShadowRequest(
+                                    thingName: thingName, state: desiredState)
                                 let response = try await shadowClient.updateShadow(request: request)
                                 print(
                                     """
-                                    ─── Update Shadow Response ────────────────────────────────────────────
-                                    state: \(response.state?.desired ?? ["<nil>":"<nil>"])
-                                    metadata.desired: \(response.metadata?.desired ?? ["<nil>":"<nil>"])
-                                    timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                                    ───────────────────────────────────────────────────────────────────────
-                                    """)
-                            case "named":
-                                guard tokens.count > 4 else {
-                                    print("Invalid shadow command")
-                                    break
-                                }
-                                print(
-                                    """
-                                    \n
-                                    ==== Updating \(thingName):\(tokens[3]) state to \(tokens[4]) ====
-                                    \n
-                                    """)
-                                let request: UpdateNamedShadowRequest = UpdateNamedShadowRequest(
-                                    thingName: thingName,
-                                    shadowName: String(tokens[3]),
-                                    state: ShadowState(desired: ["Color": String(tokens[4])]))
-                                let response = try await shadowClient.updateNamedShadow(
-                                    request: request)
-                                print(
-                                    """
-                                    ─── Update Named Shadow Response ──────────────────────────────────────
-                                    state: \(response.state?.desired ?? ["<nil>":"<nil>"])
-                                    metadata.desired: \(response.metadata?.desired ?? ["<nil>":"<nil>"])
-                                    timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                                    ───────────────────────────────────────────────────────────────────────
-                                    """)
-                            default:
-                                print("Unknown Command")
-                            }
-                        } else if lowercasedInput.hasPrefix("delete") {
-                            switch secondWord {
-                            case "shadow":
-                                print(
-                                    """
-                                    \n
-                                    ==== Deleting \(thingName)) ====
-                                    \n
-                                    """)
-                                let request: DeleteShadowRequest = DeleteShadowRequest(
-                                    thingName: thingName)
-                                let response = try await shadowClient.deleteShadow(request: request)
-                                print(
-                                    """
-                                    ─── Delete Shadow Response ────────────────────────────────────────────
-                                    timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                                    version: \(response.version ?? 0)
-                                    ───────────────────────────────────────────────────────────────────────
-                                    """)
-                            case "named":
-                                guard tokens.count > 3 else {
-                                    print("Invalid shadow command")
-                                    break
-                                }
-                                print(
-                                    """
-                                    \n
-                                    ==== Deleting \(thingName):\(tokens[3]) ====
-                                    \n
-                                    """)
-                                let request: DeleteNamedShadowRequest = DeleteNamedShadowRequest(
-                                    thingName: thingName,
-                                    shadowName: String(tokens[3]))
-                                let response = try await shadowClient.deleteNamedShadow(
-                                    request: request)
 
+                                    ─── UpdateShadowResponse ────────────────────────────────────────────
+                                    desired state:  \(response.state?.desired ?? ["<nil>":"<nil>"])
+
+                                    """)
+                            }
+                        } else if lowercasedInput.hasPrefix("update-reported") {
+                            let inputJSON = tokens.dropFirst().joined(separator: " ")
+                            if let reportedDict = parseJSONStringToDictionary(inputJSON) {
+                                let reportedState = ShadowState(reported: reportedDict)
+                                let request: UpdateShadowRequest = UpdateShadowRequest(
+                                    thingName: thingName, state: reportedState)
+                                let response = try await shadowClient.updateShadow(request: request)
                                 print(
                                     """
-                                    ─── Delete Named Shadow Response ──────────────────────────────────────
-                                        clientToken: \(response.clientToken ?? "<nil>")                    
-                                        timestamp: \(response.timestamp?.formatted(.iso8601) ?? "<nil>")
-                                        version: \(response.version ?? 0)
-                                    ───────────────────────────────────────────────────────────────────────
+
+                                    ─── UpdateShadowResponse ────────────────────────────────────────────
+                                    reported state: \(response.state?.reported ?? ["<nil>":"<nil>"])
+
                                     """)
-                            default:
-                                print("Unknown Command")
                             }
-                        } else {
-                            print("Unknown command: \(input)")
-                            showMenu()
                         }
                     } catch {
                         logShadowClientError(error)
@@ -437,5 +375,19 @@ struct Mqtt5Sample: AsyncParsableCommand {
                 }
             }
         }
+    }
+}
+
+final class ClientState {
+    var client: Mqtt5Client?
+    private var isResumed = false
+    private let lock = NSLock()
+
+    func tryResumeOnce(_ action: () -> Void) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isResumed else { return }
+        isResumed = true
+        action()
     }
 }
