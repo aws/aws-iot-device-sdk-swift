@@ -49,6 +49,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
             """)
     }
 
+    // Takes an object and encodes it to JSON in a prettyPrinted format and returns a String
     func prettyPrint<T: Encodable>(_ object: T) -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -76,6 +77,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
             clientBuilder.withClientId(clientId)
 
+            // Tracks sample-wide states that need to be shared
             let clientState = ClientState()
 
             // Use the builder to create an Mqtt5 Client and connect it.
@@ -88,9 +90,11 @@ struct Mqtt5Sample: AsyncParsableCommand {
             // Create an IotShadowClient using the Mqtt5 Client and MqttRequestResponseClientOptions
             let shadowClient = try IotShadowClient(mqttClient: client, options: options)
 
+            // Sets up updated and delta updated streams
             let (deltaUpdatedOperation, updatedOperation) = try startStreamingOperations(
                 shadowClient: shadowClient, clientState: clientState)
 
+            // open both streams to receive events
             try deltaUpdatedOperation.open()
             try updatedOperation.open()
 
@@ -151,15 +155,14 @@ struct Mqtt5Sample: AsyncParsableCommand {
     }
 
     func startStreamingOperations(shadowClient: IotShadowClient, clientState: ClientState) throws
-        -> (
-            StreamingOperation, StreamingOperation
-        )
+        -> (StreamingOperation, StreamingOperation)
     {
         do {
             // Start a shadow delta updated stream
             let shadowDeltaUpdatedSubscriptionRequest = ShadowDeltaUpdatedSubscriptionRequest(
                 thingName: thingName)
-            let clientStreamOptions = ClientStreamOptions<ShadowDeltaUpdatedEvent>(
+            let deltaUpdateStreamOptions = ClientStreamOptions<ShadowDeltaUpdatedEvent>(
+                // Handles delta update events
                 streamEventHandler: { event in
                     if clientState.fullDetails {
                         print(
@@ -175,19 +178,22 @@ struct Mqtt5Sample: AsyncParsableCommand {
                             """)
                     }
                 },
+                // We are not tracking subscription events in this sample
                 subscriptionEventHandler: { _ in
                 },
+                // We are not handling deserializatiion failures ini this sample
                 deserializationFailureHandler: { _ in
                 }
             )
             let deltaUpdatedOperation = try shadowClient.createShadowDeltaUpdatedStream(
                 request: shadowDeltaUpdatedSubscriptionRequest,
-                options: clientStreamOptions)
+                options: deltaUpdateStreamOptions)
 
             // Start a named shadow updated stream
             let shadowUpdatedSubscriptionRequest = ShadowUpdatedSubscriptionRequest(
                 thingName: thingName)
-            let clientStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
+            let updateStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
+                // Handles update events
                 streamEventHandler: { event in
                     if clientState.fullDetails {
                         print(
@@ -219,14 +225,16 @@ struct Mqtt5Sample: AsyncParsableCommand {
                         print(output)
                     }
                 },
+                // We are not tracking subscription events in this sample
                 subscriptionEventHandler: { _ in
                 },
+                // We are not handling deserializatiion failures ini this sample
                 deserializationFailureHandler: { _ in
                 }
             )
             let updatedOperation = try shadowClient.createShadowUpdatedStream(
                 request: shadowUpdatedSubscriptionRequest,
-                options: clientStreamOptions2)
+                options: updateStreamOptions2)
 
             return (deltaUpdatedOperation, updatedOperation)
         } catch {
@@ -248,8 +256,9 @@ struct Mqtt5Sample: AsyncParsableCommand {
         }
     }
 
+    // Handle errors thrown by the shadow client
     public func logShadowClientError(_ error: Error) {
-        // Step 1 ─ try to down‑cast to your umbrella error
+        // Step 1 ─ try to cast into expected `IotShadowClientError`
         guard let err = error as? IotShadowClientError else {
             print("Unrecognised error: \(error)")
             return
@@ -290,6 +299,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
         }
     }
 
+    // Helper function that takes user input JSON and converts it to the [String: Any] type expected for `ShadowState`
     func parseJSONStringToDictionary(_ json: String) -> [String: Any]? {
         guard let data = json.data(using: .utf8) else {
             print("Failed to encode string to Data")
@@ -457,6 +467,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
     }
 }
 
+// Contains members that need to be accessed from across the sample and to prevent multiple resume calls
 final class ClientState {
     var client: Mqtt5Client?
     var fullDetails = false
