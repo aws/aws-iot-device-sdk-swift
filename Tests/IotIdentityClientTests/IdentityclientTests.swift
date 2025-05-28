@@ -1,3 +1,6 @@
+import AWSClientRuntime
+import AWSIoT
+import AWSSDKIdentity
 import AwsIotDeviceSdkSwift
 import Foundation
 import XCTest
@@ -88,6 +91,43 @@ class IdentityClientTests: XCTestCase {
         return identityClient
     }
 
+    // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
+    // in the identity tests.
+    private func cleanUpThing(
+        certificateId: String?, thingName: String?, accessKey: String, secretKey: String,
+        sessionToken: String, region: String
+    ) async throws {
+        let awsCredentialIdentity = AWSCredentialIdentity(
+            accessKey: accessKey, secret: secretKey, sessionToken: sessionToken)
+        let staticAWSCredIdent = try StaticAWSCredentialIdentityResolver(awsCredentialIdentity)
+
+        let iotClientConfig = try await IoTClient.IoTClientConfiguration(
+            awsCredentialIdentityResolver: staticAWSCredIdent, region: region)
+
+        let iotClient = AWSIoT.IoTClient(config: iotClientConfig)
+
+        // feed certificate ID to get the certificate Arn
+        let describeCertificateOutput = try await iotClient.describeCertificate(
+            input: DescribeCertificateInput(
+                certificateId: certificateId))
+
+        if let certDescription = describeCertificateOutput.certificateDescription {
+            if let certificateArn: String = certDescription.certificateArn {
+                _ = try await iotClient.detachThingPrincipal(
+                    input: DetachThingPrincipalInput(
+                        principal: certificateArn, thingName: thingName))
+
+                print("Deleting thingName: \(thingName ?? "no thingName")")
+                _ = try await iotClient.deleteThing(
+                    input: DeleteThingInput(thingName: thingName))
+            } else {
+                print("Certificate ARN not found")
+            }
+        } else {
+            print("Certificate Description not found")
+        }
+    }
+
     func testIdentityClientCreateDestroy() async throws {
         let identityClient = try await getIdentityClient()
         XCTAssertNotNil(identityClient)
@@ -96,6 +136,16 @@ class IdentityClientTests: XCTestCase {
     func testIdentityClientProvisionWithCertAndKey() async throws {
         let templateName: String = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
+
+        // Check that credential env variables have been set or skip test
+        let accessKey = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
+        let secretKey = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
+        let sessionToken = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
+        let region = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_DEFAULT_REGION")
 
         let identityClient = try await getIdentityClient()
 
@@ -126,6 +176,13 @@ class IdentityClientTests: XCTestCase {
         // Make sure we've gotten a proper response
         XCTAssertNotNil(registerThingResponse.deviceConfiguration)
         XCTAssertNotNil(registerThingResponse.thingName)
+
+        print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
+        try await cleanUpThing(
+            certificateId: createKeysAndCertificateResponse.certificateId,
+            thingName: registerThingResponse.thingName,
+            accessKey: accessKey, secretKey: secretKey,
+            sessionToken: sessionToken, region: region)
     }
 
     func testIdentityClientProvisionWithCSR() async throws {
@@ -133,6 +190,17 @@ class IdentityClientTests: XCTestCase {
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
         let csrPath: String = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_CSR_PATH")
+
+        // Check that credential env variables have been set or skip test
+        let accessKey = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
+        let secretKey = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
+        let sessionToken = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
+        let region = try getEnvironmentVarOrSkipTest(
+            environmentVarName: "AWS_DEFAULT_REGION")
+
         let csrString: String = try String(contentsOfFile: csrPath)
         let identityClient = try await getIdentityClient()
 
@@ -162,5 +230,12 @@ class IdentityClientTests: XCTestCase {
         // Make sure we've gotten a proper response
         XCTAssertNotNil(registerThingResponse.deviceConfiguration)
         XCTAssertNotNil(registerThingResponse.thingName)
+
+        print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
+        try await cleanUpThing(
+            certificateId: createCertificateFromCsrResponse.certificateId,
+            thingName: registerThingResponse.thingName,
+            accessKey: accessKey, secretKey: secretKey,
+            sessionToken: sessionToken, region: region)
     }
 }
