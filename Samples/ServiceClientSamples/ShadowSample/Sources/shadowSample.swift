@@ -9,7 +9,7 @@ import Foundation
 import IotShadowClient
 
 @main
-struct Mqtt5Sample: AsyncParsableCommand {
+struct ShadowClientSample: AsyncParsableCommand {
 
     /**************************************
     * Arguments used by ArgumentParser
