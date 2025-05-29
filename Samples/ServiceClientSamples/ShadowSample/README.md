@@ -13,7 +13,6 @@ Once connected, the sample supports the following shadow-related commands:
 * `update-reported <reported-state-json-document>` - applies an update to the classic shadow's reported state component.  Properties in the JSON document set to non-null will be set to new values.  Properties in the JSON document set to null will be removed.
 
 Three additional commands are supported:
-* `toggle-full-details` - By default, tuncated response details are printed. This command will toggle on/off the full contents of responses received from the Shadow service. More information on full details can be found at the bottom of the README [here](#toggle-full-details)
 * `help` - prints the set of supported commands
 * `quit` - quits the sample application
 
@@ -121,10 +120,52 @@ which will yield output similar to:
 
 ```
 ─── UpdateShadowResponse ────────────────────────────────────────────
-reported state: ["Color": "green"]
+{
+  "clientToken" : "E47FEB1E-0801-4737-B4AF-9B9B7671D526",
+  "metadata" : {
+    "reported" : {
+      "Color" : {
+        "timestamp" : 1748532187
+      }
+    }
+  },
+  "state" : {
+    "reported" : {
+      "Color" : "green"
+    }
+  },
+  "timestamp" : 1748532187,
+  "version" : 110
+}
 
 ─── ShadowUpdatedEvent ────────────────────────────────────────────────
-current reported state:  ["Color": "green"]
+{
+  "current" : {
+    "metadata" : {
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532187
+        }
+      }
+    },
+    "state" : {
+      "reported" : {
+        "Color" : "green"
+      }
+    },
+    "version" : 110
+  },
+  "previous" : {
+    "metadata" : {
+
+    },
+    "state" : {
+
+    },
+    "version" : 109
+  },
+  "timestamp" : 1748532187
+}
 ```
 
 Notice that in addition to receiving a response to the update request, you also receive a `ShadowUpdatedEvent` event containing what changed about
@@ -142,12 +183,26 @@ yielding output similar to:
 
 ```
 ─── UpdateShadowResponse ────────────────────────────────────────────
-desired state:  ["Color": "green"]
+{
+  "clientToken" : "EFDB257C-03A4-4DA6-A095-AB28198A0E97",
+  "metadata" : {
+    "desired" : {
+      "Color" : {
+        "timestamp" : 1748532364
+      }
+    }
+  },
+  "state" : {
+    "desired" : {
+      "Color" : "green"
+    }
+  },
+  "timestamp" : 1748532364,
+  "version" : 111
+}
 
 ─── ShadowUpdatedEvent ────────────────────────────────────────────────
-current reported state:  ["Color": "green"]
-previous reported state: ["Color": "green"]
-current desired state:   ["Color": "green"]
+<ShadowUpdated event omitted>
 ```
 
 ### Changing Properties
@@ -165,18 +220,89 @@ update-desired {"Color":"red"}
 For our sample, this yields output similar to:
 
 ```
-─── ShadowUpdatedEvent ────────────────────────────────────────────────
-current reported state:  ["Color": "green"]
-previous reported state: ["Color": "green"]
-current desired state:   ["Color": "red"]
-previous desired state:  ["Color": "green"]
-
 ─── ShadowDeltaUpdatedEvent ───────────────────────────────────────────
-Updated State
-state:     ["Color": "red"]     
+{
+  "metadata" : {
+    "Color" : {
+      "timestamp" : 1748532523
+    }
+  },
+  "state" : {
+    "Color" : "red"
+  },
+  "timestamp" : 1748532523,
+  "version" : 112
+}
+
+─── ShadowUpdatedEvent ────────────────────────────────────────────────
+{
+  "current" : {
+    "metadata" : {
+      "desired" : {
+        "Color" : {
+          "timestamp" : 1748532523
+        }
+      },
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532187
+        }
+      }
+    },
+    "state" : {
+      "desired" : {
+        "Color" : "red"
+      },
+      "reported" : {
+        "Color" : "green"
+      }
+    },
+    "version" : 112
+  },
+  "previous" : {
+    "metadata" : {
+      "desired" : {
+        "Color" : {
+          "timestamp" : 1748532364
+        }
+      },
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532187
+        }
+      }
+    },
+    "state" : {
+      "desired" : {
+        "Color" : "green"
+      },
+      "reported" : {
+        "Color" : "green"
+      }
+    },
+    "version" : 111
+  },
+  "timestamp" : 1748532523
+}
 
 ─── UpdateShadowResponse ────────────────────────────────────────────
-desired state:  ["Color": "red"]
+{
+  "clientToken" : "BDA5C2F7-8750-4AF1-8271-25EF7DE948F9",
+  "metadata" : {
+    "desired" : {
+      "Color" : {
+        "timestamp" : 1748532523
+      }
+    }
+  },
+  "state" : {
+    "desired" : {
+      "Color" : "red"
+    }
+  },
+  "timestamp" : 1748532523,
+  "version" : 112
+}
 ```
 
 The key thing to notice here is that in addition to the update response (which only the control application would see) and the ShadowUpdated event,
@@ -197,14 +323,75 @@ update-reported {"Color":"red"}
 yielding
 
 ```
-─── UpdateShadowResponse ────────────────────────────────────────────
-reported state: ["Color": "red"]
-
 ─── ShadowUpdatedEvent ────────────────────────────────────────────────
-current reported state:  ["Color": "red"]
-previous reported state: ["Color": "green"]
-current desired state:   ["Color": "red"]
-previous desired state:  ["Color": "red"]
+{
+  "current" : {
+    "metadata" : {
+      "desired" : {
+        "Color" : {
+          "timestamp" : 1748532523
+        }
+      },
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532650
+        }
+      }
+    },
+    "state" : {
+      "desired" : {
+        "Color" : "red"
+      },
+      "reported" : {
+        "Color" : "red"
+      }
+    },
+    "version" : 113
+  },
+  "previous" : {
+    "metadata" : {
+      "desired" : {
+        "Color" : {
+          "timestamp" : 1748532523
+        }
+      },
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532187
+        }
+      }
+    },
+    "state" : {
+      "desired" : {
+        "Color" : "red"
+      },
+      "reported" : {
+        "Color" : "green"
+      }
+    },
+    "version" : 112
+  },
+  "timestamp" : 1748532650
+}
+
+─── UpdateShadowResponse ────────────────────────────────────────────
+{
+  "clientToken" : "6A77010C-B355-400C-8BA5-FFE6212337B5",
+  "metadata" : {
+    "reported" : {
+      "Color" : {
+        "timestamp" : 1748532650
+      }
+    }
+  },
+  "state" : {
+    "reported" : {
+      "Color" : "red"
+    }
+  },
+  "timestamp" : 1748532650,
+  "version" : 113
+}
 ```
 
 Notice that no ShadowDeltaUpdated event is generated because the reported and desired states are now back in sync.
@@ -232,8 +419,39 @@ yields
 
 ```
 ─── GetShadowResponse ─────────────────────────────────────────────────
-reported state: ["Status": "Great", "Color": "red"]
-desired state:  ["Status": "Great", "Color": "red"]
+{
+  "clientToken" : "63EA0DA7-2159-44D0-B0A3-66B27701C7E6",
+  "metadata" : {
+    "desired" : {
+      "Color" : {
+        "timestamp" : 1748532523
+      },
+      "Status" : {
+        "timestamp" : 1748532687
+      }
+    },
+    "reported" : {
+      "Color" : {
+        "timestamp" : 1748532650
+      },
+      "Status" : {
+        "timestamp" : 1748532682
+      }
+    }
+  },
+  "state" : {
+    "desired" : {
+      "Color" : "red",
+      "Status" : "Great"
+    },
+    "reported" : {
+      "Color" : "red",
+      "Status" : "Great"
+    }
+  },
+  "timestamp" : 1748532689,
+  "version" : 115
+}
 ```
 
 Suppose something goes wrong with the device and its status is no longer "Great"
@@ -245,18 +463,105 @@ update-reported {"Status":"Awful"}
 which yields output similar to:
 
 ```
-─── UpdateShadowResponse ────────────────────────────────────────────
-reported state: ["Status": "Awful"]
-
 ─── ShadowDeltaUpdatedEvent ───────────────────────────────────────────
-Updated State
-state:     ["Status": "Great"]   
+{
+  "metadata" : {
+    "Status" : {
+      "timestamp" : 1748532687
+    }
+  },
+  "state" : {
+    "Status" : "Great"
+  },
+  "timestamp" : 1748532722,
+  "version" : 116
+}
 
 ─── ShadowUpdatedEvent ────────────────────────────────────────────────
-current reported state:  ["Color": "red", "Status": "Awful"]
-previous reported state: ["Color": "red", "Status": "Great"]
-current desired state:   ["Status": "Great", "Color": "red"]
-previous desired state:  ["Status": "Great", "Color": "red"]
+{
+  "current" : {
+    "metadata" : {
+      "desired" : {
+        "Color" : {
+          "timestamp" : 1748532523
+        },
+        "Status" : {
+          "timestamp" : 1748532687
+        }
+      },
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532650
+        },
+        "Status" : {
+          "timestamp" : 1748532722
+        }
+      }
+    },
+    "state" : {
+      "desired" : {
+        "Color" : "red",
+        "Status" : "Great"
+      },
+      "reported" : {
+        "Color" : "red",
+        "Status" : "Awful"
+      }
+    },
+    "version" : 116
+  },
+  "previous" : {
+    "metadata" : {
+      "desired" : {
+        "Color" : {
+          "timestamp" : 1748532523
+        },
+        "Status" : {
+          "timestamp" : 1748532687
+        }
+      },
+      "reported" : {
+        "Color" : {
+          "timestamp" : 1748532650
+        },
+        "Status" : {
+          "timestamp" : 1748532682
+        }
+      }
+    },
+    "state" : {
+      "desired" : {
+        "Color" : "red",
+        "Status" : "Great"
+      },
+      "reported" : {
+        "Color" : "red",
+        "Status" : "Great"
+      }
+    },
+    "version" : 115
+  },
+  "timestamp" : 1748532722
+}
+
+─── UpdateShadowResponse ────────────────────────────────────────────
+{
+  "clientToken" : "1C63ACF4-3704-486B-B130-4D09DABBEAC2",
+  "metadata" : {
+    "reported" : {
+      "Status" : {
+        "timestamp" : 1748532722
+      }
+    }
+  },
+  "state" : {
+    "reported" : {
+      "Status" : "Awful"
+    }
+  },
+  "timestamp" : 1748532722,
+  "version" : 116
+}
 ```
 
 Similar to how updates are delta-based, notice how the ShadowDeltaUpdated event only includes the "Status" property, leaving the "Color" property out because it
@@ -284,8 +589,31 @@ its output yields something like
 
 ```
 ─── GetShadowResponse ─────────────────────────────────────────────────
-reported state: ["Color": "red"]
-desired state:  ["Color": "red"]
+{
+  "clientToken" : "DE9701A4-1E67-4EBC-B6FB-3E094E91C4E2",
+  "metadata" : {
+    "desired" : {
+      "Color" : {
+        "timestamp" : 1748532523
+      }
+    },
+    "reported" : {
+      "Color" : {
+        "timestamp" : 1748532650
+      }
+    }
+  },
+  "state" : {
+    "desired" : {
+      "Color" : "red"
+    },
+    "reported" : {
+      "Color" : "red"
+    }
+  },
+  "timestamp" : 1748532809,
+  "version" : 118
+}
 ```
 
 The Status property has been fully removed from the shadow state.
@@ -302,72 +630,9 @@ yields something like
 
 ```
 ─── DeleteShadowResponse ──────────────────────────────────────────────
-timestamp: 2056-05-28T18:21:57Z
-version:   80
-```
-
-## toggle-full-details
-The various response modeled objects sent from the Shadow service have been truncated in the output of this sample for ease of use. When full details are turned on, the output will provide everything that you have access to in the responses. For example the command:
-```
-update-reported {"Color":"green"}
-```
-
-which yeilded:
-```
-─── UpdateShadowResponse ────────────────────────────────────────────
-reported state: ["Color": "green"]
-
-─── ShadowUpdatedEvent ────────────────────────────────────────────────
-current reported state:  ["Color": "green"]
-```
-
-will instead output:
-```
-─── UpdateShadowResponse ────────────────────────────────────────────
 {
-  "clientToken" : "2BCE4DBE-5602-4EC3-91F9-3EB6A858DEB3",
-  "metadata" : {
-    "reported" : {
-      "Color" : {
-        "timestamp" : 1748466937
-      }
-    }
-  },
-  "state" : {
-    "reported" : {
-      "Color" : "green"
-    }
-  },
-  "timestamp" : 1748466937,
-  "version" : 108
-}
-
-─── ShadowUpdatedEvent ────────────────────────────────────────────────
-{
-  "current" : {
-    "metadata" : {
-      "reported" : {
-        "Color" : {
-          "timestamp" : 1748466937
-        }
-      }
-    },
-    "state" : {
-      "reported" : {
-        "Color" : "green"
-      }
-    },
-    "version" : 108
-  },
-  "previous" : {
-    "metadata" : {
-
-    },
-    "state" : {
-
-    },
-    "version" : 107
-  },
-  "timestamp" : 1748466937
+  "clientToken" : "1CCF6068-CD1B-4C54-9D26-7E3D629C76DC",
+  "timestamp" : 1748532826,
+  "version" : 118
 }
 ```
