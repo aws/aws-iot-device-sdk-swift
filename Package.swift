@@ -13,11 +13,24 @@ let package = Package(
     products: [
         .library(
             name: "AwsIotDeviceSdkSwift",
-            targets: ["AwsIotDeviceSdkSwift"])
+            targets: ["AwsIotDeviceSdkSwift"]),
+        .library(
+            name: "IotShadowClient",
+            targets: ["IotShadowClient"]),
+        .library(
+            name: "IotIdentityClient",
+            targets: ["IotIdentityClient"]),
+        .library(
+            name: "IotJobsClient",
+            targets: ["IotJobsClient"]),
     ],
     dependencies: [
         .package(
-            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.50.0"))
+            // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.49.1"))
+            url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming"),  // TODO WIP revert this to point to the main branch
+        // aws-sdk-swift is only used in test targets to help with setup and cleanup of testing service clients
+        .package(
+            url: "https://github.com/awslabs/aws-sdk-swift.git", from: "1.3.19"),
     ],
     targets: [
         .target(
@@ -31,6 +44,40 @@ let package = Package(
             name: "AwsIotDeviceSdkSwiftTests",
             dependencies: ["AwsIotDeviceSdkSwift"],
             path: "Tests/AwsIotDeviceSdkSwiftTests"
+        ),
+        .target(
+            name: "IotShadowClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotShadowClient"
+        ),
+        .testTarget(
+            name: "IotShadowClientTests",
+            dependencies: ["IotShadowClient"],
+            path: "Tests/IotShadowClientTests"
+        ),
+        .target(
+            name: "IotJobsClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotJobsClient"
+        ),
+        .target(
+            name: "IotIdentityClient",
+            dependencies: [
+                .target(name: "AwsIotDeviceSdkSwift")
+            ],
+            path: "ServiceClients/AwsIotIdentityClient"
+        ),
+        .testTarget(
+            name: "IotIdentityClientTests",
+            dependencies: [
+                "IotIdentityClient",
+                .product(name: "AWSIoT", package: "aws-sdk-swift"),
+            ],
+            path: "Tests/IotIdentityClientTests"
         ),
     ]
 )
