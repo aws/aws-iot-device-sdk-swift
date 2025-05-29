@@ -14,8 +14,7 @@ public class IotShadowClient {
     internal let decoder: JSONDecoder = JSONDecoder()
 
     public init(
-        mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client,
-        options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions()
+        mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
     ) throws {
         self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
             mqtt5Client: mqttClient, options: options)
