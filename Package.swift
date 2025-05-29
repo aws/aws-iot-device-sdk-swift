@@ -17,6 +17,12 @@ let package = Package(
         .library(
             name: "IotShadowClient",
             targets: ["IotShadowClient"]),
+        .library(
+            name: "IotIdentityClient",
+            targets: ["IotIdentityClient"]),
+        .library(
+            name: "IotJobsClient",
+            targets: ["IotJobsClient"]),
     ],
     dependencies: [
         .package(
