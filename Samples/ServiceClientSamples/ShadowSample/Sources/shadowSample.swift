@@ -36,7 +36,6 @@ struct ShadowClientSample: AsyncParsableCommand {
             """
 
             Usage:
-            SHADOW COMMANDS
             get                                   -- gets the thing's current shadow document
             delete                                -- deletes the thing's shadow document
             update-desired <Desired state JSON>   -- updates the desired component of the thing's shadow document
