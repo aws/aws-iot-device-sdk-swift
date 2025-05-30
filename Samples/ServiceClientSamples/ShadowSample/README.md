@@ -12,7 +12,7 @@ Once connected, the sample supports the following shadow-related commands:
 * `update-desired <desired-state-json-document>` - applies an update to the classic shadow's desired state component.  Properties in the JSON document set to non-null will be set to new values.  Properties in the JSON document set to null will be removed.
 * `update-reported <reported-state-json-document>` - applies an update to the classic shadow's reported state component.  Properties in the JSON document set to non-null will be set to new values.  Properties in the JSON document set to null will be removed.
 
-Three additional commands are supported:
+Two additional commands are supported:
 * `help` - prints the set of supported commands
 * `quit` - quits the sample application
 
@@ -78,7 +78,7 @@ Note that in a real application, you may want to avoid the use of wildcards in y
 
 ## Walkthrough
 
-To run the Shadow sample use the following command from the Samples/ServiceClientSamples/ShadowSample directory:
+To run the Shadow sample use the following command from the ShadowSample directory:
 
 ``` sh
 swift run ShadowSample \

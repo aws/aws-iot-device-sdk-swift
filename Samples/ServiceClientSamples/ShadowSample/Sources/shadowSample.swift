@@ -36,7 +36,6 @@ struct ShadowClientSample: AsyncParsableCommand {
             """
 
             Usage:
-            SHADOW COMMANDS
             get                                   -- gets the thing's current shadow document
             delete                                -- deletes the thing's shadow document
             update-desired <Desired state JSON>   -- updates the desired component of the thing's shadow document
@@ -82,7 +81,9 @@ struct ShadowClientSample: AsyncParsableCommand {
             let client = try await buildAndConnect(from: clientBuilder, state: clientState)
 
             // Setup options for the MqttRequestResponseClient
-            let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
+            let options = MqttRequestResponseClientOptions(
+                maxRequestResponseSubscription: 3,
+                maxStreamingSubscription: 2,
                 operationTimeout: 5)
 
             // Create an IotShadowClient using the Mqtt5 Client and MqttRequestResponseClientOptions
@@ -145,7 +146,6 @@ struct ShadowClientSample: AsyncParsableCommand {
                 try client.start()
             } catch {
                 state.tryResumeOnce {
-                    // build() or start() failed.
                     cont.resume(throwing: error)
                 }
             }
@@ -329,14 +329,14 @@ struct ShadowClientSample: AsyncParsableCommand {
                     }
 
                 default:
-                    do {
-                        let tokens = input.split(separator: " ")
-                        guard tokens.count > 1 else {
-                            print("Invalid shadow command")
-                            showMenu()
-                            break
-                        }
+                    let tokens = input.split(separator: " ")
+                    guard tokens.count > 1 else {
+                        print("Invalid shadow command")
+                        showMenu()
+                        break
+                    }
 
+                    do {
                         if lowercasedInput.hasPrefix("update-desired") {
                             let inputJSON = tokens.dropFirst().joined(separator: " ")
                             if let desiredDict = parseJSONStringToDictionary(inputJSON) {
