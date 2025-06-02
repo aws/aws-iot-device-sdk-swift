@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.50.0"))
+            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.52.2"))
     ],
     targets: [
         .target(
