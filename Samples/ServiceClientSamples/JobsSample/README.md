@@ -345,10 +345,11 @@ update-job-execution Job1 SUCCEEDED
 ```
 will trigger output similar to
 ```
-─── UpdateJobExecutionResult ─────────────────────────────────────────────────
+─── UpdateJobExecutionResponse ─────────────────────────────────────────────────
 {
+  "clientToken" : "CAED2F01-A26D-44EC-918E-FB9A08615AE2",
   "executionState" : null,
-  "timestamp" : 1748981892
+  "timestamp" : 1748983512
 }
   
 ─── NextJobExecutionChangedEvent ───────────────────────────────────────────
@@ -424,10 +425,11 @@ update-job-execution Job2 FAILED
 ```
 triggering
 ```
-─── UpdateJobExecutionResult ─────────────────────────────────────────────────
+─── UpdateJobExecutionResponse ─────────────────────────────────────────────────
 {
+  "clientToken" : "520941F2-DFA2-4E59-B597-70C49F79E796",
   "executionState" : null,
-  "timestamp" : 1748982170
+  "timestamp" : 1748983533
 }
   
 ─── JobExecutionsChangedEvent ───────────────────────────────────────────
@@ -446,11 +448,14 @@ triggering
 At this point, no incomplete job executions remain.
 
 ### Job Cleanup
-When all executions for a given job have reached a terminal state (SUCCEEDED, FAILED, CANCELED), you can delete the job itself.  This is a control plane operation
+When all executions for a given job have reached a terminal state (SUCCEEDED, FAILED, CANCELED), you can delete the jobs themselves.  This is a control plane operation
 that requires the AWS SDK for Swift and should not be performed by the device executing jobs:
 
 ```
 delete-job Job1
+```
+```
+delete-job Job2
 ```
 
 ### Misc. Topics

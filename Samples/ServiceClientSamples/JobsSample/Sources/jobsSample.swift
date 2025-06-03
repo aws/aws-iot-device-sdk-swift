@@ -369,7 +369,7 @@ struct ShadowClientSample: AsyncParsableCommand {
                         let response = try await jobsClient.getPendingJobExecutions(
                             request: request)
                         print(
-                            "\n─── GetPendingJobExecutionsResponse ─────────────────────────────────────────────────\n"
+                            "\n─── GetPendingJobExecutionsResponse ───────────────────────────────────────────────\n"
                                 + prettyPrint(response) + "\n\n")
                     } catch {
                         logJobsClientError(error)
@@ -403,16 +403,21 @@ struct ShadowClientSample: AsyncParsableCommand {
                             let response = try await jobsClient.describeJobExecution(
                                 request: request)
                             print(
-                                "\n─── DescribeJobExecutionResponse ─────────────────────────────────────────────────\n"
+                                "\n─── DescribeJobExecutionResponse ──────────────────────────────────────────────────\n"
                                     + prettyPrint(response) + "\n\n")
                         } catch {
                             logJobsClientError(error)
                         }
 
                     } else if lowercasedInput.hasPrefix("update-job-execution") {
+                        guard tokens.count > 2 else {
+                            print("Invalid jobs command")
+                            showMenu()
+                            break
+                        }
                         guard let jobStatus = JobStatus(rawValue: String(tokens[2])) else {
                             print(
-                                "\n─── Invalid Input ─────────────────────────────────────────────────\n"
+                                "\n─── Invalid Input ─────────────────────────────────────────────────────────────────\n"
                                     + "\"" + String(tokens[2]) + "\""
                                     + " is not a valid Job Status\n"
                                     + "<SUCCEEDED | IN_PROGRESS | FAILED | CANCELED>")
@@ -421,17 +426,20 @@ struct ShadowClientSample: AsyncParsableCommand {
                         let request = UpdateJobExecutionRequest(
                             thingName: thingName, jobId: String(tokens[1]),
                             status: jobStatus)
-                        //  (
-                        //     thingName: thingName, jobId: String(tokens[1]))
                         do {
                             let response = try await jobsClient.updateJobExecution(request: request)
                             print(
-                                "\n─── UpdateJobExecutionResponse ─────────────────────────────────────────────────\n"
+                                "\n─── UpdateJobExecutionResponse ────────────────────────────────────────────────────\n"
                                     + prettyPrint(response) + "\n\n")
                         } catch {
                             logJobsClientError(error)
                         }
                     } else if lowercasedInput.hasPrefix("create-job") {
+                        guard tokens.count > 2 else {
+                            print("Invalid jobs command")
+                            showMenu()
+                            break
+                        }
                         let inputJSON = tokens.dropFirst(2).joined(separator: " ")
                         let createJobInput = CreateJobInput(
                             document: inputJSON,
@@ -443,7 +451,7 @@ struct ShadowClientSample: AsyncParsableCommand {
                             print(
                                 """
 
-                                ─── CreateJobOutput ─────────────────────────────────────────────────
+                                ─── CreateJobOutput ───────────────────────────────────────────────────────────────
                                 description: \(result.description ?? "<nil>")
                                 jobArn: \(result.jobArn ?? "<nil>")
                                 jobId: \(result.jobId ?? "<nil>")
@@ -461,6 +469,9 @@ struct ShadowClientSample: AsyncParsableCommand {
                         } catch {
                             print("Error encountered while attempting to delete job \(error)")
                         }
+                    } else {
+                        print("Invalid jobs command")
+                        showMenu()
                     }
                 }
             }
