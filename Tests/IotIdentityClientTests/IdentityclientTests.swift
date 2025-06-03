@@ -27,7 +27,7 @@ class IdentityClientTests: XCTestCase {
     }
 
     override func tearDown() {
-        IotDeviceSdk.cleanUp()
+        // IotDeviceSdk.cleanUp()
         super.tearDown()
     }
 
