@@ -67,11 +67,6 @@ struct CsrProvisioningSample: AsyncParsableCommand {
         }
 
         do {
-            guard let identityClient = clientState.identityClient else {
-                print("Failed to setup identityClient")
-                return
-            }
-
             let csrString: String
             do {
                 csrString = try String(contentsOfFile: csr)
@@ -88,7 +83,7 @@ struct CsrProvisioningSample: AsyncParsableCommand {
             let createCertificateFromCsrRequest = CreateCertificateFromCsrRequest(
                 certificateSigningRequest: csrString)
             let createCertificateFromCsrResponse =
-                try await identityClient.createCertificateFromCsr(
+                try await clientState.identityClient!.createCertificateFromCsr(
                     request: createCertificateFromCsrRequest)
 
             guard let params = parseParameters(from: parametersJson) else {
@@ -103,7 +98,7 @@ struct CsrProvisioningSample: AsyncParsableCommand {
                 parameters: params)
 
             // Make the request to register a thing
-            let registerThingResponse = try await identityClient.registerThing(
+            let registerThingResponse = try await clientState.identityClient!.registerThing(
                 request: registerThingRequest)
 
             print("Created thingName: \(registerThingResponse.thingName!)")
@@ -130,7 +125,7 @@ struct CsrProvisioningSample: AsyncParsableCommand {
                 },
                 onLifecycleEventConnectionSuccess: { @Sendable _ in
                     print("Mqtt5Client: Connection Successful.")
-                    guard let client = state.client else { return }
+                    guard let client = state.mqttClient else { return }
                     state.tryResumeOnce {
                         cont.resume(returning: client)
                     }
@@ -145,7 +140,7 @@ struct CsrProvisioningSample: AsyncParsableCommand {
             do {
                 // Build the Mqtt5Client using the builder.
                 let client = try builder.build()
-                state.client = client
+                state.mqttClient = client
                 try client.start()
             } catch {
                 state.tryResumeOnce {
@@ -217,7 +212,7 @@ struct CsrProvisioningSample: AsyncParsableCommand {
 
 // Contains members that need to be accessed from across the sample and to prevent multiple resume calls
 final class ClientState {
-    var client: Mqtt5Client?
+    var mqttClient: Mqtt5Client?
     var identityClient: IotIdentityClient?
     private var isResumed = false
     private let lock = NSLock()

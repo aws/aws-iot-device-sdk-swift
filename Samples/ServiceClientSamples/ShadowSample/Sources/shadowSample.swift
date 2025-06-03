@@ -65,6 +65,8 @@ struct ShadowClientSample: AsyncParsableCommand {
     mutating func run() async throws {
         // The IoT Device SDK must be initialized before it is used.
         IotDeviceSdk.initialize()
+        // Tracks sample-wide states that need to be shared
+        let clientState = ClientState()
 
         do {
             // Create an Mqtt5ClientBuilder configured to connect using a certificate and private key.
@@ -73,9 +75,6 @@ struct ShadowClientSample: AsyncParsableCommand {
 
             // Various other configuration options can be set on the Mqtt5ClientBuilder.
             clientBuilder.withClientId(clientId)
-
-            // Tracks sample-wide states that need to be shared
-            let clientState = ClientState()
 
             // Use the builder to create an Mqtt5 Client and connect it.
             let client = try await buildAndConnect(from: clientBuilder, state: clientState)
@@ -127,7 +126,7 @@ struct ShadowClientSample: AsyncParsableCommand {
                 },
                 onLifecycleEventConnectionSuccess: { @Sendable _ in
                     print("Mqtt5Client: Connection Successful.")
-                    guard let client = state.client else { return }
+                    guard let client = state.mqttClient else { return }
                     state.tryResumeOnce {
                         cont.resume(returning: client)
                     }
@@ -142,7 +141,7 @@ struct ShadowClientSample: AsyncParsableCommand {
             do {
                 // Build the Mqtt5Client using the builder.
                 let client = try builder.build()
-                state.client = client
+                state.mqttClient = client
                 try client.start()
             } catch {
                 state.tryResumeOnce {
@@ -371,7 +370,7 @@ struct ShadowClientSample: AsyncParsableCommand {
 
 // Contains members that need to be accessed from across the sample and to prevent multiple resume calls
 final class ClientState {
-    var client: Mqtt5Client?
+    var mqttClient: Mqtt5Client?
     private var isResumed = false
     private let lock = NSLock()
 
