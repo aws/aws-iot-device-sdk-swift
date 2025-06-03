@@ -64,11 +64,6 @@ struct BasicProvisioningSample: AsyncParsableCommand {
         }
 
         do {
-            guard let identityClient = clientState.identityClient else {
-                print("Failed to setup identityClient")
-                return
-            }
-
             // Create new keys and a certificate.
             // AWS IoT provides client certificates that are signed by the Amazon Root certificate authority (CA).
             // The new certificate has a PENDING_ACTIVATION status.
@@ -76,7 +71,7 @@ struct BasicProvisioningSample: AsyncParsableCommand {
             // status changes to ACTIVE or INACTIVE as described in the template.
             let createKeysAndCertificateRequest = CreateKeysAndCertificateRequest()
             let createKeysAndCertificateResponse =
-                try await identityClient.createKeysAndCertificate(
+                try await clientState.identityClient!.createKeysAndCertificate(
                     request: createKeysAndCertificateRequest)
 
             guard let params = parseParameters(from: parametersJson) else {
@@ -91,7 +86,7 @@ struct BasicProvisioningSample: AsyncParsableCommand {
                     .certificateOwnershipToken!,
                 parameters: params
             )
-            let registerThingResponse = try await identityClient.registerThing(
+            let registerThingResponse = try await clientState.identityClient!.registerThing(
                 request: registerThingRequest)
 
             print("Created thingName: \(registerThingResponse.thingName!)")
@@ -118,7 +113,7 @@ struct BasicProvisioningSample: AsyncParsableCommand {
                 },
                 onLifecycleEventConnectionSuccess: { @Sendable _ in
                     print("Mqtt5Client: Connection Successful.")
-                    guard let client = state.client else { return }
+                    guard let client = state.mqttClient else { return }
                     state.tryResumeOnce {
                         cont.resume(returning: client)
                     }
@@ -133,7 +128,7 @@ struct BasicProvisioningSample: AsyncParsableCommand {
             do {
                 // Build the Mqtt5Client using the builder.
                 let client = try builder.build()
-                state.client = client
+                state.mqttClient = client
                 try client.start()
             } catch {
                 state.tryResumeOnce {
@@ -205,7 +200,7 @@ struct BasicProvisioningSample: AsyncParsableCommand {
 
 // Contains members that need to be accessed from across the sample and to prevent multiple resume calls
 final class ClientState {
-    var client: Mqtt5Client?
+    var mqttClient: Mqtt5Client?
     var identityClient: IotIdentityClient?
     private var isResumed = false
     private let lock = NSLock()
