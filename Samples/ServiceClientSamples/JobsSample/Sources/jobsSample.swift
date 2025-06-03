@@ -426,7 +426,7 @@ struct ShadowClientSample: AsyncParsableCommand {
                         do {
                             let response = try await jobsClient.updateJobExecution(request: request)
                             print(
-                                "\n─── UpdateJobExecutionResult ─────────────────────────────────────────────────\n"
+                                "\n─── UpdateJobExecutionResponse ─────────────────────────────────────────────────\n"
                                     + prettyPrint(response) + "\n\n")
                         } catch {
                             logJobsClientError(error)

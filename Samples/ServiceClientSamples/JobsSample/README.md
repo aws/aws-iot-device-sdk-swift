@@ -3,7 +3,7 @@
 [**Return to main sample list**](../../README.md)
 
 This is an interactive sample that supports a set of commands that allow you to interact with the AWS IoT [Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html) Service.  The sample includes both control plane
-commands (that require the AWS SDK for Java v2 and use HTTP as transport) and data plane commands (that use the v2 device SDK and use MQTT as transport).  In a real use case,
+commands (that require the AWS SDK for Swift and use HTTP as transport) and data plane commands (that use the device SDK and use MQTT as transport).  In a real use case,
 control plane commands would be issued by applications under control of the customer, while the data plane operations would be issued by software running on the
 IoT device itself.
 
@@ -95,7 +95,7 @@ Note that in a real application, you may want to avoid the use of wildcards in y
 </details>
 
 Additionally, the sample's control plane operations require that AWS credentials with appropriate permissions be sourceable by the default credentials provider chain
-of the v2 Java SDK.  At a minimum, the following permissions must be granted:
+of the Swift SDK.  At a minimum, the following permissions must be granted:
 <details>
 <summary>Sample Policy</summary>
 <pre>
@@ -139,7 +139,12 @@ job permission so that you can name the jobs whatever you would like.
 To run the Jobs sample use the following command:
 
 ``` sh
-mvn compile exec:java -pl samples/JobsSandbox -Dexec.mainClass=jobs.JobsSandbox -Dexec.args="--endpoint <endpoint> --cert <path to certificate> --key <path to private key> --thing <thing name>"
+swift run JobsSample \
+     <endpoint> \
+     <path to certificate> \
+     <path to private key> \
+     "<region>" \
+     "<thing name>"
 ```
 
 If an AWS IoT Thing resource with the given name does not exist, the sample will first create it.  Once the thing
@@ -154,8 +159,17 @@ get-pending-job-executions
 ```
 yields output like
 ```
-GetPendingJobExecutionsResponse: 
-  {"inProgressJobs":[],"queuedJobs":[],"timestamp":{},"clientToken":"5b79ec86-eefb-41ba-a61b-dde398fe16e8"}
+─── GetPendingJobExecutionsResponse ─────────────────────────────────────────────────
+{
+  "clientToken" : "B604742A-6827-4BFF-B187-6A9F255DF66F",
+  "inProgressJobs" : [
+
+  ],
+  "queuedJobs" : [
+
+  ],
+  "timestamp" : 1748981603
+}
 ```
 from which we can see that the device has no pending job executions and no in-progress job executions.
 
@@ -168,21 +182,52 @@ create-job Job1 {"Todo":"Reboot"}
 which yields output similar to
 
 ```
-CreateJobResponse: 
-  CreateJobResponse(JobArn=arn:aws:iot:us-east-1:123124136734:job/Job1, JobId=Job1)
+─── CreateJobOutput ─────────────────────────────────────────────────
+description: <nil>
+jobArn: arn:aws:iot:us-east-1:123124136734:job/Job1
+jobId: Job1
   
-Received JobExecutionsChanged event: 
-  {"jobs":{"QUEUED":[{"jobId":"Job1","executionNumber":1,"versionNumber":1,"lastUpdatedAt":{},"queuedAt":{}}]},"timestamp":{}}
+─── JobExecutionsChangedEvent ───────────────────────────────────────────
+{
+  "jobs" : {
+    "QUEUED" : [
+      {
+        "executionNumber" : 1,
+        "jobId" : "Job1",
+        "lastUpdatedAt" : 1748981622,
+        "queuedAt" : 1748981622,
+        "versionNumber" : 1
+      }
+    ]
+  },
+  "timestamp" : 1748981622
+}
 
-Received NextJobExecutionChanged event: 
-  {"execution":{"jobId":"Job1","jobDocument":{"Todo":"Reboot"},"status":"QUEUED","queuedAt":{},"lastUpdatedAt":{},"versionNumber":1,"executionNumber":1},"timestamp":{}}
+─── NextJobExecutionChangedEvent ───────────────────────────────────────────
+{
+  "execution" : {
+    "executionNumber" : 1,
+    "jobDocument" : {
+      "Todo" : "Reboot"
+    },
+    "jobId" : "Job1",
+    "lastUpdatedAt" : 1748981622,
+    "queuedAt" : 1748981622,
+    "startedAt" : null,
+    "status" : "QUEUED",
+    "statusDetails" : null,
+    "thingName" : null,
+    "versionNumber" : 1
+  },
+  "timestamp" : 1748981622
+}
 ```
 
-In addition to the successful (HTTP) response to the CreateJob API call, our action triggered two (MQTT-based) events: a JobExecutionsChanged event and a
-NextJobExecutionChanged event.  When the sample is run, it creates and opens two streaming operations that listen for these two different events, by using the
+In addition to the successful (HTTP) response to the CreateJob API call, our action triggered two (MQTT-based) events: a JobExecutionsChangedEvent and a
+NextJobExecutionChangedEvent.  When the sample is run, it creates and opens two streaming operations that listen for these two different events, by using the
 `createJobExecutionsChangedStream` and `createNextJobExecutionChangedStream` APIs.
 
-A JobExecutionsChanged event is emitted every time either the queued or in-progress job execution sets change for the device.  A NextJobExecutionChanged event is emitted
+A JobExecutionsChangedEvent is emitted every time either the queued or in-progress job execution sets change for the device.  A NextJobExecutionChangedEvent is emitted
 only when the next job to be executed changes.  So if you create N jobs targeting a device, you'll get N JobExecutionsChanged events, but only (up to) one
 NextJobExecutionChanged event (unless the device starts completing jobs, triggering additional NextJobExecutionChanged events).
 
@@ -195,11 +240,33 @@ create-job Job2 {"ToDo":"Delete Root User"}
 whose output might look like
 
 ```
-CreateJobResponse: 
-  CreateJobResponse(JobArn=arn:aws:iot:us-east-1:123124136734:job/Job2, JobId=Job2)
+─── CreateJobOutput ─────────────────────────────────────────────────
+description: <nil>
+jobArn: arn:aws:iot:us-east-1:123124136734:job/Job2
+jobId: Job2
 
-Received JobExecutionsChanged event: 
-  {"jobs":{"QUEUED":[{"jobId":"Job1","executionNumber":1,"versionNumber":1,"lastUpdatedAt":{},"queuedAt":{}},{"jobId":"Job2","executionNumber":1,"versionNumber":1,"lastUpdatedAt":{},"queuedAt":{}}]},"timestamp":{}}
+─── JobExecutionsChangedEvent ───────────────────────────────────────────
+{
+  "jobs" : {
+    "QUEUED" : [
+      {
+        "executionNumber" : 1,
+        "jobId" : "Job1",
+        "lastUpdatedAt" : 1748981622,
+        "queuedAt" : 1748981622,
+        "versionNumber" : 1
+      },
+      {
+        "executionNumber" : 1,
+        "jobId" : "Job2",
+        "lastUpdatedAt" : 1748981704,
+        "queuedAt" : 1748981704,
+        "versionNumber" : 1
+      }
+    ]
+  },
+  "timestamp" : 1748981706
+}
 ```
 
 Notice how this time, there is no NextJobExecutionChanged event because the second job is behind the first, and therefore the next job execution hasn't changed.  As we will
@@ -215,8 +282,25 @@ into the IN_PROGRESS state, returning its job document in the process.
 start-next-pending-job-execution
 ```
 ```
-StartNextJobExecutionResponse: 
-  {"clientToken":"a167c623-6156-4757-a552-0e98a461390a","execution":{"jobId":"Job1","jobDocument":{"Todo":"Reboot"},"status":"IN_PROGRESS","queuedAt":{},"startedAt":{},"lastUpdatedAt":{},"versionNumber":2,"executionNumber":1},"timestamp":{}}
+─── StartNextJobExecutionResponse ─────────────────────────────────────────────────
+{
+  "clientToken" : "A35D3C3B-D8A2-41ED-B9C0-B893105B355D",
+  "execution" : {
+    "executionNumber" : 1,
+    "jobDocument" : {
+      "Todo" : "Reboot"
+    },
+    "jobId" : "Job1",
+    "lastUpdatedAt" : 1748981741,
+    "queuedAt" : 1748981622,
+    "startedAt" : 1748981741,
+    "status" : "IN_PROGRESS",
+    "statusDetails" : null,
+    "thingName" : null,
+    "versionNumber" : 2
+  },
+  "timestamp" : 1748981741
+}
 ```
 Note that the response includes the job's document, which is what describes what the job actually entails.  The contents of the job document and its interpretation and
 execution are the responsibility of the developer.  Notice also that no events were emitted from the action of moving a job from the QUEUED state to the IN_PROGRESS state.
@@ -227,8 +311,30 @@ If we run `getPendingJobExecutions` again, we see that Job1 is now in progress, 
 get-pending-job-executions
 ```
 ```
-GetPendingJobExecutionsResponse: 
-  {"inProgressJobs":[{"jobId":"Job1","executionNumber":1,"versionNumber":2,"lastUpdatedAt":{},"queuedAt":{},"startedAt":{}}],"queuedJobs":[{"jobId":"Job2","executionNumber":1,"versionNumber":1,"lastUpdatedAt":{},"queuedAt":{}}],"timestamp":{},"clientToken":"775aa42a-9173-4392-af02-c9a1e46d22d2"}
+─── GetPendingJobExecutionsResponse ─────────────────────────────────────────────────
+{
+  "clientToken" : "72226AF8-1C7F-497D-A32E-3DE74CA27DCD",
+  "inProgressJobs" : [
+    {
+      "executionNumber" : 1,
+      "jobId" : "Job1",
+      "lastUpdatedAt" : 1748981741,
+      "queuedAt" : 1748981622,
+      "startedAt" : 1748981741,
+      "versionNumber" : 2
+    }
+  ],
+  "queuedJobs" : [
+    {
+      "executionNumber" : 1,
+      "jobId" : "Job2",
+      "lastUpdatedAt" : 1748981704,
+      "queuedAt" : 1748981704,
+      "versionNumber" : 1
+    }
+  ],
+  "timestamp" : 1748981785
+}
 ```
 
 A real device application would perform the job execution steps as needed.  Let's assume that has been done.  We need to tell the service the job has
@@ -239,14 +345,46 @@ update-job-execution Job1 SUCCEEDED
 ```
 will trigger output similar to
 ```
-UpdateJobExecutionResponse: 
-  {"clientToken":"6864b359-12dc-45de-b556-7302f5df7b39","timestamp":{}}
+─── UpdateJobExecutionResult ─────────────────────────────────────────────────
+{
+  "executionState" : null,
+  "timestamp" : 1748981892
+}
   
-Received NextJobExecutionChanged event: 
-  {"execution":{"jobId":"Job2","jobDocument":{"ToDo":"Delete Root User"},"status":"QUEUED","queuedAt":{},"lastUpdatedAt":{},"versionNumber":1,"executionNumber":1},"timestamp":{}}
+─── NextJobExecutionChangedEvent ───────────────────────────────────────────
+{
+  "execution" : {
+    "executionNumber" : 1,
+    "jobDocument" : {
+      "ToDo" : "Delete Root User"
+    },
+    "jobId" : "Job2",
+    "lastUpdatedAt" : 1748981704,
+    "queuedAt" : 1748981704,
+    "startedAt" : null,
+    "status" : "QUEUED",
+    "statusDetails" : null,
+    "thingName" : null,
+    "versionNumber" : 1
+  },
+  "timestamp" : 1748981893
+}
 
-Received JobExecutionsChanged event: 
-  {"jobs":{"QUEUED":[{"jobId":"Job2","executionNumber":1,"versionNumber":1,"lastUpdatedAt":{},"queuedAt":{}}]},"timestamp":{}}
+─── JobExecutionsChangedEvent ───────────────────────────────────────────
+{
+  "jobs" : {
+    "QUEUED" : [
+      {
+        "executionNumber" : 1,
+        "jobId" : "Job2",
+        "lastUpdatedAt" : 1748981704,
+        "queuedAt" : 1748981704,
+        "versionNumber" : 1
+      }
+    ]
+  },
+  "timestamp" : 1748981892
+}
 ```
 Notice we get a response as well as two events, since both
 1. The set of incomplete job executions set has changed.
@@ -258,8 +396,25 @@ As expected, we can move Job2's execution into IN_PROGRESS by invoking `startNex
 start-next-pending-job-execution
 ```
 ```
-StartNextJobExecutionResponse: 
-  {"clientToken":"d0d71122-666c-40fc-9886-9b8d64ceac53","execution":{"jobId":"Job2","jobDocument":{"ToDo":"Delete Root User"},"status":"IN_PROGRESS","queuedAt":{},"startedAt":{},"lastUpdatedAt":{},"versionNumber":2,"executionNumber":1},"timestamp":{}}
+─── StartNextJobExecutionResponse ─────────────────────────────────────────────────
+{
+  "clientToken" : "59A22279-5E7D-4C7B-BCC4-934F6DEBF26E",
+  "execution" : {
+    "executionNumber" : 1,
+    "jobDocument" : {
+      "ToDo" : "Delete Root User"
+    },
+    "jobId" : "Job2",
+    "lastUpdatedAt" : 1748982154,
+    "queuedAt" : 1748981704,
+    "startedAt" : 1748982154,
+    "status" : "IN_PROGRESS",
+    "statusDetails" : null,
+    "thingName" : null,
+    "versionNumber" : 2
+  },
+  "timestamp" : 1748982154
+}
 ```
 
 Let's pretend that the job execution failed.  An update variant can notify the Jobs service of this fact:
@@ -269,28 +424,33 @@ update-job-execution Job2 FAILED
 ```
 triggering
 ```
-UpdateJobExecutionResponse: 
-  {"clientToken":"5022f709-1e39-4f2e-ba12-c816533d3d8b","timestamp":{}}
+─── UpdateJobExecutionResult ─────────────────────────────────────────────────
+{
+  "executionState" : null,
+  "timestamp" : 1748982170
+}
   
-Received JobExecutionsChanged event: 
-  {"jobs":{},"timestamp":{}}
+─── JobExecutionsChangedEvent ───────────────────────────────────────────
+{
+  "jobs" : {
 
-Received NextJobExecutionChanged event: 
-  {"timestamp":{}}
+  },
+  "timestamp" : 1748982171
+}
+
+─── NextJobExecutionChangedEvent ───────────────────────────────────────────
+{
+  "timestamp" : 1748982171
+}
 ```
 At this point, no incomplete job executions remain.
 
 ### Job Cleanup
 When all executions for a given job have reached a terminal state (SUCCEEDED, FAILED, CANCELED), you can delete the job itself.  This is a control plane operation
-that requires the v2 AWS SDK for Java and should not be performed by the device executing jobs:
+that requires the AWS SDK for Swift and should not be performed by the device executing jobs:
 
 ```
 delete-job Job1
-```
-yielding
-```
-DeleteJobResponse: 
-  DeleteJobResponse()
 ```
 
 ### Misc. Topics
