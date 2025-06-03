@@ -94,17 +94,8 @@ class IdentityClientTests: XCTestCase {
     // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
     // in the identity tests.
     private func cleanUpThing(
-        certificateId: String?, thingName: String?, accessKey: String, secretKey: String,
-        sessionToken: String, region: String
+        certificateId: String?, thingName: String?, iotClient: IoTClient
     ) async throws {
-        let awsCredentialIdentity = AWSCredentialIdentity(
-            accessKey: accessKey, secret: secretKey, sessionToken: sessionToken)
-        let staticAWSCredIdent = try StaticAWSCredentialIdentityResolver(awsCredentialIdentity)
-
-        let iotClientConfig = try await IoTClient.IoTClientConfiguration(
-            awsCredentialIdentityResolver: staticAWSCredIdent, region: region)
-
-        let iotClient = AWSIoT.IoTClient(config: iotClientConfig)
 
         // feed certificate ID to get the certificate Arn
         let describeCertificateOutput = try await iotClient.describeCertificate(
@@ -137,15 +128,13 @@ class IdentityClientTests: XCTestCase {
         let templateName: String = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
 
-        // Check that credential env variables have been set or skip test
-        let accessKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
-        let secretKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
-        let sessionToken = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
-        let region = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_DEFAULT_REGION")
+        let iotClient: IoTClient
+        do {
+            iotClient = try await IoTClient(
+                config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+        } catch {
+            throw XCTSkip("Skipping test because IoTClient cannot be configured.")
+        }
 
         let identityClient = try await getIdentityClient()
 
@@ -180,9 +169,7 @@ class IdentityClientTests: XCTestCase {
         print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
         try await cleanUpThing(
             certificateId: createKeysAndCertificateResponse.certificateId,
-            thingName: registerThingResponse.thingName,
-            accessKey: accessKey, secretKey: secretKey,
-            sessionToken: sessionToken, region: region)
+            thingName: registerThingResponse.thingName, iotClient: iotClient)
     }
 
     func testIdentityClientProvisionWithCSR() async throws {
@@ -191,15 +178,13 @@ class IdentityClientTests: XCTestCase {
         let csrPath: String = try getEnvironmentVarOrSkipTest(
             environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_CSR_PATH")
 
-        // Check that credential env variables have been set or skip test
-        let accessKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
-        let secretKey = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
-        let sessionToken = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
-        let region = try getEnvironmentVarOrSkipTest(
-            environmentVarName: "AWS_DEFAULT_REGION")
+        let iotClient: IoTClient
+        do {
+            iotClient = try await IoTClient(
+                config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+        } catch {
+            throw XCTSkip("Skipping test because IoTClient cannot be configured.")
+        }
 
         let csrString: String = try String(contentsOfFile: csrPath)
         let identityClient = try await getIdentityClient()
@@ -235,7 +220,6 @@ class IdentityClientTests: XCTestCase {
         try await cleanUpThing(
             certificateId: createCertificateFromCsrResponse.certificateId,
             thingName: registerThingResponse.thingName,
-            accessKey: accessKey, secretKey: secretKey,
-            sessionToken: sessionToken, region: region)
+            iotClient: iotClient)
     }
 }
