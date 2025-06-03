@@ -96,26 +96,30 @@ class IdentityClientTests: XCTestCase {
     private func cleanUpThing(
         certificateId: String?, thingName: String?, iotClient: IoTClient
     ) async throws {
+        do {
+            print("Beginning cleanup of thing")
+            // feed certificate ID to get the certificate Arn
+            let describeCertificateOutput = try await iotClient.describeCertificate(
+                input: DescribeCertificateInput(
+                    certificateId: certificateId))
 
-        // feed certificate ID to get the certificate Arn
-        let describeCertificateOutput = try await iotClient.describeCertificate(
-            input: DescribeCertificateInput(
-                certificateId: certificateId))
+            if let certDescription = describeCertificateOutput.certificateDescription {
+                if let certificateArn: String = certDescription.certificateArn {
+                    _ = try await iotClient.detachThingPrincipal(
+                        input: DetachThingPrincipalInput(
+                            principal: certificateArn, thingName: thingName))
 
-        if let certDescription = describeCertificateOutput.certificateDescription {
-            if let certificateArn: String = certDescription.certificateArn {
-                _ = try await iotClient.detachThingPrincipal(
-                    input: DetachThingPrincipalInput(
-                        principal: certificateArn, thingName: thingName))
-
-                print("Deleting thingName: \(thingName ?? "no thingName")")
-                _ = try await iotClient.deleteThing(
-                    input: DeleteThingInput(thingName: thingName))
+                    print("Deleting thingName: \(thingName ?? "no thingName")")
+                    _ = try await iotClient.deleteThing(
+                        input: DeleteThingInput(thingName: thingName))
+                } else {
+                    print("Certificate ARN not found")
+                }
             } else {
-                print("Certificate ARN not found")
+                print("Certificate Description not found")
             }
-        } else {
-            print("Certificate Description not found")
+        } catch {
+            print("Cleanup of created thingName failed with error \(error)")
         }
     }
 
@@ -133,8 +137,10 @@ class IdentityClientTests: XCTestCase {
             iotClient = try await IoTClient(
                 config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
         } catch {
-            throw XCTSkip("Skipping test because IoTClient cannot be configured.")
+            throw XCTSkip(
+                "Skipping test because IoTClient cannot be configured with error: \(error)")
         }
+        print("iotClient created")
 
         let identityClient = try await getIdentityClient()
 
@@ -183,8 +189,10 @@ class IdentityClientTests: XCTestCase {
             iotClient = try await IoTClient(
                 config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
         } catch {
-            throw XCTSkip("Skipping test because IoTClient cannot be configured.")
+            throw XCTSkip(
+                "Skipping test because IoTClient cannot be configured with error: \(error)")
         }
+        print("iotClient created")
 
         let csrString: String = try String(contentsOfFile: csrPath)
         let identityClient = try await getIdentityClient()
