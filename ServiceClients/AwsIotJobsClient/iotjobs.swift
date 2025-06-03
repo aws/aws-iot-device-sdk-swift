@@ -1025,6 +1025,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
         if let jobDocumentInternal = jobDocumentInternal {
             try container.encode(jobDocumentInternal, forKey: .jobDocument)
         }
+        try container.encode(clientToken, forKey: .clientToken)
     }
 }
 
