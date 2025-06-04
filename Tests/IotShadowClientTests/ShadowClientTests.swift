@@ -94,6 +94,8 @@ class ShadowClientTests: XCTestCase {
 
     // Build and return the IotShadowClient
     let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
+      maxRequestResponseSubscription: 5,
+      maxStreamingSubscription: 3,
       operationTimeout: 10)
     let shadowClient: IotShadowClient = try IotShadowClient(
       mqttClient: mqttClient, options: options)
