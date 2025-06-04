@@ -347,3 +347,12 @@ jobs:
         run: |
           swift build
           swift test
+    
+    lint:
+      runs-on: macos-15 # latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Run Swift-Format
+          run: |
+            brew install swift-format
+            swift-format lint --recursive --strict .
