@@ -4,33 +4,33 @@
 import PackageDescription
 
 let package = Package(
-    name: "AwsIotDeviceSdkSwift",
-    platforms: [
-        .iOS(.v13),
-        .macOS(.v10_15),
-        .tvOS(.v13),
-    ],
-    products: [
-        .library(
-            name: "AwsIotDeviceSdkSwift",
-            targets: ["AwsIotDeviceSdkSwift"])
-    ],
-    dependencies: [
-        .package(
-            url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.52.2"))
-    ],
-    targets: [
-        .target(
-            name: "AwsIotDeviceSdkSwift",
-            dependencies: [
-                .product(name: "AwsCommonRuntimeKit", package: "aws-crt-swift")
-            ],
-            path: "Sources"
-        ),
-        .testTarget(
-            name: "AwsIotDeviceSdkSwiftTests",
-            dependencies: ["AwsIotDeviceSdkSwift"],
-            path: "Tests/AwsIotDeviceSdkSwiftTests"
-        ),
-    ]
+  name: "AwsIotDeviceSdkSwift",
+  platforms: [
+    .iOS(.v13),
+    .macOS(.v10_15),
+    .tvOS(.v13),
+  ],
+  products: [
+    .library(
+      name: "AwsIotDeviceSdkSwift",
+      targets: ["AwsIotDeviceSdkSwift"])
+  ],
+  dependencies: [
+    .package(
+      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.52.2"))
+  ],
+  targets: [
+    .target(
+      name: "AwsIotDeviceSdkSwift",
+      dependencies: [
+        .product(name: "AwsCommonRuntimeKit", package: "aws-crt-swift")
+      ],
+      path: "Sources"
+    ),
+    .testTarget(
+      name: "AwsIotDeviceSdkSwiftTests",
+      dependencies: ["AwsIotDeviceSdkSwift"],
+      path: "Tests/AwsIotDeviceSdkSwiftTests"
+    ),
+  ]
 )
