@@ -11,7 +11,7 @@ class XCBaseTestCase: XCTestCase {
         // XCode currently lacks a way to enable logs exclusively for failed tests only.
         // To prevent log spamming, we use `error` log level to only print error message.
         // We should update this once a more efficient log processing method becomes available.
-        try? Logger.initialize(target: .standardOutput, level: .error)
+        try? Logger.initialize(target: .standardOutput, level: .debug)
 
         CommonRuntimeKit.initialize()
     }
