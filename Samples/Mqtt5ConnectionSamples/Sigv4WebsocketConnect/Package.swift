@@ -15,7 +15,8 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../../../"),
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),  // This package gives us the capability to do a argument parsing
+    // This package gives us the capability to do a argument parsing
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
