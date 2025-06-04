@@ -100,8 +100,8 @@ class JobsClientTests: XCTestCase {
     await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
 
     // Build and return the IotJobsClient
-    let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
-      operationTimeout: 10)
+    let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(maxRequestResponseSubscription: 3, maxStreamingSubscription: 2,
+                                                                                     operationTimeout: 10)
     let iotJobsClient: IotJobsClient = try IotJobsClient(
       mqttClient: mqttClient, options: options)
     XCTAssertNotNil(iotJobsClient)

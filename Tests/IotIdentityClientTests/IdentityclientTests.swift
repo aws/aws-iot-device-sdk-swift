@@ -67,7 +67,7 @@ class IdentityClientTests: XCTestCase {
         // Used to track whether the Mqtt5 Client connection is successful.
         let connectionExpectation: XCTestExpectation = expectation(
             description: "Connection Success")
-        let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { successData in
+        let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { _ in
             connectionExpectation.fulfill()
         }
 
@@ -83,7 +83,7 @@ class IdentityClientTests: XCTestCase {
         await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
 
         // Build and return the IotShadowClient
-        let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
+        let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(maxRequestResponseSubscription: 3, maxStreamingSubscription: 2,
             operationTimeout: 10)
         let identityClient: IotIdentityClient = try IotIdentityClient(
             mqttClient: mqttClient, options: options)

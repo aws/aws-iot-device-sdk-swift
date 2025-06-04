@@ -93,8 +93,8 @@ class ShadowClientTests: XCTestCase {
         await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
 
         // Build and return the IotShadowClient
-        let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
-            operationTimeout: 10)
+        let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(maxRequestResponseSubscription: 3, maxStreamingSubscription: 2,
+                                                                                         operationTimeout: 10)
         let shadowClient: IotShadowClient = try IotShadowClient(
             mqttClient: mqttClient, options: options)
         XCTAssertNotNil(shadowClient)
