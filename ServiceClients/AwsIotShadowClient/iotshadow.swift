@@ -880,6 +880,7 @@ final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
         }
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(version, forKey: .version)
+        try container.encode(clientToken, forKey: .clientToken)
     }
 }
 
