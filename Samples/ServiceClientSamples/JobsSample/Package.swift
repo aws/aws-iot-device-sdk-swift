@@ -16,8 +16,10 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/aws/aws-iot-device-sdk-swift",
-      branch: "codegen"),  // TODO WIP Use the correct URL for your AWS IoT Device SDK Swift repo
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),  // This package gives us the capability to do a argument parsing
+      // TODO WIP Use the correct URL for your AWS IoT Device SDK Swift repo
+      branch: "codegen"),
+    // This package gives us the capability to do a argument parsing
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
     .package(
       url: "https://github.com/awslabs/aws-sdk-swift.git", from: "1.3.19"),
   ],
