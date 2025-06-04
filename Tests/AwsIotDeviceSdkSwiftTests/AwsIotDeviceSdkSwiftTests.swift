@@ -299,7 +299,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
     let clientBootstrap = try ClientBootstrap(
         eventLoopGroup: elg,
         hostResolver: resolver)
-
+    
     let provider = try CredentialsProvider(source: .defaultChain(
         bootstrap: clientBootstrap,
         fileBasedConfiguration: FileBasedConfiguration()))
