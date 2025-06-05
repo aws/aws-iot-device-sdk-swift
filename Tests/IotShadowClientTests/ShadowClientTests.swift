@@ -77,7 +77,7 @@ class ShadowClientTests: XCTestCase {
     // Used to track whether the Mqtt5 Client connection is successful.
     let connectionExpectation: XCTestExpectation = expectation(
       description: "Connection Success")
-    let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { _ in
+    let onLifecycleEventConnectionSuccess: OnLifecycleEventConnectionSuccess = { successData in
       connectionExpectation.fulfill()
     }
 
