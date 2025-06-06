@@ -37,7 +37,6 @@ class ShadowClientTests: XCTestCase {
   }
 
   override func tearDown() {
-    // IotDeviceSdk.cleanUp()
     super.tearDown()
   }
 
