@@ -3,8 +3,8 @@
 
 // This file is generated
 
-import AwsIotDeviceSdkSwift
 import Foundation
+import AwsIotDeviceSdkSwift
 
 /// An AWS IoT service that assists with provisioning a device and installing unique client certificates on it
 /// AWS Docs: https://docs.aws.amazon.com/iot/latest/developerguide/provision-wo-cert.html
@@ -16,7 +16,7 @@ public class IotIdentityClient {
   public init(
     mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
   ) throws {
-    self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
+    self.rrClient = try MqttRequestResponseClient(
       mqtt5Client: mqttClient, options: options)
   }
 
@@ -69,10 +69,9 @@ public class IotIdentityClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
-        return try decoder.decode(
-          CreateCertificateFromCsrResponse.self, from: response.payload)
+        return try decoder.decode(CreateCertificateFromCsrResponse.self, from: response.payload)
       } else {
         // Unsuccessful operation ack throws IotIdentityClientError.errorResponse
         throw IotIdentityClientError.errorResponse(
@@ -139,10 +138,9 @@ public class IotIdentityClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
-        return try decoder.decode(
-          CreateKeysAndCertificateResponse.self, from: response.payload)
+        return try decoder.decode(CreateKeysAndCertificateResponse.self, from: response.payload)
       } else {
         // Unsuccessful operation ack throws IotIdentityClientError.errorResponse
         throw IotIdentityClientError.errorResponse(
@@ -179,13 +177,11 @@ public class IotIdentityClient {
 
     // Subscription Topic Filters
     var subscriptionTopicFilters: [String] = []
-    var subscription0: String =
-      "$aws/provisioning-templates/{templateName}/provision/json/accepted"
+    var subscription0: String = "$aws/provisioning-templates/{templateName}/provision/json/accepted"
     subscription0 = subscription0.replacingOccurrences(
       of: "{templateName}", with: request.templateName)
     subscriptionTopicFilters.append(subscription0)
-    var subscription1: String =
-      "$aws/provisioning-templates/{templateName}/provision/json/rejected"
+    var subscription1: String = "$aws/provisioning-templates/{templateName}/provision/json/rejected"
     subscription1 = subscription1.replacingOccurrences(
       of: "{templateName}", with: request.templateName)
     subscriptionTopicFilters.append(subscription1)
@@ -214,7 +210,7 @@ public class IotIdentityClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
         return try decoder.decode(RegisterThingResponse.self, from: response.payload)
       } else {
