@@ -123,13 +123,17 @@ class IdentityClientTests: XCTestCase {
         return
       }
 
-      // Detach principal from thing
-      _ = try await iotClient.detachThingPrincipal(
-        input: .init(principal: certificateArn, thingName: thingName))
+      do {
+        // Detach principal from thing
+        _ = try await iotClient.detachThingPrincipal(
+          input: .init(principal: certificateArn, thingName: thingName))
 
-      print("Deleting thing: \(thingName)")
-      _ = try await iotClient.deleteThing(input: .init(thingName: thingName))
-      print("Cleanup of \(thingName) complete")
+        print("Deleting thing: \(thingName)")
+        _ = try await iotClient.deleteThing(input: .init(thingName: thingName))
+        print("Cleanup of \(thingName) complete")
+      } catch {
+        print("failed to delete iot thing")
+      }
 
       guard deleteCert else { return }
       print("Cleaning up certificate: \(certificateArn)")
