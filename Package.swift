@@ -26,12 +26,13 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      // url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.52.2"))
-      // TODO WIP revert this to point to the main branch
-      url: "https://github.com/awslabs/aws-crt-swift.git", branch: "rr_streaming"),
+      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.53.0")),
     // aws-sdk-swift is only used in test targets to help with setup and cleanup of testing service clients
+    // We use "aws-iot-device-sdk-swift-testing-branch" to maintain aws-crt-swift version pairity between it
+    // and our SDK for testing
     .package(
-      url: "https://github.com/awslabs/aws-sdk-swift.git", from: "1.3.19"),
+      url: "https://github.com/awslabs/aws-sdk-swift.git",
+      branch: "aws-iot-device-sdk-swift-testing-branch"),
   ],
   targets: [
     .target(

@@ -98,9 +98,8 @@ class IdentityClientTests: XCTestCase {
   private func cleanUpThing(
     certificateId: String?, thingName: String?
   ) async throws {
-    let iotClient: IoTClient
     do {
-      iotClient = try await IoTClient(
+      let iotClient: IoTClient? = try await IoTClient(
         config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
     } catch {
       print("Skipping cleanup because IoTClient cannot be configured with error: \(error)")
@@ -125,18 +124,22 @@ class IdentityClientTests: XCTestCase {
             input: DeleteThingInput(thingName: thingName))
         } else {
           print("Certificate ARN not found")
+          iotClient = nil
           return
         }
       } else {
         print("Certificate Description not found")
+        iotClient = nil
         return
       }
     } catch {
       print("Cleanup of created thingName failed with error \(error)")
+      iotClient = nil
       return
     }
 
     print("cleanup of \(thingName ?? "<nil>") complete")
+    iotClient = nil
   }
 
   func testIdentityClientCreateDestroy() async throws {
