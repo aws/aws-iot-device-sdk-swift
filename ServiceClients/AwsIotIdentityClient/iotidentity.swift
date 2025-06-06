@@ -16,7 +16,7 @@ public class IotIdentityClient {
   public init(
     mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
   ) throws {
-    self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
+    self.rrClient = try MqttRequestResponseClient(
       mqtt5Client: mqttClient, options: options)
   }
 
