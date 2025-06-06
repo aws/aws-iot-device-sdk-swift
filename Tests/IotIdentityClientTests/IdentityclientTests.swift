@@ -101,40 +101,40 @@ class IdentityClientTests: XCTestCase {
     do {
       let iotClient: IoTClient? = try await IoTClient(
         config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-    } catch {
-      print("Skipping cleanup because IoTClient cannot be configured with error: \(error)")
-      return
-    }
 
-    do {
-      print("Beginning cleanup of thing")
-      // feed certificate ID to get the certificate Arn
-      let describeCertificateOutput = try await iotClient.describeCertificate(
-        input: DescribeCertificateInput(
-          certificateId: certificateId))
+      do {
+        print("Beginning cleanup of thing")
+        // feed certificate ID to get the certificate Arn
+        let describeCertificateOutput = try await iotClient.describeCertificate(
+          input: DescribeCertificateInput(
+            certificateId: certificateId))
 
-      if let certDescription = describeCertificateOutput.certificateDescription {
-        if let certificateArn: String = certDescription.certificateArn {
-          _ = try await iotClient.detachThingPrincipal(
-            input: DetachThingPrincipalInput(
-              principal: certificateArn, thingName: thingName))
+        if let certDescription = describeCertificateOutput.certificateDescription {
+          if let certificateArn: String = certDescription.certificateArn {
+            _ = try await iotClient.detachThingPrincipal(
+              input: DetachThingPrincipalInput(
+                principal: certificateArn, thingName: thingName))
 
-          print("Attempting delete of thingName: \(thingName ?? "no thingName")")
-          _ = try await iotClient.deleteThing(
-            input: DeleteThingInput(thingName: thingName))
+            print("Attempting delete of thingName: \(thingName ?? "no thingName")")
+            _ = try await iotClient.deleteThing(
+              input: DeleteThingInput(thingName: thingName))
+          } else {
+            print("Certificate ARN not found")
+            iotClient = nil
+            return
+          }
         } else {
-          print("Certificate ARN not found")
+          print("Certificate Description not found")
           iotClient = nil
           return
         }
-      } else {
-        print("Certificate Description not found")
+      } catch {
+        print("Cleanup of created thingName failed with error \(error)")
         iotClient = nil
         return
       }
     } catch {
-      print("Cleanup of created thingName failed with error \(error)")
-      iotClient = nil
+      print("Skipping cleanup because IoTClient cannot be configured with error: \(error)")
       return
     }
 
