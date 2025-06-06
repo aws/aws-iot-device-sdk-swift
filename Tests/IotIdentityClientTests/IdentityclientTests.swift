@@ -124,11 +124,11 @@ class IdentityClientTests: XCTestCase {
       }
 
       // Detach principal from thing
-      try await iotClient.detachThingPrincipal(
+      _ = try await iotClient.detachThingPrincipal(
         input: .init(principal: certificateArn, thingName: thingName))
 
       print("Deleting thing: \(thingName)")
-      try await iotClient.deleteThing(input: .init(thingName: thingName))
+      _ = try await iotClient.deleteThing(input: .init(thingName: thingName))
       print("Cleanup of \(thingName) complete")
 
       guard deleteCert else { return }
@@ -142,7 +142,7 @@ class IdentityClientTests: XCTestCase {
         if let policyName = policy.policyName {
           print("Detaching policy: \(policyName)")
           do {
-            try await iotClient.detachPolicy(
+            _ = try await iotClient.detachPolicy(
               input: .init(policyName: policyName, target: certificateArn))
           } catch {
             print("Failed to detach policy '\(policyName)': \(error)")
@@ -151,10 +151,10 @@ class IdentityClientTests: XCTestCase {
       }
 
       // Deactivate and delete certificate
-      try await iotClient.updateCertificate(
+      _ = try await iotClient.updateCertificate(
         input: .init(certificateId: certificateId, newStatus: .inactive))
       print("Certificate deactivated.")
-      try await iotClient.deleteCertificate(input: .init(certificateId: certificateId))
+      _ = try await iotClient.deleteCertificate(input: .init(certificateId: certificateId))
       print("Certificate deleted.")
 
     } catch {
