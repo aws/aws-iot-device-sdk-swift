@@ -96,8 +96,16 @@ class IdentityClientTests: XCTestCase {
   // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
   // in the identity tests.
   private func cleanUpThing(
-    certificateId: String?, thingName: String?, iotClient: IoTClient
+    certificateId: String?, thingName: String?
   ) async throws {
+    do {
+      let iotClient: IoTClient? = try await IoTClient(
+        config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+    } catch {
+      print("Skipping cleanup because IoTClient cannot be configured with error: \(error)")
+      return
+    }
+
     do {
       print("Beginning cleanup of thing")
       // feed certificate ID to get the certificate Arn
@@ -111,18 +119,27 @@ class IdentityClientTests: XCTestCase {
             input: DetachThingPrincipalInput(
               principal: certificateArn, thingName: thingName))
 
-          print("Deleting thingName: \(thingName ?? "no thingName")")
+          print("Attempting delete of thingName: \(thingName ?? "no thingName")")
           _ = try await iotClient.deleteThing(
             input: DeleteThingInput(thingName: thingName))
         } else {
           print("Certificate ARN not found")
+          iotClient = nil
+          return
         }
       } else {
         print("Certificate Description not found")
+        iotClient = nil
+        return
       }
     } catch {
       print("Cleanup of created thingName failed with error \(error)")
+      iotClient = nil
+      return
     }
+
+    print("cleanup of \(thingName ?? "<nil>") complete")
+    iotClient = nil
   }
 
   func testIdentityClientCreateDestroy() async throws {
@@ -133,16 +150,6 @@ class IdentityClientTests: XCTestCase {
   func testIdentityClientProvisionWithCertAndKey() async throws {
     let templateName: String = try getEnvironmentVarOrSkipTest(
       environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
-
-    let iotClient: IoTClient
-    do {
-      iotClient = try await IoTClient(
-        config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-    } catch {
-      throw XCTSkip(
-        "Skipping test because IoTClient cannot be configured with error: \(error)")
-    }
-    print("iotClient created")
 
     let identityClient = try await getIdentityClient()
 
@@ -177,7 +184,7 @@ class IdentityClientTests: XCTestCase {
     print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
     try await cleanUpThing(
       certificateId: createKeysAndCertificateResponse.certificateId,
-      thingName: registerThingResponse.thingName, iotClient: iotClient)
+      thingName: registerThingResponse.thingName)
   }
 
   func testIdentityClientProvisionWithCSR() async throws {
@@ -185,16 +192,6 @@ class IdentityClientTests: XCTestCase {
       environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
     let csrPath: String = try getEnvironmentVarOrSkipTest(
       environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_CSR_PATH")
-
-    let iotClient: IoTClient
-    do {
-      iotClient = try await IoTClient(
-        config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-    } catch {
-      throw XCTSkip(
-        "Skipping test because IoTClient cannot be configured with error: \(error)")
-    }
-    print("iotClient created")
 
     let csrString: String = try String(contentsOfFile: csrPath)
     let identityClient = try await getIdentityClient()
@@ -229,7 +226,6 @@ class IdentityClientTests: XCTestCase {
     print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
     try await cleanUpThing(
       certificateId: createCertificateFromCsrResponse.certificateId,
-      thingName: registerThingResponse.thingName,
-      iotClient: iotClient)
+      thingName: registerThingResponse.thingName)
   }
 }

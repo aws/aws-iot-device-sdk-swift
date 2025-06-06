@@ -3,6 +3,7 @@
 
 // This file is generated
 
+import Foundation
 import AwsIotDeviceSdkSwift
 import Foundation
 
@@ -16,7 +17,7 @@ public class IotJobsClient {
   public init(
     mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
   ) throws {
-    self.rrClient = try MqttRequestResponseClient.newFromMqtt5Client(
+    self.rrClient = try MqttRequestResponseClient(
       mqtt5Client: mqttClient, options: options)
   }
 
@@ -149,8 +150,7 @@ public class IotJobsClient {
     // Subscription Topic Filters
     var subscriptionTopicFilters: [String] = []
     var subscription0: String = "$aws/things/{thingName}/jobs/{jobId}/get/+"
-    subscription0 = subscription0.replacingOccurrences(
-      of: "{thingName}", with: request.thingName)
+    subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
     subscription0 = subscription0.replacingOccurrences(of: "{jobId}", with: request.jobId)
     subscriptionTopicFilters.append(subscription0)
 
@@ -178,7 +178,7 @@ public class IotJobsClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
         return try decoder.decode(DescribeJobExecutionResponse.self, from: response.payload)
       } else {
@@ -220,8 +220,7 @@ public class IotJobsClient {
     // Subscription Topic Filters
     var subscriptionTopicFilters: [String] = []
     var subscription0: String = "$aws/things/{thingName}/jobs/get/+"
-    subscription0 = subscription0.replacingOccurrences(
-      of: "{thingName}", with: request.thingName)
+    subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
     subscriptionTopicFilters.append(subscription0)
 
     // Response paths
@@ -248,10 +247,9 @@ public class IotJobsClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
-        return try decoder.decode(
-          GetPendingJobExecutionsResponse.self, from: response.payload)
+        return try decoder.decode(GetPendingJobExecutionsResponse.self, from: response.payload)
       } else {
         // Unsuccessful operation ack throws IotJobsClientError.errorResponse
         throw IotJobsClientError.errorResponse(
@@ -291,8 +289,7 @@ public class IotJobsClient {
     // Subscription Topic Filters
     var subscriptionTopicFilters: [String] = []
     var subscription0: String = "$aws/things/{thingName}/jobs/start-next/+"
-    subscription0 = subscription0.replacingOccurrences(
-      of: "{thingName}", with: request.thingName)
+    subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
     subscriptionTopicFilters.append(subscription0)
 
     // Response paths
@@ -319,10 +316,9 @@ public class IotJobsClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
-        return try decoder.decode(
-          StartNextJobExecutionResponse.self, from: response.payload)
+        return try decoder.decode(StartNextJobExecutionResponse.self, from: response.payload)
       } else {
         // Unsuccessful operation ack throws IotJobsClientError.errorResponse
         throw IotJobsClientError.errorResponse(
@@ -363,8 +359,7 @@ public class IotJobsClient {
     // Subscription Topic Filters
     var subscriptionTopicFilters: [String] = []
     var subscription0: String = "$aws/things/{thingName}/jobs/{jobId}/update/+"
-    subscription0 = subscription0.replacingOccurrences(
-      of: "{thingName}", with: request.thingName)
+    subscription0 = subscription0.replacingOccurrences(of: "{thingName}", with: request.thingName)
     subscription0 = subscription0.replacingOccurrences(of: "{jobId}", with: request.jobId)
     subscriptionTopicFilters.append(subscription0)
 
@@ -392,7 +387,7 @@ public class IotJobsClient {
       let response = try await rrClient.submitRequest(
         operationOptions: requestResponseOperationOptions)
 
-      if response.topic == responseTopic1 {
+      if (response.topic == responseTopic1) {
         // Successful operation ack returns the expected output.
         return try decoder.decode(UpdateJobExecutionResponse.self, from: response.payload)
       } else {
@@ -491,8 +486,7 @@ final public class JobExecutionData: Codable, Sendable {
     jobId: String? = nil, thingName: String? = nil, jobDocument: [String: Any]? = nil,
     status: JobStatus? = nil, statusDetails: [String: String]? = nil,
     queuedAt: Foundation.Date? = nil, startedAt: Foundation.Date? = nil,
-    lastUpdatedAt: Foundation.Date? = nil, versionNumber: Int? = nil,
-    executionNumber: Int? = nil
+    lastUpdatedAt: Foundation.Date? = nil, versionNumber: Int? = nil, executionNumber: Int? = nil
   ) {
     self.jobId = jobId
     self.thingName = thingName
@@ -536,8 +530,7 @@ final public class JobExecutionData: Codable, Sendable {
       [String: String].self, forKey: .statusDetails)
     self.queuedAt = try container.decodeIfPresent(Foundation.Date.self, forKey: .queuedAt)
     self.startedAt = try container.decodeIfPresent(Foundation.Date.self, forKey: .startedAt)
-    self.lastUpdatedAt = try container.decodeIfPresent(
-      Foundation.Date.self, forKey: .lastUpdatedAt)
+    self.lastUpdatedAt = try container.decodeIfPresent(Foundation.Date.self, forKey: .lastUpdatedAt)
     self.versionNumber = try container.decodeIfPresent(Int.self, forKey: .versionNumber)
     self.executionNumber = try container.decodeIfPresent(Int.self, forKey: .executionNumber)
   }
@@ -605,8 +598,7 @@ final public class DescribeJobExecutionRequest: Codable, Sendable {
 
   /// Initializes a new `DescribeJobExecutionRequest`
   public init(
-    thingName: String, jobId: String, executionNumber: Int? = nil,
-    includeJobDocument: Bool? = nil
+    thingName: String, jobId: String, executionNumber: Int? = nil, includeJobDocument: Bool? = nil
   ) {
     self.thingName = thingName
     self.jobId = jobId
@@ -702,9 +694,8 @@ final public class UpdateJobExecutionRequest: Codable, Sendable {
   /// Initializes a new `UpdateJobExecutionRequest`
   public init(
     thingName: String, jobId: String, status: JobStatus, statusDetails: [String: String]? = nil,
-    expectedVersion: Int? = nil, executionNumber: Int? = nil,
-    includeJobExecutionState: Bool? = nil, includeJobDocument: Bool? = nil,
-    stepTimeoutInMinutes: Int? = nil
+    expectedVersion: Int? = nil, executionNumber: Int? = nil, includeJobExecutionState: Bool? = nil,
+    includeJobDocument: Bool? = nil, stepTimeoutInMinutes: Int? = nil
   ) {
     self.thingName = thingName
     self.jobId = jobId
