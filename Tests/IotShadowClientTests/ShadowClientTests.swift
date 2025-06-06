@@ -89,7 +89,7 @@ class ShadowClientTests: XCTestCase {
     // Connect the Mqtt5 Client
     try mqttClient.start()
     // Await the expectation being fulfilled with a timeout.
-    await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
+    await awaitExpectation([connectionExpectation], 5)
 
     // Build and return the IotShadowClient
     let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
