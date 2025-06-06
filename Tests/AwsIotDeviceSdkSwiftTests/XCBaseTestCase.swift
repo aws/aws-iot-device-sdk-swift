@@ -17,7 +17,6 @@ class XCBaseTestCase: XCTestCase {
   }
 
   override func tearDown() {
-    CommonRuntimeKit.cleanUp()
     super.tearDown()
   }
 }
