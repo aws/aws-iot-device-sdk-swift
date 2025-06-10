@@ -173,7 +173,7 @@ jobs:
                 source .venv/bin/activate
                 python3 -m pip install boto3
             - name: configure AWS credentials (containers)
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
@@ -200,7 +200,7 @@ jobs:
                 source .venv/bin/activate
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_custom_authorizer_cfg.json
             - name: configure AWS credentials (COGNITO PROVIDER)
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: ${{ env.CI_COGNITO_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
@@ -231,10 +231,12 @@ jobs:
                 submodules: true
                 fetch-depth: 0
             - name: configure AWS credentials (containers)
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
+                # Bump from default 1 hour to 2 hours to allow slower device acquisition
+                role-duration-seconds: 7200 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
@@ -309,7 +311,7 @@ jobs:
                 pip freeze > requirements.txt
                 zip -r test_bundle.zip tests/ requirements.txt
             - name: configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 aws-region: us-west-2 # Device Farm only available on us-west-2
             - name: Execute device farm
