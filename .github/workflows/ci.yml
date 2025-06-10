@@ -235,8 +235,8 @@ jobs:
               with:
                 role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
-                # Bump from default 1 hour to 2 hours to allow slower device acquisition
-                role-duration-seconds: 7200 
+                # Bump from default 1 hour to 8 hours to allow device farm tests to complete (and delete)
+                role-duration-seconds: 28800 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
