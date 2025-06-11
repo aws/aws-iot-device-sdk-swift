@@ -92,54 +92,78 @@ class IdentityClientTests: XCTestCase {
     return identityClient
   }
 
-  // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things created
-  // in the identity tests.
+  // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things and certificates
+  // created in the identity tests.
   private func cleanUpThing(
-    certificateId: String?, thingName: String?
-  ) async throws {
-    var iotClient: IoTClient?
-    do {
-      iotClient = try await IoTClient(
-        config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-
-      do {
-        print("Beginning cleanup of thing")
-        // feed certificate ID to get the certificate Arn
-        let describeCertificateOutput = try await iotClient!.describeCertificate(
-          input: DescribeCertificateInput(
-            certificateId: certificateId))
-
-        if let certDescription = describeCertificateOutput.certificateDescription {
-          if let certificateArn: String = certDescription.certificateArn {
-            _ = try await iotClient!.detachThingPrincipal(
-              input: DetachThingPrincipalInput(
-                principal: certificateArn, thingName: thingName))
-
-            print("Attempting delete of thingName: \(thingName ?? "no thingName")")
-            _ = try await iotClient!.deleteThing(
-              input: DeleteThingInput(thingName: thingName))
-          } else {
-            print("Certificate ARN not found")
-            iotClient = nil
-            return
-          }
-        } else {
-          print("Certificate Description not found")
-          iotClient = nil
-          return
-        }
-      } catch {
-        print("Cleanup of created thingName failed with error \(error)")
-        iotClient = nil
-        return
-      }
-    } catch {
-      print("Skipping cleanup because IoTClient cannot be configured with error: \(error)")
+    certificateId: String?, thingName: String?, deleteCert: Bool = false
+  ) async {
+    guard let certificateId, let thingName else {
+      print("Missing certificateId or thingName")
       return
     }
 
-    print("cleanup of \(thingName ?? "<nil>") complete")
-    iotClient = nil
+    let iotClient: IoTClient
+    do {
+      iotClient = try await IoTClient(
+        config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
+    } catch {
+      print(
+        "Skipping cleanup of created thing/certificate: failed to create IoTClient with error: \(error)"
+      )
+      return
+    }
+
+    do {
+      // Get certificate ARN
+      let describeResp = try await iotClient.describeCertificate(
+        input: .init(certificateId: certificateId))
+
+      guard let certificateArn = describeResp.certificateDescription?.certificateArn else {
+        print("Certificate ARN not found")
+        return
+      }
+
+      do {
+        // Detach principal from thing
+        _ = try await iotClient.detachThingPrincipal(
+          input: .init(principal: certificateArn, thingName: thingName))
+
+        print("Deleting thing: \(thingName)")
+        _ = try await iotClient.deleteThing(input: .init(thingName: thingName))
+        print("Cleanup of \(thingName) complete")
+      } catch {
+        print("failed to delete iot thing")
+      }
+
+      guard deleteCert else { return }
+      print("Cleaning up certificate: \(certificateArn)")
+
+      // Detach policies
+      let policyResp = try await iotClient.listAttachedPolicies(
+        input: .init(target: certificateArn))
+
+      for policy in policyResp.policies ?? [] {
+        if let policyName = policy.policyName {
+          print("Detaching policy: \(policyName)")
+          do {
+            _ = try await iotClient.detachPolicy(
+              input: .init(policyName: policyName, target: certificateArn))
+          } catch {
+            print("Failed to detach policy '\(policyName)': \(error)")
+          }
+        }
+      }
+
+      // Deactivate and delete certificate
+      _ = try await iotClient.updateCertificate(
+        input: .init(certificateId: certificateId, newStatus: .inactive))
+      print("Certificate deactivated.")
+      _ = try await iotClient.deleteCertificate(input: .init(certificateId: certificateId))
+      print("Certificate deleted.")
+
+    } catch {
+      print("Cleanup failed: \(error)")
+    }
   }
 
   func testIdentityClientCreateDestroy() async throws {
@@ -182,12 +206,13 @@ class IdentityClientTests: XCTestCase {
     XCTAssertNotNil(registerThingResponse.thingName)
 
     print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
-    try await cleanUpThing(
+    await cleanUpThing(
       certificateId: createKeysAndCertificateResponse.certificateId,
       thingName: registerThingResponse.thingName)
   }
 
   func testIdentityClientProvisionWithCSR() async throws {
+    var thingName: String = ""
     let templateName: String = try getEnvironmentVarOrSkipTest(
       environmentVarName: "AWS_TEST_IOT_CORE_PROVISIONING_TEMPLATE_NAME")
     let csrPath: String = try getEnvironmentVarOrSkipTest(
@@ -216,16 +241,26 @@ class IdentityClientTests: XCTestCase {
       parameters: params
     )
 
-    // Make the request to register a thing
-    let registerThingResponse = try await identityClient.registerThing(
-      request: registerThingRequest)
-    // Make sure we've gotten a proper response
-    XCTAssertNotNil(registerThingResponse.deviceConfiguration)
-    XCTAssertNotNil(registerThingResponse.thingName)
+    do {
+      // Make the request to register a thing
+      let registerThingResponse = try await identityClient.registerThing(
+        request: registerThingRequest)
+      // Make sure we've gotten a proper response
+      XCTAssertNotNil(registerThingResponse.deviceConfiguration)
+      XCTAssertNotNil(registerThingResponse.thingName)
+      thingName = registerThingResponse.thingName!
+    } catch {
+      await cleanUpThing(
+        certificateId: createCertificateFromCsrResponse.certificateId,
+        thingName: thingName,
+        deleteCert: true)
+      throw error
+    }
 
-    print("Created thingName: \(registerThingResponse.thingName ?? "nil")")
-    try await cleanUpThing(
+    print("Created thingName: \(thingName)")
+    await cleanUpThing(
       certificateId: createCertificateFromCsrResponse.certificateId,
-      thingName: registerThingResponse.thingName)
+      thingName: thingName,
+      deleteCert: true)
   }
 }
