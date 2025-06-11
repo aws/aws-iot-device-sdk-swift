@@ -180,6 +180,11 @@ class JobsClientTests: XCTestCase {
 
   func testJobClient() async throws {
     do {
+
+      // Obtain required endpoint and files from the environment or skip test.
+      let _ = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+
       // Job Test Context
       let testContext = TestContext()
       try await JobsClientTests.setupJobTestContext(testContext: testContext)
