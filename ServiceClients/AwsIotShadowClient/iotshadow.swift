@@ -242,7 +242,7 @@ public class IotShadowClient {
   public func deleteNamedShadow(request: DeleteNamedShadowRequest) async throws
     -> DeleteShadowResponse
   {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/delete"
@@ -311,7 +311,7 @@ public class IotShadowClient {
   /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
   ///             a low-level `CRTError` or other underlying `Error` is thrown.
   public func deleteShadow(request: DeleteShadowRequest) async throws -> DeleteShadowResponse {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/shadow/delete"
@@ -378,7 +378,7 @@ public class IotShadowClient {
   /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
   ///             a low-level `CRTError` or other underlying `Error` is thrown.
   public func getNamedShadow(request: GetNamedShadowRequest) async throws -> GetShadowResponse {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/get"
@@ -447,7 +447,7 @@ public class IotShadowClient {
   /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
   ///             a low-level `CRTError` or other underlying `Error` is thrown.
   public func getShadow(request: GetShadowRequest) async throws -> GetShadowResponse {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/shadow/get"
@@ -516,7 +516,7 @@ public class IotShadowClient {
   public func updateNamedShadow(request: UpdateNamedShadowRequest) async throws
     -> UpdateShadowResponse
   {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/shadow/name/{shadowName}/update"
@@ -589,7 +589,7 @@ public class IotShadowClient {
   /// - Throws: `IotShadowClientError` Thrown when the provided request is rejected or when
   ///             a low-level `CRTError` or other underlying `Error` is thrown.
   public func updateShadow(request: UpdateShadowRequest) async throws -> UpdateShadowResponse {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/shadow/update"
@@ -806,6 +806,9 @@ final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
   /// The current version of the document for the device's shadow.
   public let version: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `ShadowDeltaUpdatedEvent`
   public init(
     state: [String: Any]? = nil, metadata: [String: Any]? = nil, timestamp: Foundation.Date? = nil,
@@ -815,6 +818,7 @@ final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
     self.metadataInternal = metadata?.asJSONValueDictionary()
     self.timestamp = timestamp
     self.version = version
+    self.clientToken = UUID().uuidString
   }
 
   enum CodingKeys: String, CodingKey {
@@ -822,6 +826,7 @@ final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
     case metadata
     case timestamp
     case version
+    case clientToken
   }
 
   public var state: [String: Any]? {
@@ -840,6 +845,7 @@ final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
     self.metadataInternal = metadataJSON
     self.timestamp = try container.decodeIfPresent(Foundation.Date.self, forKey: .timestamp)
     self.version = try container.decodeIfPresent(Int.self, forKey: .version)
+    self.clientToken = try container.decode(String.self, forKey: .clientToken)
   }
 
   /// encode this class containing the document trait into JSON
@@ -853,6 +859,7 @@ final public class ShadowDeltaUpdatedEvent: Codable, Sendable {
     }
     try container.encode(timestamp, forKey: .timestamp)
     try container.encode(version, forKey: .version)
+    try container.encode(clientToken, forKey: .clientToken)
   }
 }
 
@@ -941,12 +948,16 @@ final public class DeleteNamedShadowRequest: Codable, Sendable {
   /// Name of the shadow to delete.
   public let shadowName: String
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `DeleteNamedShadowRequest`
   public init(
     thingName: String, shadowName: String
   ) {
     self.thingName = thingName
     self.shadowName = shadowName
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -958,11 +969,15 @@ final public class DeleteShadowRequest: Codable, Sendable {
   /// AWS IoT thing to delete the (classic) shadow of.
   public let thingName: String
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `DeleteShadowRequest`
   public init(
     thingName: String
   ) {
     self.thingName = thingName
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -977,12 +992,16 @@ final public class GetNamedShadowRequest: Codable, Sendable {
   /// Name of the shadow to get.
   public let shadowName: String
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `GetNamedShadowRequest`
   public init(
     thingName: String, shadowName: String
   ) {
     self.thingName = thingName
     self.shadowName = shadowName
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -994,11 +1013,15 @@ final public class GetShadowRequest: Codable, Sendable {
   /// AWS IoT thing to get the (classic) shadow for.
   public let thingName: String
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `GetShadowRequest`
   public init(
     thingName: String
   ) {
     self.thingName = thingName
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1019,6 +1042,9 @@ final public class UpdateNamedShadowRequest: Codable, Sendable {
   /// (Optional) The Device Shadow service applies the update only if the specified version matches the latest version.
   public let version: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `UpdateNamedShadowRequest`
   public init(
     thingName: String, shadowName: String, state: ShadowState? = nil, version: Int? = nil
@@ -1027,6 +1053,7 @@ final public class UpdateNamedShadowRequest: Codable, Sendable {
     self.shadowName = shadowName
     self.state = state
     self.version = version
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1044,6 +1071,9 @@ final public class UpdateShadowRequest: Codable, Sendable {
   /// (Optional) The Device Shadow service processes the update only if the specified version matches the latest version.
   public let version: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `UpdateShadowRequest`
   public init(
     thingName: String, state: ShadowState? = nil, version: Int? = nil
@@ -1051,6 +1081,7 @@ final public class UpdateShadowRequest: Codable, Sendable {
     self.thingName = thingName
     self.state = state
     self.version = version
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1248,6 +1279,9 @@ final public class ErrorResponse: Codable, Sendable {
   /// The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
   public let timestamp: Foundation.Date?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `ErrorResponse`
   public init(
     code: Int, message: String? = nil, timestamp: Foundation.Date? = nil
@@ -1255,6 +1289,7 @@ final public class ErrorResponse: Codable, Sendable {
     self.code = code
     self.message = message
     self.timestamp = timestamp
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1272,6 +1307,9 @@ final public class V2ErrorResponse: Codable, Sendable {
   /// The date and time the response was generated by AWS IoT. This property is not present in all error response documents.
   public let timestamp: Foundation.Date?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `V2ErrorResponse`
   public init(
     code: Int, message: String? = nil, timestamp: Foundation.Date? = nil
@@ -1279,6 +1317,7 @@ final public class V2ErrorResponse: Codable, Sendable {
     self.code = code
     self.message = message
     self.timestamp = timestamp
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1293,12 +1332,16 @@ final public class DeleteShadowResponse: Codable, Sendable {
   /// The current version of the document for the device's shadow.
   public let version: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `DeleteShadowResponse`
   public init(
     timestamp: Foundation.Date? = nil, version: Int? = nil
   ) {
     self.timestamp = timestamp
     self.version = version
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1319,6 +1362,9 @@ final public class GetShadowResponse: Codable, Sendable {
   /// The current version of the document for the device's shadow shared in AWS IoT. It is increased by one over the previous version of the document.
   public let version: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `GetShadowResponse`
   public init(
     state: ShadowStateWithDelta? = nil, metadata: ShadowMetadata? = nil,
@@ -1328,6 +1374,7 @@ final public class GetShadowResponse: Codable, Sendable {
     self.metadata = metadata
     self.timestamp = timestamp
     self.version = version
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -1348,6 +1395,9 @@ final public class UpdateShadowResponse: Codable, Sendable {
   /// The current version of the document for the device's shadow shared in AWS IoT. It is increased by one over the previous version of the document.
   public let version: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `UpdateShadowResponse`
   public init(
     state: ShadowState? = nil, metadata: ShadowMetadata? = nil, timestamp: Foundation.Date? = nil,
@@ -1357,6 +1407,7 @@ final public class UpdateShadowResponse: Codable, Sendable {
     self.metadata = metadata
     self.timestamp = timestamp
     self.version = version
+    self.clientToken = UUID().uuidString
   }
 
 }
