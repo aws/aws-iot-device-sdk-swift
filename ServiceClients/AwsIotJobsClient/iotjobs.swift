@@ -140,7 +140,7 @@ public class IotJobsClient {
   public func describeJobExecution(request: DescribeJobExecutionRequest) async throws
     -> DescribeJobExecutionResponse
   {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/jobs/{jobId}/get"
@@ -211,7 +211,7 @@ public class IotJobsClient {
   public func getPendingJobExecutions(request: GetPendingJobExecutionsRequest) async throws
     -> GetPendingJobExecutionsResponse
   {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/jobs/get"
@@ -280,7 +280,7 @@ public class IotJobsClient {
   public func startNextPendingJobExecution(request: StartNextPendingJobExecutionRequest)
     async throws -> StartNextJobExecutionResponse
   {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/jobs/start-next"
@@ -349,7 +349,7 @@ public class IotJobsClient {
   public func updateJobExecution(request: UpdateJobExecutionRequest) async throws
     -> UpdateJobExecutionResponse
   {
-    let correlationToken: String = UUID().uuidString
+    let correlationToken: String = request.clientToken
 
     // Publish Topic
     var topic: String = "$aws/things/{thingName}/jobs/{jobId}/update"
@@ -593,6 +593,9 @@ final public class DescribeJobExecutionRequest: Codable, Sendable {
   /// Optional. Unless set to false, the response contains the job document. The default is true.
   public let includeJobDocument: Bool?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `DescribeJobExecutionRequest`
   public init(
     thingName: String, jobId: String, executionNumber: Int? = nil, includeJobDocument: Bool? = nil
@@ -601,6 +604,7 @@ final public class DescribeJobExecutionRequest: Codable, Sendable {
     self.jobId = jobId
     self.executionNumber = executionNumber
     self.includeJobDocument = includeJobDocument
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -612,11 +616,15 @@ final public class GetPendingJobExecutionsRequest: Codable, Sendable {
   /// IoT Thing the request is relative to.
   public let thingName: String
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `GetPendingJobExecutionsRequest`
   public init(
     thingName: String
   ) {
     self.thingName = thingName
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -634,6 +642,9 @@ final public class StartNextPendingJobExecutionRequest: Codable, Sendable {
   /// A collection of name-value pairs that describe the status of the job execution. If not specified, the statusDetails are unchanged.
   public let statusDetails: [String: String]?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `StartNextPendingJobExecutionRequest`
   public init(
     thingName: String, stepTimeoutInMinutes: Int? = nil, statusDetails: [String: String]? = nil
@@ -641,6 +652,7 @@ final public class StartNextPendingJobExecutionRequest: Codable, Sendable {
     self.thingName = thingName
     self.stepTimeoutInMinutes = stepTimeoutInMinutes
     self.statusDetails = statusDetails
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -676,6 +688,9 @@ final public class UpdateJobExecutionRequest: Codable, Sendable {
   /// Specifies the amount of time this device has to finish execution of this job. If the job execution status is not set to a terminal state before this timer expires, or before the timer is reset (by again calling UpdateJobExecution, setting the status to IN_PROGRESS and specifying a new timeout value in this field) the job execution status is set to TIMED_OUT. Setting or resetting this timeout has no effect on the job execution timeout that might have been specified when the job was created (by using CreateJob with the timeoutConfig).
   public let stepTimeoutInMinutes: Int?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `UpdateJobExecutionRequest`
   public init(
     thingName: String, jobId: String, status: JobStatus, statusDetails: [String: String]? = nil,
@@ -691,6 +706,7 @@ final public class UpdateJobExecutionRequest: Codable, Sendable {
     self.includeJobExecutionState = includeJobExecutionState
     self.includeJobDocument = includeJobDocument
     self.stepTimeoutInMinutes = stepTimeoutInMinutes
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -815,6 +831,9 @@ final public class RejectedError: Codable, Sendable {
   /// A JobExecutionState object. This field is included only when the code field has the value InvalidStateTransition or VersionMismatch.
   public let executionState: JobExecutionState?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `RejectedError`
   public init(
     code: RejectedErrorCode, message: String? = nil, timestamp: Foundation.Date? = nil,
@@ -824,6 +843,7 @@ final public class RejectedError: Codable, Sendable {
     self.message = message
     self.timestamp = timestamp
     self.executionState = executionState
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -844,6 +864,9 @@ final public class V2ErrorResponse: Codable, Sendable {
   /// A JobExecutionState object. This field is included only when the code field has the value InvalidStateTransition or VersionMismatch.
   public let executionState: JobExecutionState?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `V2ErrorResponse`
   public init(
     code: RejectedErrorCode, message: String? = nil, timestamp: Foundation.Date? = nil,
@@ -853,6 +876,7 @@ final public class V2ErrorResponse: Codable, Sendable {
     self.message = message
     self.timestamp = timestamp
     self.executionState = executionState
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -867,12 +891,16 @@ final public class DescribeJobExecutionResponse: Codable, Sendable {
   /// The time when the message was sent.
   public let timestamp: Foundation.Date
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `DescribeJobExecutionResponse`
   public init(
     execution: JobExecutionData, timestamp: Foundation.Date
   ) {
     self.execution = execution
     self.timestamp = timestamp
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -890,6 +918,9 @@ final public class GetPendingJobExecutionsResponse: Codable, Sendable {
   /// The time when the message was sent.
   public let timestamp: Foundation.Date?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `GetPendingJobExecutionsResponse`
   public init(
     inProgressJobs: [JobExecutionSummary]? = nil, queuedJobs: [JobExecutionSummary]? = nil,
@@ -898,6 +929,7 @@ final public class GetPendingJobExecutionsResponse: Codable, Sendable {
     self.inProgressJobs = inProgressJobs
     self.queuedJobs = queuedJobs
     self.timestamp = timestamp
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -912,12 +944,16 @@ final public class StartNextJobExecutionResponse: Codable, Sendable {
   /// The time when the message was sent to the device.
   public let timestamp: Foundation.Date?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `StartNextJobExecutionResponse`
   public init(
     execution: JobExecutionData? = nil, timestamp: Foundation.Date? = nil
   ) {
     self.execution = execution
     self.timestamp = timestamp
+    self.clientToken = UUID().uuidString
   }
 
 }
@@ -935,6 +971,9 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
   /// A UTF-8 encoded JSON document that contains information that your devices need to perform the job.
   private let jobDocumentInternal: [String: JSONValue]?
 
+  /// An opaque token used to correlate requests and responses.  Present only if a client token was used in the request.
+  public let clientToken: String
+
   /// Initializes a new `UpdateJobExecutionResponse`
   public init(
     executionState: JobExecutionState? = nil, jobDocument: [String: Any]? = nil,
@@ -943,12 +982,14 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
     self.executionState = executionState
     self.jobDocumentInternal = jobDocument?.asJSONValueDictionary()
     self.timestamp = timestamp
+    self.clientToken = UUID().uuidString
   }
 
   enum CodingKeys: String, CodingKey {
     case executionState
     case jobDocument
     case timestamp
+    case clientToken
   }
 
   public var jobDocument: [String: Any]? {
@@ -964,6 +1005,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
     let jobDocumentJSON = try container.decodeIfPresent(
       [String: JSONValue].self, forKey: .jobDocument)
     self.jobDocumentInternal = jobDocumentJSON
+    self.clientToken = try container.decode(String.self, forKey: .clientToken)
   }
 
   /// encode this class containing the document trait into JSON
@@ -974,6 +1016,7 @@ final public class UpdateJobExecutionResponse: Codable, Sendable {
     if let jobDocumentInternal = jobDocumentInternal {
       try container.encode(jobDocumentInternal, forKey: .jobDocument)
     }
+    try container.encode(clientToken, forKey: .clientToken)
   }
 }
 
