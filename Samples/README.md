@@ -18,5 +18,7 @@ A sample on the iOS platform.
 ## Service Client Samples
 Service client samples
 * [Shadow Service Client Sandbox Sample](./ServiceClientSamples/ShadowSample/README.md)
+* [Fleet Provisioning](./ServiceClientSamples/Provisioning/BasicProvisioningSample/README.md)
+* [Fleet Provisioning with CSR](./ServiceClientSamples/Provisioning/CsrProvisioningSample/README.md)
 
 [Back to main README](../README.md)
