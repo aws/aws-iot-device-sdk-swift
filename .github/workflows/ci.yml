@@ -7,7 +7,7 @@ on:
             - 'docs'
 
 env:
-    BUILDER_VERSION: v0.9.81
+    BUILDER_VERSION: v0.9.82
     BUILDER_SOURCE: releases
     BUILDER_HOST: https://d19elf31gohf1l.cloudfront.net
     PACKAGE_NAME: aws-iot-device-sdk-swift
@@ -35,11 +35,19 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Setup aws credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.CI_CRT }} # TODO: temporary use CRT CI role to setup builder
-          aws-region: ${{ env.AWS_DEFAULT_REGION }} 
+          role-to-assume: ${{ env.CI_CRT }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          output-credentials: true
       - name: Build ${{ env.PACKAGE_NAME }}
+        env: 
+          AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
+          AWS_REGION: ${{ env.AWS_DEFAULT_REGION }}
         run: |
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
           chmod a+x builder
@@ -68,15 +76,23 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Setup aws credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.CI_CRT }}
-          aws-region: ${{ env.AWS_DEFAULT_REGION }} 
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          output-credentials: true
       - name: Build ${{ env.PACKAGE_NAME }} + consumers
         run: |
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
           chmod a+x builder
           ./builder build -p ${{ env.PACKAGE_NAME }}
+        env: 
+          TEST_RUNNER_AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
+          TEST_RUNNER_AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
+          TEST_RUNNER_AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
+          TEST_RUNNER_AWS_REGION: ${{ env.AWS_DEFAULT_REGION }}
 
     devices:
       runs-on: ${{ matrix.runner }}
@@ -157,7 +173,7 @@ jobs:
                 source .venv/bin/activate
                 python3 -m pip install boto3
             - name: configure AWS credentials (containers)
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: ${{ env.CI_MQTT5_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
@@ -184,7 +200,7 @@ jobs:
                 source .venv/bin/activate
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_custom_authorizer_cfg.json
             - name: configure AWS credentials (COGNITO PROVIDER)
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: ${{ env.CI_COGNITO_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
@@ -215,10 +231,12 @@ jobs:
                 submodules: true
                 fetch-depth: 0
             - name: configure AWS credentials (containers)
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
+                # Bump from default 1 hour to 8 hours to allow device farm tests to complete (and delete)
+                role-duration-seconds: 28800 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
@@ -293,7 +311,7 @@ jobs:
                 pip freeze > requirements.txt
                 zip -r test_bundle.zip tests/ requirements.txt
             - name: configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v2
+              uses: aws-actions/configure-aws-credentials@v4
               with:
                 aws-region: us-west-2 # Device Farm only available on us-west-2
             - name: Execute device farm

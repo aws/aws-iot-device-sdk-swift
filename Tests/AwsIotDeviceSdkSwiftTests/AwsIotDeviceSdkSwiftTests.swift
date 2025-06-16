@@ -243,6 +243,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
   }
 
   func testMqttBuilderMTLSFromPKCS12() throws {
+    try skipIfLinux()
     let pkcs12Path = try getEnvironmentVarOrSkipTest(
       environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
     let pkcs12Password = try getEnvironmentVarOrSkipTest(
