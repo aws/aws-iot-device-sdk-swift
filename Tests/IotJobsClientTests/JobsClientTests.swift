@@ -209,7 +209,7 @@ class JobsClientTests: XCTestCase {
           }))
 
       try jobExecutionStreamingOperation.open()
-        await fulfillment(of:[executionUpdateEstablishedExpectation])
+      await fulfillment(of: [executionUpdateEstablishedExpectation])
 
       let nextJobExecutionChangedEstablishedExpectation = expectation(
         description: "nextJobExecutionChangedExpectation stream established")
@@ -241,7 +241,7 @@ class JobsClientTests: XCTestCase {
           }
         ))
       try nextJobExecutionChanged.open()
-        await fulfillment(of:[nextJobExecutionChangedEstablishedExpectation])
+      await fulfillment(of: [nextJobExecutionChangedEstablishedExpectation])
 
       XCTAssertFalse(testContext.serializedFailed)
 
@@ -252,7 +252,8 @@ class JobsClientTests: XCTestCase {
         input: AddThingToThingGroupInput(
           thingGroupName: testContext.thingGroupName, thingName: testContext.thingName))
 
-        await fulfillment(of:[nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)
+      await fulfillment(
+        of: [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)
       XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.jobId == testContext.jobId)
       XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.status == JobStatus.QUEUED)
@@ -278,12 +279,12 @@ class JobsClientTests: XCTestCase {
           thingName: testContext.thingName!, jobId: testContext.jobId!, status: JobStatus.SUCCEEDED)
       )
 
-        await fulfillment(of:
-                            [nextJobExecutionClearedExpectation, jobExecutionFinishedExpectation], timeout: 30)
-        // As the jobs finished, the next job execution should be null
-        XCTAssertNil(testContext.nextJobChangedEvents[1].execution)
-        XCTAssertTrue(testContext.jobExecutionChangedEvents[1].jobs.isEmpty)
-        
+      await fulfillment(
+        of: [nextJobExecutionClearedExpectation, jobExecutionFinishedExpectation], timeout: 30)
+      // As the jobs finished, the next job execution should be null
+      XCTAssertNil(testContext.nextJobChangedEvents[1].execution)
+      XCTAssertTrue(testContext.jobExecutionChangedEvents[1].jobs.isEmpty)
+
       try await verifyNoPendingJobs(testContext: testContext)
     }
   }
