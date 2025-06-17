@@ -39,15 +39,6 @@ class JobsClientTests: XCTestCase {
     try? Logger.initialize(target: .standardOutput, level: .error)
   }
 
-  func awaitExpectation(_ expectations: [XCTestExpectation], _ timeout: TimeInterval = 5) async {
-    // Remove the Ifdef once our minimum supported Swift version reaches 5.10
-    #if swift(>=5.10)
-      await fulfillment(of: expectations, timeout: timeout)
-    #else
-      wait(for: expectations, timeout: timeout)
-    #endif
-  }
-
   static func jsonData(from dict: [String: Any]) throws -> Data {
     try JSONSerialization.data(withJSONObject: dict, options: [.sortedKeys])
   }
@@ -218,7 +209,7 @@ class JobsClientTests: XCTestCase {
           }))
 
       try jobExecutionStreamingOperation.open()
-      await awaitExpectation([executionUpdateEstablishedExpectation])
+        await fulfillment(of:[executionUpdateEstablishedExpectation])
 
       let nextJobExecutionChangedEstablishedExpectation = expectation(
         description: "nextJobExecutionChangedExpectation stream established")
@@ -250,7 +241,7 @@ class JobsClientTests: XCTestCase {
           }
         ))
       try nextJobExecutionChanged.open()
-      await awaitExpectation([nextJobExecutionChangedEstablishedExpectation])
+        await fulfillment(of:[nextJobExecutionChangedEstablishedExpectation])
 
       XCTAssertFalse(testContext.serializedFailed)
 
@@ -261,8 +252,7 @@ class JobsClientTests: XCTestCase {
         input: AddThingToThingGroupInput(
           thingGroupName: testContext.thingGroupName, thingName: testContext.thingName))
 
-      await awaitExpectation(
-        [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], 30)
+        await fulfillment(of:[nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)
       XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.jobId == testContext.jobId)
       XCTAssertTrue(testContext.nextJobChangedEvents[0].execution?.status == JobStatus.QUEUED)
@@ -288,8 +278,8 @@ class JobsClientTests: XCTestCase {
           thingName: testContext.thingName!, jobId: testContext.jobId!, status: JobStatus.SUCCEEDED)
       )
 
-      await awaitExpectation(
-        [nextJobExecutionClearedExpectation, jobExecutionFinishedExpectation], 30)
+        await fulfillment(of:
+                            [nextJobExecutionClearedExpectation, jobExecutionFinishedExpectation], timeout: 30)
         // As the jobs finished, the next job execution should be null
         XCTAssertNil(testContext.nextJobChangedEvents[1].execution)
         XCTAssertTrue(testContext.jobExecutionChangedEvents[1].jobs.isEmpty)

@@ -36,15 +36,6 @@ class ShadowClientTests: XCTestCase {
     try? Logger.initialize(target: .standardOutput, level: .error)
   }
 
-  func awaitExpectation(_ expectations: [XCTestExpectation], _ timeout: TimeInterval = 5) async {
-    // Remove the Ifdef once our minimum supported Swift version reaches 5.10
-    #if swift(>=5.10)
-      await fulfillment(of: expectations, timeout: timeout)
-    #else
-      wait(for: expectations, timeout: timeout)
-    #endif
-  }
-
   // Helper function that creates an MqttClient, connects the client, uses the client to create an
   // IotShadowClient, then returns the shadow client in a ready for use state.
   private func getShadowClient() async throws -> IotShadowClient {
@@ -85,7 +76,7 @@ class ShadowClientTests: XCTestCase {
     // Connect the Mqtt5 Client
     try mqttClient.start()
     // Await the expectation being fulfilled with a timeout.
-    await awaitExpectation([connectionExpectation], 5)
+    await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
 
     // Build and return the IotShadowClient
     let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
@@ -302,15 +293,15 @@ class ShadowClientTests: XCTestCase {
     // open the streams and await their subscriptions to be active
     try deltaUpdatedOperation.open()
     try updatedOperation.open()
-    await awaitExpectation([subscribeSuccessExpectation2], 5)
-    await awaitExpectation([subscribeSuccessExpectation], 5)
+    await fulfillment(of: [subscribeSuccessExpectation2], timeout: 5)
+    await fulfillment(of: [subscribeSuccessExpectation], timeout: 5)
 
     // Update the shadow which should trigger both streams
     try await updateNamedShadow(
       shadowClient: shadowClient, thingName: thingName, shadowName: shadowName,
       state: stateUpdate)
 
-    await awaitExpectation([updateExpectation], 5)
+    await fulfillment(of: [updateExpectation], timeout: 5)
 
     // Clean up the test shadow
     try await deleteNamedShadow(

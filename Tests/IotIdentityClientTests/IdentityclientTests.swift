@@ -26,15 +26,6 @@ class IdentityClientTests: XCTestCase {
     try? Logger.initialize(target: .standardOutput, level: .error)
   }
 
-  func awaitExpectation(_ expectations: [XCTestExpectation], _ timeout: TimeInterval = 5) async {
-    // Remove the Ifdef once our minimum supported Swift version reaches 5.10
-    #if swift(>=5.10)
-      await fulfillment(of: expectations, timeout: timeout)
-    #else
-      wait(for: expectations, timeout: timeout)
-    #endif
-  }
-
   // Helper function that creates an MqttClient, connects the client, uses the client to create an
   // IotIdentityClient, then returns the identity client in a ready for use state.
   private func getIdentityClient() async throws -> IotIdentityClient {
