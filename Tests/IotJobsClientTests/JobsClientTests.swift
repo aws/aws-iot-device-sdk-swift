@@ -209,7 +209,7 @@ class JobsClientTests: XCTestCase {
           }))
 
       try jobExecutionStreamingOperation.open()
-      await fulfillment(of: [executionUpdateEstablishedExpectation])
+      await fulfillment(of: [executionUpdateEstablishedExpectation], timeout: 5)
 
       let nextJobExecutionChangedEstablishedExpectation = expectation(
         description: "nextJobExecutionChangedExpectation stream established")
@@ -241,7 +241,7 @@ class JobsClientTests: XCTestCase {
           }
         ))
       try nextJobExecutionChanged.open()
-      await fulfillment(of: [nextJobExecutionChangedEstablishedExpectation])
+      await fulfillment(of: [nextJobExecutionChangedEstablishedExpectation], timeout: 5)
 
       XCTAssertFalse(testContext.serializedFailed)
 
