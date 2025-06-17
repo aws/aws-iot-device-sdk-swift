@@ -39,12 +39,6 @@ class JobsClientTests: XCTestCase {
     try? Logger.initialize(target: .standardOutput, level: .error)
   }
 
-  override func tearDown() {
-    // TODO: The cleanup will be deadlock if we are using aws-sdk-swift, which also called cleanup on crt library.
-    // IotDeviceSdk.cleanUp()
-    super.tearDown()
-  }
-
   func awaitExpectation(_ expectations: [XCTestExpectation], _ timeout: TimeInterval = 5) async {
     // Remove the Ifdef once our minimum supported Swift version reaches 5.10
     #if swift(>=5.10)
@@ -296,7 +290,10 @@ class JobsClientTests: XCTestCase {
 
       await awaitExpectation(
         [nextJobExecutionClearedExpectation, jobExecutionFinishedExpectation], 30)
-
+        // As the jobs finished, the next job execution should be null
+        XCTAssertNil(testContext.nextJobChangedEvents[1].execution)
+        XCTAssertTrue(testContext.jobExecutionChangedEvents[1].jobs.isEmpty)
+        
       try await verifyNoPendingJobs(testContext: testContext)
     }
   }

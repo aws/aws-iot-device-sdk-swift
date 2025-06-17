@@ -36,10 +36,6 @@ class ShadowClientTests: XCTestCase {
     try? Logger.initialize(target: .standardOutput, level: .error)
   }
 
-  override func tearDown() {
-    super.tearDown()
-  }
-
   func awaitExpectation(_ expectations: [XCTestExpectation], _ timeout: TimeInterval = 5) async {
     // Remove the Ifdef once our minimum supported Swift version reaches 5.10
     #if swift(>=5.10)
