@@ -208,7 +208,28 @@ jobs:
               run: |
                 source .venv/bin/activate
                 python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cognito_provider_websocket_connect_cfg.json            
-    
+            - name: configure AWS credentials (X509)
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ env.CI_X509_ROLE }}
+                aws-region: ${{ env.AWS_DEFAULT_REGION }}
+            - name: build Shadow Client Sample
+              run: |
+                cd Samples/ServiceClientSamples/ShadowSample/
+                swift build
+            - name: build Job Client Sample
+              run: |
+                cd Samples/ServiceClientSamples/JobsSample/
+                swift build
+            - name: run Basic Provisioning Client Sample
+              run: |
+                cd Samples/ServiceClientSamples/Provisioning/BasicProvisioningSample/
+                swift build 
+            - name: run csr provisioning Client Sample
+              run: |
+                cd Samples/ServiceClientSamples/Provisioning/CsrProvisioningSample/
+                swift build 
+
     ios-device-farm:
         runs-on: macos-14
         permissions:
