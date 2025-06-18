@@ -9,6 +9,8 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 
 *__Topics:__*
 * [Build the Library](#build-the-library)
+    * [Minimum Requirements](#minimum-requirements)
+    * [Minimum Supported OS Versions](#minimum-supported-os-versions)
     * [Build from source](#build-from-source)
 * [Use the SDK as a Dependency](#use-the-sdk-as-a-dependency)
 * [Mac-Only TLS Behavior](#mac-only-tls-behavior)
