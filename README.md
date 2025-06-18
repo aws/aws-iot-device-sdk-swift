@@ -22,6 +22,10 @@ This document provides information about the AWS IoT Device SDK for Swift. This 
 ### Minimum Requirements
 * Swift 5.10+
 
+### Minimum Supported OS Versions
+* macOS 10.15 (Catalina)
+* iOS 13
+* tvOS 13
 
 ### Build from Source
 
