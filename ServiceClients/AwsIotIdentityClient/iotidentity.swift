@@ -4,7 +4,6 @@
 // This file is generated
 
 import Foundation
-
 import AwsIotDeviceSdkSwift
 
 /// An AWS IoT service that assists with provisioning a device and installing unique client certificates on it
@@ -17,7 +16,8 @@ public class IotIdentityClient {
   public init(
     mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
   ) throws {
-    self.rrClient = try MqttRequestResponseClient(mqtt5Client: mqttClient, options: options)
+    self.rrClient = try MqttRequestResponseClient(
+      mqtt5Client: mqttClient, options: options)
   }
 
   /// Creates a certificate from a certificate signing request (CSR). AWS IoT provides client certificates that are signed by the Amazon Root certificate authority (CA). The new certificate has a PENDING_ACTIVATION status. When you call RegisterThing to provision a thing with this certificate, the certificate status changes to ACTIVE or INACTIVE as described in the template.

@@ -4,7 +4,6 @@
 // This file is generated
 
 import Foundation
-
 import AwsIotDeviceSdkSwift
 import Foundation
 
@@ -18,7 +17,8 @@ public class IotJobsClient {
   public init(
     mqttClient: AwsIotDeviceSdkSwift.Mqtt5Client, options: MqttRequestResponseClientOptions
   ) throws {
-    self.rrClient = try MqttRequestResponseClient(mqtt5Client: mqttClient, options: options)
+    self.rrClient = try MqttRequestResponseClient(
+      mqtt5Client: mqttClient, options: options)
   }
 
   /// Creates a stream of JobExecutionsChanged notifications for a given IoT thing.
