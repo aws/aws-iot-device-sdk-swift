@@ -15,4 +15,8 @@ A sample that can be used to perform MQTT 5 operations from the command line.
 A sample on the iOS platform.
 * [MQTT Pub-Sub Sample on iOS](./iOS/iOSPubSubSample/README.md)
 
+## Service Client Samples
+Service client samples
+* [Shadow Service Client Sandbox Sample](./ServiceClientSamples/ShadowSample/README.md)
+
 [Back to main README](../README.md)
