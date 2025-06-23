@@ -23,26 +23,9 @@ let package = Package(
     .library(
       name: "IotJobsClient",
       targets: ["IotJobsClient"]),
-      targets: ["AwsIotDeviceSdkSwift"]),
-    .library(
-      name: "IotShadowClient",
-      targets: ["IotShadowClient"]),
-    .library(
-      name: "IotIdentityClient",
-      targets: ["IotIdentityClient"]),
-    .library(
-      name: "IotJobsClient",
-      targets: ["IotJobsClient"]),
   ],
   dependencies: [
     .package(
-      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.53.0")),
-    // aws-sdk-swift is only used in test targets to help with setup and cleanup of testing service clients
-    // We use "aws-iot-device-sdk-swift-testing-branch" to maintain aws-crt-swift version pairity between it
-    // and our SDK for testing
-    .package(
-      url: "https://github.com/awslabs/aws-sdk-swift.git",
-      branch: "aws-iot-device-sdk-swift-testing-branch"),
       url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.53.0")),
     // aws-sdk-swift is only used in test targets to help with setup and cleanup of testing service clients
     // We use "aws-iot-device-sdk-swift-testing-branch" to maintain aws-crt-swift version pairity between it
