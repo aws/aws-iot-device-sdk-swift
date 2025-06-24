@@ -229,11 +229,11 @@ jobs:
               run: |
                 cd Samples/ServiceClientSamples/JobsSample/
                 swift build
-            - name: run Basic Provisioning Client Sample
+            - name: Build Basic Provisioning Client Sample
               run: |
                 cd Samples/ServiceClientSamples/Provisioning/BasicProvisioningSample/
                 swift build 
-            - name: run csr provisioning Client Sample
+            - name: Build CSR Provisioning Client Sample
               run: |
                 cd Samples/ServiceClientSamples/Provisioning/CsrProvisioningSample/
                 swift build 
