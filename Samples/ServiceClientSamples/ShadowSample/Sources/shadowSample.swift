@@ -176,7 +176,7 @@ struct ShadowClientSample: AsyncParsableCommand {
         request: shadowDeltaUpdatedSubscriptionRequest,
         options: deltaUpdateStreamOptions)
 
-      // Start a named shadow updated stream
+      // Start a shadow updated stream
       let shadowUpdatedSubscriptionRequest = ShadowUpdatedSubscriptionRequest(
         thingName: thingName)
       let updateStreamOptions2 = ClientStreamOptions<ShadowUpdatedEvent>(
