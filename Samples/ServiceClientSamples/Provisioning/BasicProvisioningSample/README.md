@@ -244,7 +244,7 @@ you'll need to substitute the name of the template you previously created.
 ```sh
 aws iot create-provisioning-claim \
     --template-name <TemplateName> \
-    | python3 ./utils/parse_cert_set_result.py \
+    | python3 ./Scripts/SampleUtils/parse_cert_set_result.py \
     --path /tmp \
     --filename provision
 ```
