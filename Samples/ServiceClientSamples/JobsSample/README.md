@@ -389,7 +389,7 @@ will trigger output similar to
 ```
 Notice we get a response as well as two events, since both
 1. The set of incomplete job executions set has changed.
-1. The next job to be executed has changed.
+2. The next job to be executed has changed.
 
 As expected, we can move Job2's execution into IN_PROGRESS by invoking `startNextPendingJobExecution` again:
 
