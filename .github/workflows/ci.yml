@@ -293,8 +293,6 @@ jobs:
                 zip -r MqttClient.ipa Payload
                 rm -rf Payload
                 unzip MqttClient.ipa
-                brew install tree
-                tree .
                 cp -r $RUNNER_TEMP/DerivedData/Build/Products/Debug-iphoneos/MqttClient.app/PlugIns/MqttClientTests.xctest .
                 zip -r MqttClientTests.xctest.zip MqttClientTests.xctest
                 ls
@@ -305,7 +303,6 @@ jobs:
             - name: Execute device farm
               run: |
                 cd Scripts/DeviceFarmScripts/
-                pip install -r ./requirements.txt
                 ls
                 python ./run_ios_ci.py \
                 --run_id ${{ github.run_id }} \
