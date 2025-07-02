@@ -293,6 +293,7 @@ jobs:
                 zip -r MqttClient.ipa Payload
                 rm -rf Payload
                 unzip MqttClient.ipa
+                brew install tree
                 tree .
                 cp -r $RUNNER_TEMP/DerivedData/Build/Products/Debug-iphoneos/MqttClient.app/PlugIns/MqttClientTests.xctest .
                 zip -r MqttClientTests.xctest.zip MqttClientTests.xctest
