@@ -303,6 +303,7 @@ jobs:
             - name: Execute device farm
               run: |
                 cd Scripts/DeviceFarmScripts/
+                pip install -r ./requirements.txt
                 ls
                 python ./run_ios_ci.py \
                 --run_id ${{ github.run_id }} \
