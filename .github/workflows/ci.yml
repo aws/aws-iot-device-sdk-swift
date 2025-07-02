@@ -281,7 +281,7 @@ jobs:
                 xcodebuild -resolvePackageDependencies
                 echo "start build app"
                 xcodebuild build-for-testing -scheme "MqttClient" \
-                --derivedDataPath $RUNNER_TEMP/derivedData/ \
+                -derivedDataPath $RUNNER_TEMP/derivedData/ \
                 -destination generic/platform=iOS
             - name: Export ipa
               run: |
