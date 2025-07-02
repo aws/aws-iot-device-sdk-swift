@@ -1,0 +1,501 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A6183C4B2CFE3157007281B8 /* cert.pem in Resources */ = {isa = PBXBuildFile; fileRef = A6183C482CFE3157007281B8 /* cert.pem */; };
+		A6183C4F2CFE322E007281B8 /* privatekey.pem in Resources */ = {isa = PBXBuildFile; fileRef = A6183C4E2CFE322E007281B8 /* privatekey.pem */; };
+		A63CBAA12E148B7000A8FF78 /* AwsIotDeviceSdkSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CBA9F2E148B7000A8FF78 /* AwsIotDeviceSdkSwiftTests.swift */; };
+		A63CBAA22E148B7000A8FF78 /* XCBaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CBAA02E148B7000A8FF78 /* XCBaseTestCase.swift */; };
+		A63CEBB52C238347003A71B7 /* MqttClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB42C238347003A71B7 /* MqttClientApp.swift */; };
+		A63CEBB72C238347003A71B7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB62C238347003A71B7 /* ContentView.swift */; };
+		A6587EE12D0BB00D00D5D40E /* AwsIotDeviceSdkSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */; };
+		A6587EE52D0BB05E00D5D40E /* AwsCommonRuntimeKit in Frameworks */ = {isa = PBXBuildFile; productRef = A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A63CBA9A2E148B5000A8FF78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A63CEBA92C238347003A71B7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A63CEBB02C238347003A71B7;
+			remoteInfo = MqttClient;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A6183C482CFE3157007281B8 /* cert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.pem; sourceTree = "<group>"; };
+		A6183C4E2CFE322E007281B8 /* privatekey.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = privatekey.pem; sourceTree = "<group>"; };
+		A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MqttClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A63CBA9F2E148B7000A8FF78 /* AwsIotDeviceSdkSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkSwiftTests.swift; path = ../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift; sourceTree = SOURCE_ROOT; };
+		A63CBAA02E148B7000A8FF78 /* XCBaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = XCBaseTestCase.swift; path = ../AwsIotDeviceSdkSwiftTests/XCBaseTestCase.swift; sourceTree = SOURCE_ROOT; };
+		A63CEBB12C238347003A71B7 /* MqttClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MqttClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A63CEBB42C238347003A71B7 /* MqttClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MqttClientApp.swift; sourceTree = "<group>"; };
+		A63CEBB62C238347003A71B7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A63CBA932E148B5000A8FF78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A63CEBAE2C238347003A71B7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6587EE52D0BB05E00D5D40E /* AwsCommonRuntimeKit in Frameworks */,
+				A6587EE12D0BB00D00D5D40E /* AwsIotDeviceSdkSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A63CBA912E148A9700A8FF78 /* MqttUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				A63CBA9F2E148B7000A8FF78 /* AwsIotDeviceSdkSwiftTests.swift */,
+				A63CBAA02E148B7000A8FF78 /* XCBaseTestCase.swift */,
+			);
+			path = MqttUnitTests;
+			sourceTree = "<group>";
+		};
+		A63CEBA82C238347003A71B7 = {
+			isa = PBXGroup;
+			children = (
+				A63CBA912E148A9700A8FF78 /* MqttUnitTests */,
+				A63CEBB32C238347003A71B7 /* MqttClient */,
+				A63CEBB22C238347003A71B7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A63CEBB22C238347003A71B7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A63CEBB12C238347003A71B7 /* MqttClient.app */,
+				A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A63CEBB32C238347003A71B7 /* MqttClient */ = {
+			isa = PBXGroup;
+			children = (
+				A63CEBB42C238347003A71B7 /* MqttClientApp.swift */,
+				A63CEBB62C238347003A71B7 /* ContentView.swift */,
+				A6183C482CFE3157007281B8 /* cert.pem */,
+				A6183C4E2CFE322E007281B8 /* privatekey.pem */,
+			);
+			path = MqttClient;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A63CBA952E148B5000A8FF78 /* MqttClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A63CBA9C2E148B5000A8FF78 /* Build configuration list for PBXNativeTarget "MqttClientTests" */;
+			buildPhases = (
+				A63CBA922E148B5000A8FF78 /* Sources */,
+				A63CBA932E148B5000A8FF78 /* Frameworks */,
+				A63CBA942E148B5000A8FF78 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A63CBA9B2E148B5000A8FF78 /* PBXTargetDependency */,
+			);
+			name = MqttClientTests;
+			packageProductDependencies = (
+			);
+			productName = MqttClientTests;
+			productReference = A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A63CEBB02C238347003A71B7 /* MqttClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A63CEBBF2C238348003A71B7 /* Build configuration list for PBXNativeTarget "MqttClient" */;
+			buildPhases = (
+				A63CEBAD2C238347003A71B7 /* Sources */,
+				A63CEBAE2C238347003A71B7 /* Frameworks */,
+				A63CEBAF2C238347003A71B7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MqttClient;
+			packageProductDependencies = (
+				A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */,
+				A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */,
+			);
+			productName = MqttClient;
+			productReference = A63CEBB12C238347003A71B7 /* MqttClient.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A63CEBA92C238347003A71B7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					A63CBA952E148B5000A8FF78 = {
+						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
+						TestTargetID = A63CEBB02C238347003A71B7;
+					};
+					A63CEBB02C238347003A71B7 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = A63CEBAC2C238347003A71B7 /* Build configuration list for PBXProject "MqttClient" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A63CEBA82C238347003A71B7;
+			packageReferences = (
+				A63CBAA32E148C6600A8FF78 /* XCLocalSwiftPackageReference "../.." */,
+			);
+			productRefGroup = A63CEBB22C238347003A71B7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A63CEBB02C238347003A71B7 /* MqttClient */,
+				A63CBA952E148B5000A8FF78 /* MqttClientTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A63CBA942E148B5000A8FF78 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A63CEBAF2C238347003A71B7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6183C4F2CFE322E007281B8 /* privatekey.pem in Resources */,
+				A6183C4B2CFE3157007281B8 /* cert.pem in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A63CBA922E148B5000A8FF78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A63CBAA12E148B7000A8FF78 /* AwsIotDeviceSdkSwiftTests.swift in Sources */,
+				A63CBAA22E148B7000A8FF78 /* XCBaseTestCase.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A63CEBAD2C238347003A71B7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A63CEBB72C238347003A71B7 /* ContentView.swift in Sources */,
+				A63CEBB52C238347003A71B7 /* MqttClientApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A63CBA9B2E148B5000A8FF78 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A63CEBB02C238347003A71B7 /* MqttClient */;
+			targetProxy = A63CBA9A2E148B5000A8FF78 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A63CBA9D2E148B5000A8FF78 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "aws-common-runtime.MqttClient.MqttClientTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MqttClient.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MqttClient";
+			};
+			name = Debug;
+		};
+		A63CBA9E2E148B5000A8FF78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "aws-common-runtime.MqttClient.MqttClientTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MqttClient.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MqttClient";
+			};
+			name = Release;
+		};
+		A63CEBBD2C238348003A71B7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A63CEBBE2C238348003A71B7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A63CEBC02C238348003A71B7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 3V5W3HV3D4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "aws-common-runtime.MqttClient";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A63CEBC12C238348003A71B7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 3V5W3HV3D4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "aws-common-runtime.MqttClient";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A63CBA9C2E148B5000A8FF78 /* Build configuration list for PBXNativeTarget "MqttClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A63CBA9D2E148B5000A8FF78 /* Debug */,
+				A63CBA9E2E148B5000A8FF78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A63CEBAC2C238347003A71B7 /* Build configuration list for PBXProject "MqttClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A63CEBBD2C238348003A71B7 /* Debug */,
+				A63CEBBE2C238348003A71B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A63CEBBF2C238348003A71B7 /* Build configuration list for PBXNativeTarget "MqttClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A63CEBC02C238348003A71B7 /* Debug */,
+				A63CEBC12C238348003A71B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A63CBAA32E148C6600A8FF78 /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AwsCommonRuntimeKit;
+		};
+		A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AwsIotDeviceSdkSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A63CEBA92C238347003A71B7 /* Project object */;
+}

@@ -269,55 +269,30 @@ jobs:
                 cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
             - name : Setup iOS App Credentials
               run : |
-                cd Samples/iOS/iOSPubSubSample/MqttClient/
+                cd Tests/DeviceFarm/MqttClient
                 ENDPOINT=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "unit-test/endpoint" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
-                sed -i '' "s/<endpoint>/${ENDPOINT}/g" ContentView.swift
             - name: Build Test App
               run: |
                 xcode-select --print-path
-                cd Samples/iOS/iOSPubSubSample/
+                cd Tests/DeviceFarm/
                 ls ~/Library/MobileDevice/Provisioning\ Profiles
                 xcodebuild -resolvePackageDependencies
                 echo "start build app"
-                xcodebuild -scheme "MqttClient" \
-                -archivePath $RUNNER_TEMP/MqttClient.xcarchive \
-                -configuration Release \
-                -destination generic/platform=iOS \
-                clean archive -allowProvisioningUpdates
+                xcodebuild build-for-testing -scheme "MqttClient" \
+                --derivedDataPath $RUNNER_TEMP/derivedData/ \
+                -destination generic/platform=iOS
             - name: Export ipa
               run: |
-                cd Samples/iOS/iOSPubSubSample/
-                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/ExportOptions.plist ExportOptions.plist
-                xcodebuild -exportArchive -archivePath $RUNNER_TEMP/MqttClient.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath $RUNNER_TEMP/output
+                ls $RUNNER_TEMP/derivedData/
                 cd $RUNNER_TEMP/output
+                mkdir Payload
+                cp -r $RUNNER_TEMP/derivedData/Build/Products/Debug-iphoneos/MqttClient.app Payload/MqttClient.app
+                zip -r $RUNNER_TEMP/output/MqttClient.ipa $RUNNER_TEMP/output/Payload
+                cp -r $RUNNER_TEMP/DerivedData/Build/Products/Debug-iphoneos/MqttClient.app/PlugIns/MqttClientTests.xctest .
+                zip -r MqttClientTests.xctest.zip MqttClientTests.xctest
                 ls
-            - name: Setup Device Farm test file and environment
-            # Device Farm Instructions: https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium.html
-              run: |
-                cd Samples/iOS/iOSPubSubSample/
-                pwd
-                pip install virtualenv
-                virtualenv --help
-                virtualenv workspace
-                cd workspace
-                source bin/activate
-                ls ../../../../
-                pip install -r ../../../../Scripts/DeviceFarmScripts/requirements.txt
-                # Create a test bundle folder for upload
-                mkdir tests
-                cp ../../../../Scripts/DeviceFarmScripts/mqtt_ios_test.py tests/
-                find tests/
-                py.test --collect-only tests/
-                cd tests/
-                find . -name '__pycache__' -type d -exec rm -r {} +
-                find . -name '*.pyc' -exec rm -f {} +
-                find . -name '*.pyo' -exec rm -f {} +
-                find . -name '*~' -exec rm -f {} +
-                cd ..
-                pip freeze > requirements.txt
-                zip -r test_bundle.zip tests/ requirements.txt
             - name: configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -333,8 +308,7 @@ jobs:
                 --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
                 --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/${{ matrix.device_pool }}" --query "SecretString" | cut -f2 -d\") \
                 --app_file_path $RUNNER_TEMP/output/MqttClient.ipa \
-                --test_file_path ../../Samples/iOS/iOSPubSubSample//workspace/test_bundle.zip \
-                --test_spec_file_path ./test_spec.yml
+                --test_file_path $RUNNER_TEMP/output/MqttClientTests.xctest.zip
 
     # Test that everything works with Swift 6 strict concurrency. We can remove this CI in the future once we raise our minimum Swift version to Swift 6.
     macos-swift6:
