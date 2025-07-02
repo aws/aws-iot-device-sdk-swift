@@ -286,6 +286,7 @@ jobs:
             - name: Export ipa
               run: |
                 ls $RUNNER_TEMP/derivedData/
+                mkdir $RUNNER_TEMP/output
                 cd $RUNNER_TEMP/output
                 mkdir Payload
                 cp -r $RUNNER_TEMP/derivedData/Build/Products/Debug-iphoneos/MqttClient.app Payload/MqttClient.app
