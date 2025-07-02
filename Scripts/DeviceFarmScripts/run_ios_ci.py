@@ -12,7 +12,6 @@ parser.add_argument('--run_id', required=True, help="A unique number for each wo
 parser.add_argument('--run_attempt', required=True, help="A unique number for each attempt of a particular workflow run in a repository")
 parser.add_argument('--project_arn', required=True, help="Arn for the Device Farm Project the apk will be tested on")
 parser.add_argument('--device_pool_arn', required=True, help="Arn for device pool of the Device Farm Project the apk will be tested on")
-parser.add_argument('--test_spec_file_path', required=True, help="Path to the test spec file for Device Farm test")
 parser.add_argument('--test_file_path', required=True, help="Path to the zip files that contains test scripts to upload to device farm")
 parser.add_argument('--app_file_path', required=True, help="Path to the executable .app file")
 
