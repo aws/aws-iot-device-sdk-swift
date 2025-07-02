@@ -180,34 +180,34 @@ class Mqtt5iOSTest: XCBaseTestCase {
   /*===============================================================
                    Builder Test Cases
   =================================================================*/
-    
-   func testMqttBuilderMTLSFromBundleFile() throws {
-       guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
-             let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
-       else {
-         fatalError("Missing cert or key resource.")
-       }
 
-       let certData = try Data(contentsOf: certURL)
-       let keyData = try Data(contentsOf: keyURL)
-       let endpoint = try getEnvironmentVarOrSkipTest(
-         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
-       let context = MqttTestContext(contextName: "MTLSFromBundleFile")
+  func testMqttBuilderMTLSFromBundleFile() throws {
+    guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
+      let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
+    else {
+      fatalError("Missing cert or key resource.")
+    }
 
-       let builder = try Mqtt5ClientBuilder.mtlsFromData(
-         certData: certData, keyData: keyData, endpoint: endpoint)
+    let certData = try Data(contentsOf: certURL)
+    let keyData = try Data(contentsOf: keyURL)
+    let endpoint = try getEnvironmentVarOrSkipTest(
+      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    let context = MqttTestContext(contextName: "MTLSFromBundleFile")
 
-       builder.withCallbacks(
-         onPublishReceived: context.onPublishReceived,
-         onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
-         onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
-         onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
-         onLifecycleEventStopped: context.onLifecycleEventStopped)
+    let builder = try Mqtt5ClientBuilder.mtlsFromData(
+      certData: certData, keyData: keyData, endpoint: endpoint)
 
-       let mqttClient = try builder.build()
+    builder.withCallbacks(
+      onPublishReceived: context.onPublishReceived,
+      onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
+      onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
+      onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
+      onLifecycleEventStopped: context.onLifecycleEventStopped)
 
-       XCTAssertNotNil(mqttClient)
-       try connectClient(client: mqttClient, testContext: context)
-       try disconnectClientCleanup(client: mqttClient, testContext: context)
-   }
+    let mqttClient = try builder.build()
+
+    XCTAssertNotNil(mqttClient)
+    try connectClient(client: mqttClient, testContext: context)
+    try disconnectClientCleanup(client: mqttClient, testContext: context)
+  }
 }
