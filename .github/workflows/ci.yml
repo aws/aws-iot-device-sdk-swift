@@ -290,7 +290,10 @@ jobs:
                 cd $RUNNER_TEMP/output
                 mkdir Payload
                 cp -r $RUNNER_TEMP/derivedData/Build/Products/Debug-iphoneos/MqttClient.app Payload/MqttClient.app
-                zip -r $RUNNER_TEMP/output/MqttClient.ipa $RUNNER_TEMP/output/Payload
+                zip -r MqttClient.ipa Payload
+                rm -rf Payload
+                unzip MqttClient.ipa
+                tree .
                 cp -r $RUNNER_TEMP/DerivedData/Build/Products/Debug-iphoneos/MqttClient.app/PlugIns/MqttClientTests.xctest .
                 zip -r MqttClientTests.xctest.zip MqttClientTests.xctest
                 ls
