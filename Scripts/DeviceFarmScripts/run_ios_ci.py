@@ -38,7 +38,7 @@ def upload_file(client, projectArn, unique_prefix, filepath, _type):
         print(f"Upload of {filename} in state {response['upload']['status']} after " + str(
             datetime.datetime.now() - started))
         if device_farm_upload_status['upload']['status'] == 'FAILED':
-            print('File upload status code: ' + str(device_farm_upload_status.status_code) + ' reason: ' + device_farm_upload_status.reason)
+            print('File upload failed with message: ' + str(device_farm_upload_status['upload']['message']))
             print('Upload failed to process')
             sys.exit(-1)
         time.sleep(1)
