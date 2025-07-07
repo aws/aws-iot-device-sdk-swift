@@ -14,6 +14,7 @@ parser.add_argument('--project_arn', required=True, help="Arn for the Device Far
 parser.add_argument('--device_pool_arn', required=True, help="Arn for device pool of the Device Farm Project the apk will be tested on")
 parser.add_argument('--test_file_path', required=True, help="Path to the zip files that contains test scripts to upload to device farm")
 parser.add_argument('--app_file_path', required=True, help="Path to the executable .app file")
+parser.add_argument('--test_filter', required=False, help="Test suite to run")
 
 def upload_file(client, projectArn, unique_prefix, filepath, _type):
     filename = os.path.basename(filepath)
@@ -56,6 +57,7 @@ def main():
     device_pool_arn = args.device_pool_arn
     test_file_path = args.test_file_path
     app_file_path = args.app_file_path
+    test_filter = args.test_filter
 
     region = os.getenv('AWS_DEVICE_FARM_REGION')
 
@@ -82,7 +84,8 @@ def main():
         name=unique_prefix,
         test={
             "type": "XCTEST",
-            "testPackageArn": device_farm_test_upload_arn
+            "testPackageArn": device_farm_test_upload_arn,
+            "filter": test_filter
         },
         executionConfiguration={
             'jobTimeoutMinutes': 30
