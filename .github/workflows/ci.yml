@@ -294,7 +294,7 @@ jobs:
                 ENDPOINT=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "unit-test/endpoint" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\")
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
-                sed -i '' "s/<endpoint>/${ENDPOINT}/g" AwsIoTDeviceSDKiOSTests.swift
+                sed -i '' "s/<AWS_TEST_MQTT5_IOT_CORE_HOST>/${ENDPOINT}/g" AwsIoTDeviceSDKiOSTests.swift
             - name: Build Test App
               run: |
                 xcode-select --print-path
