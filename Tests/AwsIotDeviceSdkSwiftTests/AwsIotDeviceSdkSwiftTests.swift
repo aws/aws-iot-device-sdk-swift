@@ -13,6 +13,8 @@ enum MqttTestError: Error {
 
 class Mqtt5ClientTests: XCBaseTestCase {
 
+  var isIOSDeviceFarm = false
+
   // DEBUG WIP this can be reduced to remove things we don't test at the SDK level
   final class MqttTestContext: @unchecked Sendable {
     public let contextName: String
@@ -182,15 +184,32 @@ class Mqtt5ClientTests: XCBaseTestCase {
   =================================================================*/
 
   func testMqttBuilderMTLSFromPath() throws {
-    try skipIfPlatformDoesntSupportTLS()
-    let certPath = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
-    let keyPath = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
-    let endpoint = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
+    var certPath = ""
+    var keyPath = ""
+    var endpoint = ""
     let context = MqttTestContext(contextName: "MTLSFromPath")
+
+    if (!isIOSDeviceFarm) {
+      try skipIfPlatformDoesntSupportTLS()
+      certPath = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
+      keyPath = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+      endpoint = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    } else {
+      guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
+        let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
+      else {
+        fatalError("Missing cert or key resource.")
+      }
+
+      certPath = certURL.relativePath
+      keyPath = keyURL.relativePath
+      endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
+
+    }
     let builder = try Mqtt5ClientBuilder.mtlsFromPath(
       certPath: certPath, keyPath: keyPath, endpoint: endpoint)
 
