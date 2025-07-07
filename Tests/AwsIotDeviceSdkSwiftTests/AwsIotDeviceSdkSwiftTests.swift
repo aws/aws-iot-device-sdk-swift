@@ -185,10 +185,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
   func testMqttBuilderMTLSFromPath() throws {
 
-    var certPath = ""
-    var keyPath = ""
-    var endpoint = ""
-    let context = MqttTestContext(contextName: "MTLSFromPath")
+    let certPath, keyPath, endpoint: String
 
     if (!isIOSDeviceFarm) {
       try skipIfPlatformDoesntSupportTLS()
@@ -210,6 +207,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
       endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
 
     }
+    let context = MqttTestContext(contextName: "MTLSFromPath")
     let builder = try Mqtt5ClientBuilder.mtlsFromPath(
       certPath: certPath, keyPath: keyPath, endpoint: endpoint)
 
@@ -228,22 +226,36 @@ class Mqtt5ClientTests: XCBaseTestCase {
   }
 
   func testMqttBuilderMTLSFromData() throws {
-    try skipIfPlatformDoesntSupportTLS()
-    let certPath = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
-    let keyPath = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
-    let endpoint = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+
+    let certFileURL, keyFileURL: URL
+    let endpoint: String
+
+    if (!isIOSDeviceFarm) {
+      try skipIfPlatformDoesntSupportTLS()
+      let certPath = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
+      let keyPath = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+      endpoint = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+
+      certFileURL = URL(fileURLWithPath: certPath)
+      keyFileURL = URL(fileURLWithPath: keyPath)
+    } else {
+      guard let _certFileURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
+        let _keyFileURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
+      else {
+        fatalError("Missing cert or key resource.")
+      }
+      certFileURL = _certFileURL
+      keyFileURL = _keyFileURL
+      endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
+    }
 
     let context = MqttTestContext(contextName: "MTLSFromData")
 
-    let certFileURL = URL(fileURLWithPath: certPath)
     let certData = try Data(contentsOf: certFileURL)
-
-    let keyFileURL = URL(fileURLWithPath: keyPath)
     let keyData = try Data(contentsOf: keyFileURL)
-
     let builder = try Mqtt5ClientBuilder.mtlsFromData(
       certData: certData, keyData: keyData, endpoint: endpoint)
 
@@ -262,13 +274,30 @@ class Mqtt5ClientTests: XCBaseTestCase {
   }
 
   func testMqttBuilderMTLSFromPKCS12() throws {
-    try skipIfLinux()
-    let pkcs12Path = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
-    let pkcs12Password = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
-    let endpoint = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+
+    let pkcs12Path, pkcs12Password, endpoint: String
+
+    if (!isIOSDeviceFarm) {
+      try skipIfLinux()
+      pkcs12Path = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_PKCS12_FILE")
+      pkcs12Password = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
+      endpoint = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    } else {
+
+      guard let pkcs12URL = Bundle.main.url(forResource: "pkcs12", withExtension: "p12")
+      else {
+        fatalError("Missing pkcs12 resource.")
+      }
+
+      pkcs12Path = pkcs12URL.relativePath
+      pkcs12Password = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
+      endpoint = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    }
 
     let context = MqttTestContext(contextName: "MTLSFromPKCS12")
     let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
