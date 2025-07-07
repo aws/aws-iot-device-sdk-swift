@@ -190,8 +190,7 @@ class Mqtt5iOSTest: XCBaseTestCase {
 
     let certData = try Data(contentsOf: certURL)
     let keyData = try Data(contentsOf: keyURL)
-    let endpoint = try getEnvironmentVarOrSkipTest(
-      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    let endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
     let context = MqttTestContext(contextName: "MTLSFromBundleFile")
 
     let builder = try Mqtt5ClientBuilder.mtlsFromData(

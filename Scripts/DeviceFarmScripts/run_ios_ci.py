@@ -54,7 +54,6 @@ def main():
     run_attempt = args.run_attempt
     project_arn = args.project_arn
     device_pool_arn = args.device_pool_arn
-    # test_spec_file_path = args.test_spec_file_path
     test_file_path = args.test_file_path
     app_file_path = args.app_file_path
 
@@ -74,7 +73,6 @@ def main():
     unique_prefix = 'CI-' + run_id + '-' + run_attempt
     device_farm_app_upload_arn = upload_file(client, project_arn, unique_prefix, app_file_path, 'IOS_APP')
     device_farm_test_upload_arn = upload_file(client, project_arn, unique_prefix, test_file_path, 'XCTEST_TEST_PACKAGE')
-    # device_farm_test_spec_upload_arn = upload_file(client, project_arn, unique_prefix, test_spec_file_path, 'INSTRUMENTATION_TEST_SPEC')
 
     print('scheduling run')
     schedule_run_response = client.schedule_run(
