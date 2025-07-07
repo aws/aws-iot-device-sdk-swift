@@ -16,6 +16,7 @@
 		A63CEBB72C238347003A71B7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB62C238347003A71B7 /* ContentView.swift */; };
 		A6587EE12D0BB00D00D5D40E /* AwsIotDeviceSdkSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */; };
 		A6587EE52D0BB05E00D5D40E /* AwsCommonRuntimeKit in Frameworks */ = {isa = PBXBuildFile; productRef = A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */; };
+		A6FFA80D2E1C6C8F00E3772C /* pkcs12.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A6FFA80C2E1C6C8F00E3772C /* pkcs12.p12 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,7 +31,7 @@
 
 /* Begin PBXFileReference section */
 		A60404672E15EE540008CCBB /* AwsIotDeviceSdkiOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkiOSTests.swift; path = MqttClient/AwsIotDeviceSdkiOSTests.swift; sourceTree = SOURCE_ROOT; };
-		A604046B2E1C3F2C0008CCBB /* AwsIotDeviceSdkSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkSwiftTests.swift; path = "../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift"; sourceTree = "<absolute>"; };
+		A604046B2E1C3F2C0008CCBB /* AwsIotDeviceSdkSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkSwiftTests.swift; path = ../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift; sourceTree = "<absolute>"; };
 		A6183C482CFE3157007281B8 /* cert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.pem; sourceTree = "<group>"; };
 		A6183C4E2CFE322E007281B8 /* privatekey.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = privatekey.pem; sourceTree = "<group>"; };
 		A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MqttClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -38,6 +39,7 @@
 		A63CEBB12C238347003A71B7 /* MqttClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MqttClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A63CEBB42C238347003A71B7 /* MqttClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MqttClientApp.swift; sourceTree = "<group>"; };
 		A63CEBB62C238347003A71B7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A6FFA80C2E1C6C8F00E3772C /* pkcs12.p12 */ = {isa = PBXFileReference; lastKnownFileType = text; path = pkcs12.p12; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 				A63CEBB42C238347003A71B7 /* MqttClientApp.swift */,
 				A63CEBB62C238347003A71B7 /* ContentView.swift */,
 				A6183C482CFE3157007281B8 /* cert.pem */,
+				A6FFA80C2E1C6C8F00E3772C /* pkcs12.p12 */,
 				A6183C4E2CFE322E007281B8 /* privatekey.pem */,
 			);
 			path = MqttClient;
@@ -190,6 +193,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6FFA80D2E1C6C8F00E3772C /* pkcs12.p12 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
