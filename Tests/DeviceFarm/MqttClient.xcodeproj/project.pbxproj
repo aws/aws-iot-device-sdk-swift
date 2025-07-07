@@ -30,7 +30,7 @@
 
 /* Begin PBXFileReference section */
 		A60404672E15EE540008CCBB /* AwsIotDeviceSdkiOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkiOSTests.swift; path = MqttClient/AwsIotDeviceSdkiOSTests.swift; sourceTree = SOURCE_ROOT; };
-		A604046B2E1C3F2C0008CCBB /* AwsIotDeviceSdkSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkSwiftTests.swift; path = "/Users/zhvxia/Workspace/aws-iot-device-sdk-swift/Tests/AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift"; sourceTree = "<absolute>"; };
+		A604046B2E1C3F2C0008CCBB /* AwsIotDeviceSdkSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkSwiftTests.swift; path = "../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift"; sourceTree = "<absolute>"; };
 		A6183C482CFE3157007281B8 /* cert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.pem; sourceTree = "<group>"; };
 		A6183C4E2CFE322E007281B8 /* privatekey.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = privatekey.pem; sourceTree = "<group>"; };
 		A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MqttClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
