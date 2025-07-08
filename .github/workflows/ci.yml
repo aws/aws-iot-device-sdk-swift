@@ -295,8 +295,7 @@ jobs:
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
                 # temp file for testing. It is not a real pkcs12 file.
                 aws s3 cp s3://iot-sdk-ci-bucket-us-east1/iot_pkcs12_key.p12 ./pkcs12.p12
-                cd 
-                SCRIPT_FOLDER=../../../Scripts/DeviceFarmScripts/
+                SCRIPT_FOLDER=../../../Scripts/DeviceFarmScripts
                 pip install -r $SCRIPT_FOLDER/requirements.txt
                 python3 $SCRIPT_FOLDER/setup_test_resource.py $SCRIPT_FOLDER/id_secrets.txt ../../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift us-east-1
             - name: Build Test App
