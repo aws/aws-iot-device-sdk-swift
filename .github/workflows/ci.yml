@@ -297,7 +297,7 @@ jobs:
                 aws s3 cp s3://iot-sdk-ci-bucket-us-east1/iot_pkcs12_key.p12 ./pkcs12.p12
                 SCRIPT_FOLDER=../../../Scripts/DeviceFarmScripts
                 pip install -r $SCRIPT_FOLDER/requirements.txt
-                python3 $SCRIPT_FOLDER/setup_test_resource.py $SCRIPT_FOLDER/id_secrets.txt ../../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift us-east-1
+                python3 $SCRIPT_FOLDER/setup_test_resource.py $SCRIPT_FOLDER/id_secrets.txt AwsIotDeviceSdkiOSTests.swift us-east-1
             - name: Build Test App
               run: |
                 xcode-select --print-path

@@ -12,7 +12,7 @@ enum MqttTestError: Error {
   case resourceMissing
 }
 
-class Mqtt5ClientTests: XCBaseTestCase {
+class Mqtt5IOSTests: XCBaseTestCase {
 
   var isIOSDeviceFarm = true
 
