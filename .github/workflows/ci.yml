@@ -289,9 +289,6 @@ jobs:
                 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
                 cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
             - name : Setup iOS App Credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                aws-region: us-east-1
               run : |
                 cd Tests/DeviceFarm/MqttClient
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
