@@ -88,7 +88,7 @@ def main():
         test={
             "type": "XCTEST",
             "testPackageArn": device_farm_test_upload_arn,
-            "filter": test_filter
+            "filter": test_filter if test_filter else ""
         },
         executionConfiguration={
             'jobTimeoutMinutes': 30
