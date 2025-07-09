@@ -9,11 +9,12 @@ enum MqttTestError: Error {
   case connectionFail
   case disconnectFail
   case stopFail
+  case resourceMissing
 }
 
-class Mqtt5ClientTests: XCBaseTestCase {
+class Mqtt5IOSTests: XCBaseTestCase {
 
-  var isIOSDeviceFarm = false
+  var isIOSDeviceFarm = true
 
   // DEBUG WIP this can be reduced to remove things we don't test at the SDK level
   final class MqttTestContext: @unchecked Sendable {
@@ -199,7 +200,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
       guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
         let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
       else {
-        fatalError("Missing cert or key resource.")
+        XCTFail("Missing cert or key resource.")
+        throw MqttTestError.resourceMissing
       }
 
       certPath = certURL.relativePath
@@ -245,7 +247,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
       guard let _certFileURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
         let _keyFileURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
       else {
-        fatalError("Missing cert or key resource.")
+        XCTFail("Missing cert or key resource.")
+        throw MqttTestError.resourceMissing
       }
       certFileURL = _certFileURL
       keyFileURL = _keyFileURL
@@ -289,7 +292,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
       guard let pkcs12URL = Bundle.main.url(forResource: "pkcs12", withExtension: "p12")
       else {
-        fatalError("Missing pkcs12 resource.")
+        XCTFail("Missing pkcs12 resource.")
+        throw MqttTestError.resourceMissing
       }
 
       pkcs12Path = pkcs12URL.relativePath
@@ -333,7 +337,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
       sessionToken = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
     } else {
-      region = "<AWS_TEST_MQTT5_WS_REGION>"
+      region = "us-east-1"
       endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
 
       // setup role credentials
@@ -596,8 +600,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
         environmentVarName: "AWS_TEST_MQTT5_COGNITO_IDENTITY")
     } else {
       iotEndpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
-      region = "<AWS_TEST_MQTT5_IOT_CORE_REGION>"
-      cognitoEndpoint = "<AWS_TEST_MQTT5_COGNITO_ENDPOINT>"
+      region = "us-east-1"
+      cognitoEndpoint = "cognito-identity.us-east-1.amazonaws.com"
       cognitoIdentity = "<AWS_TEST_MQTT5_COGNITO_IDENTITY>"
     }
 
