@@ -288,13 +288,18 @@ jobs:
                 # apply provisioning profile        
                 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
                 cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+            - name: configure AWS credentials (grab test resource from CRT)
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ env.CRT_CI_Role }}
+                aws-region: ${{ env.AWS_DEFAULT_REGION }}
             - name : Setup iOS App Credentials
               run : |
                 cd Tests/DeviceFarm/MqttClient
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
                 # temp file for testing. It is not a real pkcs12 file.
-                aws s3 cp s3://iot-sdk-ci-bucket-us-east1/iot_pkcs12_key.p12 ./pkcs12.p12
+                aws s3 cp s3://aws-crt-test-stuff/ci_mqtt5_prod_pkcs12.p12 ./pkcs12.p12
                 SCRIPT_FOLDER=../../../Scripts/DeviceFarmScripts
                 pip install -r $SCRIPT_FOLDER/requirements.txt
                 python3 $SCRIPT_FOLDER/setup_test_resource.py $SCRIPT_FOLDER/id_secrets.txt AwsIotDeviceSdkiOSTests.swift us-east-1
@@ -321,10 +326,13 @@ jobs:
                 cp -r $RUNNER_TEMP/DerivedData/Build/Products/Debug-iphoneos/MqttClient.app/PlugIns/MqttClientTests.xctest .
                 zip -r MqttClientTests.xctest.zip MqttClientTests.xctest
                 ls
-            - name: configure AWS credentials
+            - name: configure AWS credentials (containers)
               uses: aws-actions/configure-aws-credentials@v4
               with:
+                role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: us-west-2 # Device Farm only available on us-west-2
+                # Bump from default 1 hour to 8 hours to allow device farm tests to complete (and delete)
+                role-duration-seconds: 28800 
             - name: Execute device farm
               run: |
                 cd Scripts/DeviceFarmScripts/
