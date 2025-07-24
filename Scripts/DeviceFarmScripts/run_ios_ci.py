@@ -7,17 +7,26 @@ import os
 import time
 import datetime
 
-import requests # - for uploading files
+import requests  # - for uploading files
 import boto3
 
-parser = argparse.ArgumentParser(description="Utility script to upload and run Device tests on AWS Device Farm for CI")
-parser.add_argument('--run_id', required=True, help="A unique number for each workflow run within a repository")
-parser.add_argument('--run_attempt', required=True, help="A unique number for each attempt of a particular workflow run in a repository")
-parser.add_argument('--project_arn', required=True, help="Arn for the Device Farm Project the apk will be tested on")
-parser.add_argument('--device_pool_arn', required=True, help="Arn for device pool of the Device Farm Project the apk will be tested on")
-parser.add_argument('--test_file_path', required=True, help="Path to the zip files that contains test scripts to upload to device farm")
-parser.add_argument('--app_file_path', required=True, help="Path to the executable .app file")
-parser.add_argument('--test_filter', required=False, help="Test suite to run")
+parser = argparse.ArgumentParser(
+    description="Utility script to upload and run Device tests on AWS Device Farm for CI")
+parser.add_argument('--run_id', required=True,
+                    help="A unique number for each workflow run within a repository")
+parser.add_argument('--run_attempt', required=True,
+                    help="A unique number for each attempt of a particular workflow run in a repository")
+parser.add_argument('--project_arn', required=True,
+                    help="Arn for the Device Farm Project the apk will be tested on")
+parser.add_argument('--device_pool_arn', required=True,
+                    help="Arn for device pool of the Device Farm Project the apk will be tested on")
+parser.add_argument('--test_spec_file_path', required=True,
+                    help="Path to the test spec file for Device Farm test")
+parser.add_argument('--test_file_path', required=True,
+                    help="Path to the zip files that contains test scripts to upload to device farm")
+parser.add_argument('--app_file_path', required=True,
+                    help="Path to the executable .app file")
+
 
 def upload_file(client, projectArn, unique_prefix, filepath, _type):
     filename = os.path.basename(filepath)
@@ -31,11 +40,14 @@ def upload_file(client, projectArn, unique_prefix, filepath, _type):
     # We're going to extract the URL of the upload and use Requests to upload it
     upload_url = response['upload']['url']
     with open(filepath, 'rb') as file_stream:
-        print(f"Uploading {filepath} to Device Farm as {response['upload']['name']}... ", end='')
+        print(
+            f"Uploading {filepath} to Device Farm as {response['upload']['name']}... ", end='')
         put_req = requests.put(upload_url, data=file_stream)
-        print('File upload status code: ' + str(put_req.status_code) + ' reason: ' + put_req.reason)
+        print('File upload status code: ' +
+              str(put_req.status_code) + ' reason: ' + put_req.reason)
         if not put_req.ok:
-            raise Exception("Couldn't upload, requests said we're not ok. Requests says: " + put_req.reason)
+            raise Exception(
+                "Couldn't upload, requests said we're not ok. Requests says: " + put_req.reason)
     started = datetime.datetime.now()
     device_farm_upload_status = client.get_upload(arn=upload_arn)
     while device_farm_upload_status['upload']['status'] != 'SUCCEEDED':
@@ -58,9 +70,9 @@ def main():
     run_attempt = args.run_attempt
     project_arn = args.project_arn
     device_pool_arn = args.device_pool_arn
+    test_spec_file_path = args.test_spec_file_path
     test_file_path = args.test_file_path
     app_file_path = args.app_file_path
-    test_filter = args.test_filter
 
     region = os.getenv('AWS_DEVICE_FARM_REGION')
 
@@ -70,25 +82,32 @@ def main():
     try:
         client = boto3.client('devicefarm', region_name=region)
     except Exception:
-        print("Error - could not make Boto3 client. Credentials likely could not be sourced")
+        print(
+            "Error - could not make Boto3 client. Credentials likely could not be sourced")
         sys.exit(-1)
     print("Boto3 client established")
 
     # Upload the crt library shell app to Device Farm
     unique_prefix = 'CI-' + run_id + '-' + run_attempt
-    device_farm_app_upload_arn = upload_file(client, project_arn, unique_prefix, app_file_path, 'IOS_APP')
-    device_farm_test_upload_arn = upload_file(client, project_arn, unique_prefix, test_file_path, 'XCTEST_TEST_PACKAGE')
+    device_farm_app_upload_arn = upload_file(
+        client, project_arn, unique_prefix, app_file_path, 'IOS_APP')
+    device_farm_test_upload_arn = upload_file(
+        client, project_arn, unique_prefix, test_file_path, 'APPIUM_NODE_TEST_PACKAGE')
+    device_farm_test_spec_upload_arn = upload_file(
+        client, project_arn, unique_prefix, test_spec_file_path, 'APPIUM_NODE_TEST_SPEC')
 
     print('scheduling run')
+    # Although we are using XCTest framework, device farm does not provide a way to apply test spec files in such case.
+    # Therefore, Device Farm suggest us to use APPIUM_NODE instead.
     schedule_run_response = client.schedule_run(
         projectArn=project_arn,
         appArn=device_farm_app_upload_arn,
         devicePoolArn=device_pool_arn,
         name=unique_prefix,
         test={
-            "type": "XCTEST",
+            "type": "APPIUM_NODE",
             "testPackageArn": device_farm_test_upload_arn,
-            "filter": test_filter if test_filter else ""
+            "testSpecArn": device_farm_test_spec_upload_arn,
         },
         executionConfiguration={
             'jobTimeoutMinutes': 30
@@ -108,11 +127,13 @@ def main():
 
     run_end_time = datetime.datetime.now()
     run_end_date_time = run_end_time.strftime("%m/%d/%Y, %H:%M:%S")
-    print('Run ended at ' + run_end_date_time + ' with result: ' + get_run_response['run']['result'])
+    print('Run ended at ' + run_end_date_time +
+          ' with result: ' + get_run_response['run']['result'])
 
     is_success = True
     if get_run_response['run']['result'] != 'PASSED':
-        print('run has failed with result ' + get_run_response['run']['result'])
+        print('run has failed with result ' +
+              get_run_response['run']['result'])
         print(get_run_response)
         is_success = False
 
@@ -128,12 +149,17 @@ def main():
     client.delete_upload(
         arn=device_farm_test_upload_arn
     )
+    print('Deleting test spec file from Device Farm project')
+    client.delete_upload(
+        arn=device_farm_test_spec_upload_arn
+    )
 
     if is_success == False:
         print('Exiting with fail')
         sys.exit(-1)
 
     print('Exiting with success')
+
 
 if __name__ == "__main__":
     main()
