@@ -312,7 +312,8 @@ jobs:
                 echo "start build app"
                 xcodebuild build-for-testing -scheme "MqttClient" \
                 -derivedDataPath $RUNNER_TEMP/derivedData/ \
-                -destination generic/platform=iOS
+                -destination generic/platform=iOS \
+                -allowProvisioningUpdates
             - name: Export ipa
               run: |
                 ls $RUNNER_TEMP/derivedData/
