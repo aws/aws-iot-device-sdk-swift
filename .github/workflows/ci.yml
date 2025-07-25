@@ -324,8 +324,8 @@ jobs:
                 zip -r MqttClient.ipa Payload
                 rm -rf Payload
                 unzip MqttClient.ipa
-                cp -r $RUNNER_TEMP/DerivedData/Build/Products/Debug-iphoneos/MqttClient.app/PlugIns/MqttClientTests.xctest .
-                zip -r MqttClientTests.xctest.zip MqttClientTests.xctest
+                cp -r $RUNNER_TEMP/DerivedData/Build/Products/*.xctestrun .
+                zip -r MqttClientTests.xctestrun.zip MqttClientTests.xctestrun
                 ls
             - name: configure AWS credentials (containers)
               uses: aws-actions/configure-aws-credentials@v4
