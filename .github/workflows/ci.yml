@@ -345,7 +345,7 @@ jobs:
                 --project_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/iOSProjectArn" --query "SecretString" | cut -f2 -d\") \
                 --device_pool_arn $(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/DeviceFarm/${{ matrix.device_pool }}" --query "SecretString" | cut -f2 -d\") \
                 --app_file_path $RUNNER_TEMP/output/MqttClient.ipa \
-                --test_file_path $RUNNER_TEMP/output/MqttClientTests.xctest.zip \ 
+                --test_file_path $RUNNER_TEMP/output/MqttClientTests.xctest.zip \
                 --test_spec_file_path ./xctest_test_spec_2021_06_03.yml
 
     # Test that everything works with Swift 6 strict concurrency. We can remove this CI in the future once we raise our minimum Swift version to Swift 6.
