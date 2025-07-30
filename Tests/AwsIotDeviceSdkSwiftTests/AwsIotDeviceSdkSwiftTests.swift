@@ -14,7 +14,7 @@ enum MqttTestError: Error {
 
 class Mqtt5ClientTests: XCBaseTestCase {
 
-  var isIOSDeviceFarm = false
+  var isIOSDeviceFarm: Bool = false
 
   // DEBUG WIP this can be reduced to remove things we don't test at the SDK level
   final class MqttTestContext: @unchecked Sendable {
@@ -322,29 +322,23 @@ class Mqtt5ClientTests: XCBaseTestCase {
   }
 
   func testMqttWebsocketWithDefaultAWSSigning() async throws {
+    // Skip the test on iOS or tvOS as there is no env var setup
+    try skipIfiOS()
+    try skipIftvOS()
+
     let region, endpoint, accessKey, secret, sessionToken: String
 
-    if (!isIOSDeviceFarm) {
-      region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_WS_REGION")
-      endpoint = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_WS_REGION")
+    endpoint = try getEnvironmentVarOrSkipTest(
+      environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-      // setup role credentials
-      accessKey = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
-      secret = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
-      sessionToken = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
-    } else {
-      region = "<AWS_TEST_MQTT5_WS_REGION>"
-      endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
-
-      // setup role credentials
-      accessKey = "<AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY>"
-      secret = "<AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY>"
-      sessionToken = "<AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN>"
-    }
+    // setup role credentials
+    accessKey = try getEnvironmentVarOrSkipTest(
+      environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_ACCESS_KEY")
+    secret = try getEnvironmentVarOrSkipTest(
+      environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SECRET_ACCESS_KEY")
+    sessionToken = try getEnvironmentVarOrSkipTest(
+      environmentVarName: "AWS_TEST_MQTT5_ROLE_CREDENTIAL_SESSION_TOKEN")
 
     let context = MqttTestContext(contextName: "WebsocketWithDefaultAWSSigning")
     let provider = try CredentialsProvider(
