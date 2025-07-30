@@ -6,8 +6,8 @@ import XCTest
 
 class Mqtt5iOSTest: Mqtt5ClientTests {
 
-    override func setUp() {
-        super.setUp()
-        self.isIOSDeviceFarm = true
-    }
+  override func setUp() {
+    super.setUp()
+    self.isIOSDeviceFarm = true
+  }
 }

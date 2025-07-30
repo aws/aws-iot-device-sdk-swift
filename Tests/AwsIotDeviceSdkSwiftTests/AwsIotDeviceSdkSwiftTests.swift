@@ -594,14 +594,13 @@ class Mqtt5ClientTests: XCBaseTestCase {
       iotEndpoint = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
       region = try getEnvironmentVarOrSkipTest(environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_REGION")
-      cognitoEndpoint = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "AWS_TEST_MQTT5_COGNITO_ENDPOINT")
+      cognitoEndpoint = "cognito-identity.us-east-1.amazonaws.com"
       cognitoIdentity = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_COGNITO_IDENTITY")
     } else {
       iotEndpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
       region = "<AWS_TEST_MQTT5_IOT_CORE_REGION>"
-      cognitoEndpoint = "<AWS_TEST_MQTT5_COGNITO_ENDPOINT>"
+      cognitoEndpoint = "cognito-identity.us-east-1.amazonaws.com"
       cognitoIdentity = "<AWS_TEST_MQTT5_COGNITO_IDENTITY>"
     }
 
