@@ -9,6 +9,7 @@ enum MqttTestError: Error {
   case connectionFail
   case disconnectFail
   case stopFail
+  case resourceMissing
 }
 
 class Mqtt5ClientTests: XCBaseTestCase {
@@ -199,7 +200,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
       guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
         let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
       else {
-        fatalError("Missing cert or key resource.")
+        XCTFail("Missing cert or key resource.")
+        throw MqttTestError.resourceMissing
       }
 
       certPath = certURL.relativePath
@@ -245,7 +247,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
       guard let _certFileURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
         let _keyFileURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
       else {
-        fatalError("Missing cert or key resource.")
+        XCTFail("Missing cert or key resource.")
+        throw MqttTestError.resourceMissing
       }
       certFileURL = _certFileURL
       keyFileURL = _keyFileURL
@@ -289,7 +292,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
       guard let pkcs12URL = Bundle.main.url(forResource: "pkcs12", withExtension: "p12")
       else {
-        fatalError("Missing pkcs12 resource.")
+        XCTFail("Missing pkcs12 resource.")
+        throw MqttTestError.resourceMissing
       }
 
       pkcs12Path = pkcs12URL.relativePath
