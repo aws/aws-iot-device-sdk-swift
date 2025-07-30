@@ -383,6 +383,8 @@ class Mqtt5ClientTests: XCBaseTestCase {
   func testMqttWebsocketWithCustomAuth() async throws {
     let endpoint, customAuthName, customAuthPassword: String
 
+    // NOTICE: The unit tests are currently using resources from CRT Acount as the aws-crt-builder is setup to pull resource from CRT Account.
+    // However, as the custom auth was setup with IoT Account, we could not grab the test resources. The test will be skipped for now.
     if (!isIOSDeviceFarm) {
 
       endpoint = try getEnvironmentVarOrSkipTest(
@@ -393,7 +395,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
         environmentVarName: "AWS_TEST_CUSTOM_AUTHORIZER_PASSWORD")
 
     } else {
-      endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
+      endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST_IOT_ACCOUNT>"
       customAuthName = "<AWS_TEST_CUSTOM_AUTHORIZER_NAME>"
       customAuthPassword = "<AWS_TEST_CUSTOM_AUTHORIZER_PASSWORD>"
     }
