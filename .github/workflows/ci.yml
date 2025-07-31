@@ -252,7 +252,6 @@ jobs:
               # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
               device_pool:
                 - iOSHighlyAvailablePool
-                - iOS13PoolArn
         steps:
             - name: Checkout Source
               uses: actions/checkout@v4
@@ -298,7 +297,6 @@ jobs:
                 cd Tests/DeviceFarm/MqttClient
                 cert=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/cert" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$cert" > ./cert.pem
                 key=$(aws secretsmanager get-secret-value --region us-east-1 --secret-id "ci/mqtt5/us/Mqtt5Prod/key" --query "SecretString" | cut -f2 -d":" | cut -f2 -d\") && echo -e "$key" > ./privatekey.pem
-                # temp file for testing. It is not a real pkcs12 file.
                 aws s3 cp s3://aws-crt-test-stuff/ci_mqtt5_prod_pkcs12.p12 ./pkcs12.p12
                 SCRIPT_FOLDER=../../../Scripts/DeviceFarmScripts
                 pip install -r $SCRIPT_FOLDER/requirements.txt
