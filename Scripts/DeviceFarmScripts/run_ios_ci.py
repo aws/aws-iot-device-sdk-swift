@@ -134,7 +134,6 @@ def main():
     if get_run_response['run']['result'] != 'PASSED':
         print('run has failed with result ' +
               get_run_response['run']['result'])
-        print(get_run_response)
         is_success = False
 
     # If Clean up is not executed due to the job being cancelled in CI, the uploaded files will not be deleted
