@@ -9,21 +9,47 @@
 /* Begin PBXBuildFile section */
 		A6183C4B2CFE3157007281B8 /* cert.pem in Resources */ = {isa = PBXBuildFile; fileRef = A6183C482CFE3157007281B8 /* cert.pem */; };
 		A6183C4F2CFE322E007281B8 /* privatekey.pem in Resources */ = {isa = PBXBuildFile; fileRef = A6183C4E2CFE322E007281B8 /* privatekey.pem */; };
+		A63CBAA22E148B7000A8FF78 /* XCBaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CBAA02E148B7000A8FF78 /* XCBaseTestCase.swift */; };
 		A63CEBB52C238347003A71B7 /* MqttClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB42C238347003A71B7 /* MqttClientApp.swift */; };
 		A63CEBB72C238347003A71B7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63CEBB62C238347003A71B7 /* ContentView.swift */; };
 		A6587EE12D0BB00D00D5D40E /* AwsIotDeviceSdkSwift in Frameworks */ = {isa = PBXBuildFile; productRef = A6587EE02D0BB00D00D5D40E /* AwsIotDeviceSdkSwift */; };
 		A6587EE52D0BB05E00D5D40E /* AwsCommonRuntimeKit in Frameworks */ = {isa = PBXBuildFile; productRef = A63CEBC52C2387A3003A71B7 /* AwsCommonRuntimeKit */; };
+		A6F0C7382E3AC33A0014B5DE /* AwsIotDeviceSdkiOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F0C7372E3AC33A0014B5DE /* AwsIotDeviceSdkiOSTests.swift */; };
+		A6F0C73A2E3AC3920014B5DE /* AwsIotDeviceSdkSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F0C7392E3AC3920014B5DE /* AwsIotDeviceSdkSwiftTests.swift */; };
+		A6FFA8132E1DC52300E3772C /* pkcs12.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A6FFA8112E1DC52300E3772C /* pkcs12.p12 */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A63CBA9A2E148B5000A8FF78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A63CEBA92C238347003A71B7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A63CEBB02C238347003A71B7;
+			remoteInfo = MqttClient;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A6183C482CFE3157007281B8 /* cert.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = cert.pem; sourceTree = "<group>"; };
 		A6183C4E2CFE322E007281B8 /* privatekey.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = privatekey.pem; sourceTree = "<group>"; };
+		A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MqttClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A63CBAA02E148B7000A8FF78 /* XCBaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = XCBaseTestCase.swift; path = ../AwsIotDeviceSdkSwiftTests/XCBaseTestCase.swift; sourceTree = SOURCE_ROOT; };
 		A63CEBB12C238347003A71B7 /* MqttClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MqttClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A63CEBB42C238347003A71B7 /* MqttClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MqttClientApp.swift; sourceTree = "<group>"; };
 		A63CEBB62C238347003A71B7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A6F0C7372E3AC33A0014B5DE /* AwsIotDeviceSdkiOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkiOSTests.swift; path = MqttClient/AwsIotDeviceSdkiOSTests.swift; sourceTree = SOURCE_ROOT; };
+		A6F0C7392E3AC3920014B5DE /* AwsIotDeviceSdkSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AwsIotDeviceSdkSwiftTests.swift; path = ../AwsIotDeviceSdkSwiftTests/AwsIotDeviceSdkSwiftTests.swift; sourceTree = SOURCE_ROOT; };
+		A6FFA8112E1DC52300E3772C /* pkcs12.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = pkcs12.p12; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A63CBA932E148B5000A8FF78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A63CEBAE2C238347003A71B7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -36,9 +62,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A63CBA912E148A9700A8FF78 /* MqttUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				A6F0C7392E3AC3920014B5DE /* AwsIotDeviceSdkSwiftTests.swift */,
+				A6F0C7372E3AC33A0014B5DE /* AwsIotDeviceSdkiOSTests.swift */,
+				A63CBAA02E148B7000A8FF78 /* XCBaseTestCase.swift */,
+			);
+			path = MqttUnitTests;
+			sourceTree = "<group>";
+		};
 		A63CEBA82C238347003A71B7 = {
 			isa = PBXGroup;
 			children = (
+				A63CBA912E148A9700A8FF78 /* MqttUnitTests */,
 				A63CEBB32C238347003A71B7 /* MqttClient */,
 				A63CEBB22C238347003A71B7 /* Products */,
 			);
@@ -48,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				A63CEBB12C238347003A71B7 /* MqttClient.app */,
+				A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,6 +93,7 @@
 		A63CEBB32C238347003A71B7 /* MqttClient */ = {
 			isa = PBXGroup;
 			children = (
+				A6FFA8112E1DC52300E3772C /* pkcs12.p12 */,
 				A63CEBB42C238347003A71B7 /* MqttClientApp.swift */,
 				A63CEBB62C238347003A71B7 /* ContentView.swift */,
 				A6183C482CFE3157007281B8 /* cert.pem */,
@@ -66,6 +105,25 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A63CBA952E148B5000A8FF78 /* MqttClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A63CBA9C2E148B5000A8FF78 /* Build configuration list for PBXNativeTarget "MqttClientTests" */;
+			buildPhases = (
+				A63CBA922E148B5000A8FF78 /* Sources */,
+				A63CBA932E148B5000A8FF78 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A63CBA9B2E148B5000A8FF78 /* PBXTargetDependency */,
+			);
+			name = MqttClientTests;
+			packageProductDependencies = (
+			);
+			productName = MqttClientTests;
+			productReference = A63CBA962E148B5000A8FF78 /* MqttClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A63CEBB02C238347003A71B7 /* MqttClient */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A63CEBBF2C238348003A71B7 /* Build configuration list for PBXNativeTarget "MqttClient" */;
@@ -94,9 +152,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					A63CBA952E148B5000A8FF78 = {
+						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
+						TestTargetID = A63CEBB02C238347003A71B7;
+					};
 					A63CEBB02C238347003A71B7 = {
 						CreatedOnToolsVersion = 15.2;
 					};
@@ -112,13 +175,14 @@
 			);
 			mainGroup = A63CEBA82C238347003A71B7;
 			packageReferences = (
-				A6587EDF2D0BB00D00D5D40E /* XCLocalSwiftPackageReference "../../../../aws-iot-device-sdk-swift" */,
+				A63CBAA32E148C6600A8FF78 /* XCLocalSwiftPackageReference "../.." */,
 			);
 			productRefGroup = A63CEBB22C238347003A71B7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				A63CEBB02C238347003A71B7 /* MqttClient */,
+				A63CBA952E148B5000A8FF78 /* MqttClientTests */,
 			);
 		};
 /* End PBXProject section */
@@ -129,6 +193,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A6183C4F2CFE322E007281B8 /* privatekey.pem in Resources */,
+				A6FFA8132E1DC52300E3772C /* pkcs12.p12 in Resources */,
 				A6183C4B2CFE3157007281B8 /* cert.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -136,6 +201,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A63CBA922E148B5000A8FF78 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6F0C73A2E3AC3920014B5DE /* AwsIotDeviceSdkSwiftTests.swift in Sources */,
+				A63CBAA22E148B7000A8FF78 /* XCBaseTestCase.swift in Sources */,
+				A6F0C7382E3AC33A0014B5DE /* AwsIotDeviceSdkiOSTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A63CEBAD2C238347003A71B7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -147,7 +222,66 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		A63CBA9B2E148B5000A8FF78 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A63CEBB02C238347003A71B7 /* MqttClient */;
+			targetProxy = A63CBA9A2E148B5000A8FF78 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		A63CBA9D2E148B5000A8FF78 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3V5W3HV3D4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = aws.iot.device.sdk.swift.iosapp.mqtttests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "aws.iot.device.sdk.swift.iosapp.*";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MqttClient.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MqttClient";
+			};
+			name = Debug;
+		};
+		A63CBA9E2E148B5000A8FF78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3V5W3HV3D4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = aws.iot.device.sdk.swift.iosapp.mqtttests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "aws.iot.device.sdk.swift.iosapp.*";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MqttClient.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MqttClient";
+			};
+			name = Release;
+		};
 		A63CEBBD2C238348003A71B7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -183,6 +317,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 3V5W3HV3D4;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -200,7 +335,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -246,6 +381,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 3V5W3HV3D4;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -257,7 +393,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -272,9 +408,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3V5W3HV3D4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -287,8 +427,10 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "aws-common-runtime.MqttClient";
+				PRODUCT_BUNDLE_IDENTIFIER = aws.iot.device.sdk.swift.iosapp.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "aws.iot.device.sdk.swift.iosapp.*";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -300,9 +442,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3V5W3HV3D4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -315,8 +461,10 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "aws-common-runtime.MqttClient";
+				PRODUCT_BUNDLE_IDENTIFIER = aws.iot.device.sdk.swift.iosapp.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "aws.iot.device.sdk.swift.iosapp.*";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -326,6 +474,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A63CBA9C2E148B5000A8FF78 /* Build configuration list for PBXNativeTarget "MqttClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A63CBA9D2E148B5000A8FF78 /* Debug */,
+				A63CBA9E2E148B5000A8FF78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A63CEBAC2C238347003A71B7 /* Build configuration list for PBXProject "MqttClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -347,9 +504,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		A6587EDF2D0BB00D00D5D40E /* XCLocalSwiftPackageReference "../../../../aws-iot-device-sdk-swift" */ = {
+		A63CBAA32E148C6600A8FF78 /* XCLocalSwiftPackageReference "../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../..;
+			relativePath = ../..;
 		};
 /* End XCLocalSwiftPackageReference section */
 
