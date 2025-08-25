@@ -120,6 +120,9 @@ jobs:
             # Don't run old macOS with new Xcode
             - runner: macos-14
               xcode: Xcode_16.3
+            # Don't run old macOS with new Xcode
+            - runner: macos-14-large
+              xcode: Xcode_16.3
             # Don't run new macOS with old Xcode
             - runner: macos-15
               xcode: Xcode_15.2
