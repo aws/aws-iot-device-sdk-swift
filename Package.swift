@@ -26,7 +26,7 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.53.0")),
+      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.54.0")),
     // aws-sdk-swift is only used in test targets to help with setup and cleanup of testing service clients
     // We use "aws-iot-device-sdk-swift-testing-branch" to maintain aws-crt-swift version pairity between it
     // and our SDK for testing
