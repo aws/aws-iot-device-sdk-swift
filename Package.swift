@@ -36,10 +36,10 @@ let package = Package(
     //        a. fork from https://github.com/sbSteveK/smithy-swift.git
     //        b. pull in latest https://github.com/smithy-lang/smithy-swift and update aws-crt-swift version in `Package.swift`
     //        c. create a PR to sbSteveK/smithy, and submit for @sbstevek to review and merge
-    //        d. go to latest Package.swift from awslabs/aws-crt-swift, and look for `clientRuntimeVersion`. This is the version tag of smithy-swift that aws-sdk-swift is using. 
+    //        d. go to latest Package.swift from awslabs/aws-crt-swift, and look for `clientRuntimeVersion`. This is the version tag of smithy-swift that aws-sdk-swift is using.
     //        e. cut a release in sbSteveK/smithy using the same version tag as `clientRuntimeVersion`
     //    2. Update crt version for https://github.com/awslabs/aws-sdk-swift
-    //        a. branch from "aws-iot-device-sdk-swift-testing-branch" 
+    //        a. branch from "aws-iot-device-sdk-swift-testing-branch"
     //        b. pull in the latest main and update crt version as needed
     //        c. submit PR against "aws-iot-device-sdk-swift-testing-branch" for review and merge
     // Once the PRs are merged, you can update the version here for aws-crt-swift, remember to test locally to make sure the Package.swift resolves correctly.
