@@ -110,28 +110,31 @@ jobs:
             - macos-15
           target:
             [{ os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'},
-            { os: ios, destination: 'iOS Simulator,OS=18.1,name=iPhone 16'},
+            { os: ios, destination: 'iOS Simulator,OS=18.4,name=iPhone 16'},
             { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)'},
-            { os: tvos, destination: 'tvOS Simulator,OS=18.1,name=Apple TV 4K (3rd generation) (at 1080p)'}]
+            { os: tvos, destination: 'tvOS Simulator,OS=18.4,name=Apple TV 4K (3rd generation) (at 1080p)'}]
           xcode:
             - Xcode_15.2
-            - Xcode_16.1
+            - Xcode_16.3
           exclude:
             # Don't run old macOS with new Xcode
             - runner: macos-14
-              xcode: Xcode_16.1
+              xcode: Xcode_16.3
+            # Don't run old macOS with new Xcode
+            - runner: macos-14-large
+              xcode: Xcode_16.3
             # Don't run new macOS with old Xcode
             - runner: macos-15
               xcode: Xcode_15.2
             # Don't run old simulators with new Xcode
             - target: { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)' }
-              xcode: Xcode_16.1
+              xcode: Xcode_16.3
             - target: { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15' }
-              xcode: Xcode_16.1
+              xcode: Xcode_16.3
             # Don't run new simulators with old Xcode
-            - target: { os: tvos, destination: 'tvOS Simulator,OS=18.1,name=Apple TV 4K (3rd generation) (at 1080p)' }
+            - target: { os: tvos, destination: 'tvOS Simulator,OS=18.4,name=Apple TV 4K (3rd generation) (at 1080p)' }
               xcode: Xcode_15.2
-            - target: { os: ios, destination: 'iOS Simulator,OS=18.1,name=iPhone 16' }
+            - target: { os: ios, destination: 'iOS Simulator,OS=18.4,name=iPhone 16' }
               xcode: Xcode_15.2
       permissions:
         id-token: write
