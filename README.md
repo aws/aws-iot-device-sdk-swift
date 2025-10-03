@@ -7,8 +7,6 @@ The AWS IoT Device SDK for Swift connects your Swift applications and devices to
 
 **Supported Platforms**: macOS 14+, iOS 13+, tvOS 13+, Linux
 
-> **Note**: The SDK is known to work on older platform versions, but we only guarantee compatibility for the platforms listed above.
-
 *__Topics:__*
 * [Features](#features)
 * [Installation](#installation)
