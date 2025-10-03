@@ -11,7 +11,6 @@ The AWS IoT Device SDK for Swift connects your Swift applications and devices to
 * [Features](#features)
 * [Installation](#installation)
   * [Minimum Requirements](#minimum-requirements)
-  * [Minimum Supported OS Versions](#minimum-supported-os-versions)
   * [Building from source](#building-from-source)
 * [Getting Started](#getting-started)
 * [Samples](./Samples/README.md)
@@ -83,8 +82,8 @@ Check out the [Samples](./Samples/README.md) directory for working code examples
 - [Basic MQTT connection and messaging](./Samples/README.md#mqtt-5-connection-samples)
 - [AWS IoT Device Shadow operations](./Samples/ServiceClientSamples/ShadowSample)
 - [AWS IoT Jobs](./Samples/ServiceClientSamples/JobsSample)
-- [AWS IoT Fleet provisioning](./Samples/ServiceClientSamples/Provisioning)
-- [iOS pub-sub sample application](./Samples/iOS)
+- AWS IoT Fleet provisioning: [basic](./Samples/ServiceClientSamples/Provisioning/BasicProvisioningSample) and [with CSR](./Samples/ServiceClientSamples/Provisioning/CsrProvisioningSample)
+- [iOS pub-sub sample application](./Samples/iOS/iOSPubSubSample)
 
 The samples provide ready-to-run code with detailed setup instructions for each authentication method and use case.
 
