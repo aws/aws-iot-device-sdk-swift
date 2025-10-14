@@ -5,7 +5,7 @@
 
 The AWS IoT Device SDK for Swift connects your Swift applications and devices to the AWS IoT platform. It handles the complexities of secure communication, authentication, and device management so you can focus on your IoT solution. The SDK makes it easy to use AWS IoT services like Device Shadows, Jobs, and Fleet Provisioning.
 
-**Supported Platforms**: macOS 14+, iOS 13+, tvOS 13+, Linux
+**Supported Platforms**: macOS 12+, iOS 16+, tvOS 16+, Linux
 
 *__Topics:__*
 * [Features](#features)
