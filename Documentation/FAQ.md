@@ -7,7 +7,6 @@
 * [I keep getting AWS_ERROR_MQTT_UNEXPECTED_HANGUP](#i-keep-getting-aws_error_mqtt_unexpected_hangup)
 * [What certificates do I need?](#what-certificates-do-i-need)
 * [Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied](#error-unable-to-create-symlink-aws-common-runtimeconfigs2n-Permission-denied)
-* [Certificate and Private Key Usage Across Different Versions of the SDK on macOS](#certificate-and-private-key-usage-across-different-versions-of-the-sdk-on-macos)
 * [To learn more about this SDK](#to-learn-more-about-this-sdk)
 
 ### Where should I start?
@@ -75,9 +74,6 @@ The AWS IoT Device SDK for Swift supports the following platforms:
 * iOS
 * tvOS
 * Linux
-
-### Certificate and Private Key Usage Across Different Versions of the SDK on macOS
-A certificate and private key pair cannot be shared on a macOS device between aws-iot-device-sdk-swift v0.5.0 and an earlier version. In the update to v0.5.0 we migrated macOS from using Apple's deprecated Security Framework to SecItem API. In doing so, certificate and private keys are imported in a non-backwards compatible manner into the Apple Keychain.
 
 ### To learn more about this SDK
 
