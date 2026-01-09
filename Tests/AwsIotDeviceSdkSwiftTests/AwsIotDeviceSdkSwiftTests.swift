@@ -362,9 +362,9 @@ class Mqtt5ClientTests: XCBaseTestCase {
     */
 
     let builder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-      endpoint: endpoint,
       region: region,
-      credentialsProvider: provider)
+      credentialsProvider: provider,
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -402,10 +402,10 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
     let context = MqttTestContext(contextName: "WebsocketWithCustomAuth")
     let builder = try Mqtt5ClientBuilder.websocketsWithCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
       authPassword: customAuthPassword.data(using: .utf8)!,
-      authUsername: "Derpo")
+      authUsername: "Derpo",
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -451,12 +451,12 @@ class Mqtt5ClientTests: XCBaseTestCase {
     }
     let context = MqttTestContext(contextName: "WebsocketWithUnignedCustomAuth")
     let builder = try Mqtt5ClientBuilder.websocketsWithUnsignedCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
       authPassword: customAuthPassword.data(using: .utf8),
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
-      authUsername: customAuthUsername)
+      authUsername: customAuthUsername,
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -504,13 +504,13 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
     let context = MqttTestContext(contextName: "WebsocketWithSignedCustomAuth")
     let builder = try Mqtt5ClientBuilder.websocketsWithSignedCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
-      authPassword: customAuthPassword.data(using: .utf8),
       authAuthorizerSignature: authAuthorizerSignature,
+      authPassword: customAuthPassword.data(using: .utf8),
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
-      authUsername: customAuthUsername)
+      authUsername: customAuthUsername,
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -559,13 +559,13 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
     let context = MqttTestContext(contextName: "WebsocketWithUnencodedSignedCustomAuth")
     let builder = try Mqtt5ClientBuilder.websocketsWithSignedCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
-      authPassword: customAuthPassword.data(using: .utf8),
       authAuthorizerSignature: authAuthorizerSignature,
+      authPassword: customAuthPassword.data(using: .utf8),
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
-      authUsername: customAuthUsername)
+      authUsername: customAuthUsername,
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -616,7 +616,7 @@ class Mqtt5ClientTests: XCBaseTestCase {
         identity: cognitoIdentity))
 
     let builder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-      endpoint: iotEndpoint, region: region, credentialsProvider: cognitoProvider)
+      region: region, credentialsProvider: cognitoProvider, endpoint: iotEndpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -654,10 +654,10 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
     let context = MqttTestContext(contextName: "DirectWithUnsignedCustomAuth")
     let builder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
       authPassword: customAuthPassword.data(using: .utf8),
-      authUsername: customAuthUsername)
+      authUsername: customAuthUsername,
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -705,13 +705,13 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
     let context = MqttTestContext(contextName: "DirectWithSignedCustomAuth")
     let builder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
       authAuthorizerSignature: authAuthorizerSignature,
+      authPassword: customAuthPassword.data(using: .utf8)!,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
       authUsername: customAuthUsername,
-      authPassword: customAuthPassword.data(using: .utf8)!)
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,
@@ -760,13 +760,13 @@ class Mqtt5ClientTests: XCBaseTestCase {
 
     let context = MqttTestContext(contextName: "DirectWithSignedCustomAuth")
     let builder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
-      endpoint: endpoint,
       authAuthorizerName: customAuthName,
       authAuthorizerSignature: authAuthorizerSignature,
+      authPassword: customAuthPassword.data(using: .utf8)!,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
       authUsername: customAuthUsername,
-      authPassword: customAuthPassword.data(using: .utf8)!)
+      endpoint: endpoint)
 
     builder.withCallbacks(
       onPublishReceived: context.onPublishReceived,

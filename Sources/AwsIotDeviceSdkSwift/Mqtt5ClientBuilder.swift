@@ -102,8 +102,8 @@ public class Mqtt5ClientBuilder {
 
   // websocketsWithDefaultAwsSigning
   init(
-    endpoint: String, region: String, credentialsProvider: CredentialsProvider,
-    bootstrap: ClientBootstrap? = nil
+    region: String, credentialsProvider: CredentialsProvider,
+    bootstrap: ClientBootstrap? = nil, endpoint: String
   ) throws {
     _tlsOptions = TLSContextOptions.makeDefault()
     _endpoint = endpoint
@@ -131,14 +131,14 @@ public class Mqtt5ClientBuilder {
 
   // Custom Auth
   init(
-    endpoint: String,
     authAuthorizerName: String? = nil,
-    authPassword: Data? = nil,
     authAuthorizerSignature: String? = nil,
+    authPassword: Data? = nil,
     authTokenKeyName: String? = nil,
     authTokenValue: String? = nil,
     authUsername: String? = nil,
-    useWebsocket: Bool = true
+    useWebsocket: Bool = true,
+    endpoint: String,
   ) throws {
 
     _endpoint = endpoint
@@ -274,23 +274,24 @@ public class Mqtt5ClientBuilder {
   /// Create a Mqtt5ClientBuilder that will use websockets and AWS Sigv4 signing to establish mutually-authenticated (mTLS) connections.
   ///
   /// - Parameters:
-  ///   - endpoint: Host name of AWS IoT server.
   ///   - region: The AWS region the websocket connection is being established in. Must match the region embedded in the endpoint.
   ///   - credentialProvider: Sources the AWS Credentials used to sign the websocket connection handshake.
+  ///   - bootstrap: client bootstrap to use for network connection establishment
+  ///   - endpoint: Host name of AWS IoT server.
   /// - Throws: `CommonRuntimeError.crtError`
   /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
   public static func websocketsWithDefaultAwsSigning(
-    endpoint: String,
     region: String,
     credentialsProvider: CredentialsProvider,
-    bootstrap: ClientBootstrap? = nil
+    bootstrap: ClientBootstrap? = nil,
+    endpoint: String
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
-      endpoint: endpoint,
       region: region,
       credentialsProvider: credentialsProvider,
-      bootstrap: bootstrap)
+      bootstrap: bootstrap,
+      endpoint: endpoint)
   }
 
   /// Create an Mqtt5ClientBuilder that will use websockets and a custom authenticator controlled by the username and password values.
@@ -312,11 +313,11 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
-      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
       authPassword: authPassword,
       authUsername: authUsername,
-      useWebsocket: true)
+      useWebsocket: true,
+      endpoint: endpoint)
   }
 
   /// Create an Mqtt5ClientBuilder that will use websockets and an unsigned custom authorizer.
@@ -343,13 +344,13 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
-      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
       authPassword: authPassword,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
       authUsername: authUsername,
-      useWebsocket: true)
+      useWebsocket: true,
+      endpoint: endpoint)
   }
 
   /// Create an Mqtt5ClientBuilder that will use websockets and a signed custom authorizer.
@@ -376,14 +377,14 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
-      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
-      authPassword: authPassword,
       authAuthorizerSignature: authAuthorizerSignature,
+      authPassword: authPassword,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
       authUsername: authUsername,
-      useWebsocket: true)
+      useWebsocket: true,
+      endpoint: endpoint)
   }
 
   /// Create an Mqtt5ClientBuilder that will use direct MQTT and an unsigned custom authorizer.
@@ -405,11 +406,11 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
-      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
       authPassword: authPassword,
       authUsername: authUsername,
-      useWebsocket: false)
+      useWebsocket: false,
+      endpoint: endpoint)
   }
 
   /// Create an Mqtt5ClientBuilder that will use direct MQTT and a signed custom authorizer.
@@ -438,14 +439,14 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
-      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
-      authPassword: authPassword,
       authAuthorizerSignature: authAuthorizerSignature,
+      authPassword: authPassword,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
       authUsername: authUsername,
-      useWebsocket: false)
+      useWebsocket: false,
+      endpoint: endpoint)
   }
 
   /// Set callbacks for MQTT5 Client.
