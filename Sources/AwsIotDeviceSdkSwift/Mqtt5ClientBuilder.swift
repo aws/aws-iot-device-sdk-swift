@@ -275,7 +275,7 @@ public class Mqtt5ClientBuilder {
   ///
   /// - Parameters:
   ///   - region: The AWS region the websocket connection is being established in. Must match the region embedded in the endpoint.
-  ///   - credentialProvider: Sources the AWS Credentials used to sign the websocket connection handshake.
+  ///   - credentialsProvider: Sources the AWS Credentials used to sign the websocket connection handshake.
   ///   - bootstrap: client bootstrap to use for network connection establishment
   ///   - endpoint: Host name of AWS IoT server.
   /// - Throws: `CommonRuntimeError.crtError`
@@ -525,7 +525,7 @@ public class Mqtt5ClientBuilder {
     _onLifecycleEventStopped = onLifecycleEventStopped
   }
 
-  /// **port** (`int`): Override default server port.
+  /// Override default server port.
   /// Default port is 443 if system supports ALPN or websockets are being used.
   /// Otherwise, default port is 8883.
   ///
