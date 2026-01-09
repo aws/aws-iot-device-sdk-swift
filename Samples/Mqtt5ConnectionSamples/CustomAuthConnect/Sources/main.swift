@@ -89,8 +89,7 @@ struct SignedCustomAuthSample: ParsableCommand {
           authTokenKeyName: _tokenKeyName,
           authTokenValue: _tokenValue,
           authUsername: authorizerUsername,
-          endpoint: endpoint,
-)
+          endpoint: endpoint)
       }
       // If optional token arguments are not provided, initialize an Mqtt5ClientBuilder configured to connect using
       // an unsigned custom authorizer.
