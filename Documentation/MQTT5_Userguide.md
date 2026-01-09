@@ -95,10 +95,10 @@ If your custom authenticator doesn't use signing, you don't need to specify anyt
     let authUsername: Sting = "<Username to use with custom authorizer>"
 
     let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
-        endpoint: self.endpoint,
         authAuthorizerName: self.authAuthorizerName,
         authPassword: self.authPassword,
-        authUsername: self.authUsername)
+        authUsername: self.authUsername,
+        endpoint: self.endpoint,)
 
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -109,14 +109,14 @@ If your custom authenticator doesn't use signing, you don't need to specify anyt
 If your custom authorizer uses signing, you must specify the three signed token properties as well. It's your responsibility to URI-encode the `auth_username`, `auth_authorizer_name`, and `auth_token_key_name` parameters.
 
 ```swift
-    let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
-        endpoint: self.endpoint,
+    let clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
         authAuthorizerName: self.authAuthorizerName,
         authAuthorizerSignature: self.authAuthorizerSignature,
+        authPassword: self.authPassword,
         authTokenKeyName: self.authTokenKeyName,
         authTokenValue: self.authTokenValue,
         authUsername: self.authUsername,
-        authPassword: self.authPassword)
+        endpoint: self.endpoint,)
     
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -159,9 +159,9 @@ To create an MQTT 5 builder configured for this connection, see the following co
 
     // Create the Mqtt5ClientBuilder
     let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-        endpoint: self.endpoint, 
         region: self.region,
-        credentialsProvider: cognitoProvider);
+        credentialsProvider: cognitoProvider,
+        endpoint: self.endpoint);
         
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 

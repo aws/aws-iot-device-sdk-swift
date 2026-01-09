@@ -90,9 +90,9 @@ struct Sigv4WebsocketSample: ParsableCommand {
        **************************************/
       // Create an Mqtt5ClientBuilder configured to connect using PKCS #12
       let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-        endpoint: endpoint,
         region: region,
-        credentialsProvider: provider!)
+        credentialsProvider: provider!,
+        endpoint: endpoint)
 
       /**************************************
        * 4. Setup Callbacks and other options
