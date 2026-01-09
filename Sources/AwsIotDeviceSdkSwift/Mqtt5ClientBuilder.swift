@@ -138,7 +138,7 @@ public class Mqtt5ClientBuilder {
     authTokenValue: String? = nil,
     authUsername: String? = nil,
     useWebsocket: Bool = true,
-    endpoint: String,
+    endpoint: String
   ) throws {
 
     _endpoint = endpoint
