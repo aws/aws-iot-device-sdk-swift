@@ -87,6 +87,15 @@ Check out the [Samples](./Samples/README.md) directory for working code examples
 
 The samples provide ready-to-run code with detailed setup instructions for each authentication method and use case.
 
+## Mac-Only TLS Behavior
+
+Note: On Mac, after a private key is used with a certificate, that certificate-key pair is imported into the Mac Keychain.  All subsequent uses of that certificate will use the stored private key and ignore anything passed in programmatically.  When a stored private key from the Mac Keychain is used, the following is logged at the "info" log level:
+
+```
+static: certificate has an existing certificate-key pair that was previously imported into the Keychain.
+ Using key from Keychain instead of the one provided.
+```
+
 ## Getting Help
 
 The best way to interact with our team is through GitHub.

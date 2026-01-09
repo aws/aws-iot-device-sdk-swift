@@ -77,7 +77,7 @@ The AWS IoT Device SDK for Swift supports the following platforms:
 * Linux
 
 ### Certificate and Private Key Usage Across Different Versions of the SDK on macOS
-A certificate and private key pair cannot be shared on a macOS device between aws-iot-device-sdk-swift v0.5.0 and an earlier version. In the update to v0.5.0 we migrated macOS from using Apple's deprecated Security Framework to SecItem API. In doing so, certificate and private keys are imported in a non-backwards compatible manner into the Apple Keychain.
+A certificate and private key pair cannot be shared on a macOS device between aws-iot-device-sdk-swift v0.5.0 and other versions. In the update to v0.5.0 we migrated macOS from using Apple's deprecated Security Framework to SecItem API. In doing so, certificate and private keys are imported in a non-backwards compatible manner into the Apple Keychain.
 
 ### To learn more about this SDK
 
