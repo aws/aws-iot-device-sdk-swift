@@ -42,7 +42,7 @@ We strongly recommend using the `Mqtt5ClientBuilder` class to configure MQTT 5 c
 
 ## **Creating an MQTT 5 Client**
 #### **Direct MQTT with X.509-based Mutual TLS**
-For X.509-based Mutual TLS (mTLS), you can create a client where the certificate and private key are configured by the following path:
+For X.509-based Mutual TLS (mTLS), you can create a client where the certificate and private key are configured by file paths:
 
 ```swift
     let endpoint: String = "<Host name of AWS IoT server>"
@@ -52,9 +52,9 @@ For X.509-based Mutual TLS (mTLS), you can create a client where the certificate
     let keyPath: String = "<private key file path>"
 
     let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(
-        certPath: self.certPath, 
-        keyPath: self.keyPath, 
-        endpoint: self.endpoint)
+        endpoint: endpoint, 
+        certPath: certPath, 
+        keyPath: keyPath)
     
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -72,9 +72,9 @@ An MQTT 5 direct connection can be made using a PKCS #12 file rather than using 
     let pkcs12Password: String = "<PKCS #12 password>"
     
     let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
-        pkcs12Path: self.pkcs12Path, 
-        pkcs12Password: self.pkcs12Password,
-        endpoint: self.endpoint)
+        endpoint: endpoint, 
+        pkcs12Path: pkcs12Path,
+        pkcs12Password: pkcs12Password)
 
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -92,13 +92,13 @@ If your custom authenticator doesn't use signing, you don't need to specify anyt
     let endpoint: String = "<account-specific endpoint>"
     let authAuthorizerName: String = "<Name of your custom authorizer>"
     let authPassword: Data = "<Password used with custom authorizer>"
-    let authUsername: Sting = "<Username to use with custom authorizer>"
+    let authUsername: String = "<Username to use with custom authorizer>"
 
     let clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
-        authAuthorizerName: self.authAuthorizerName,
-        authPassword: self.authPassword,
-        authUsername: self.authUsername,
-        endpoint: self.endpoint,)
+        endpoint: endpoint,
+        authAuthorizerName: authAuthorizerName,
+        authUsername: authUsername,
+        authPassword: authPassword)
 
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -106,17 +106,17 @@ If your custom authenticator doesn't use signing, you don't need to specify anyt
     let client = try clientBuilder.build()
 ```
 
-If your custom authorizer uses signing, you must specify the three signed token properties as well. It's your responsibility to URI-encode the `auth_username`, `auth_authorizer_name`, and `auth_token_key_name` parameters.
+If your custom authorizer uses signing, you must specify the signed token properties as well. It's your responsibility to URI-encode the `authAuthorizerName`, `authUsername`, and `authTokenKeyName` parameters.
 
 ```swift
     let clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
-        authAuthorizerName: self.authAuthorizerName,
-        authAuthorizerSignature: self.authAuthorizerSignature,
-        authPassword: self.authPassword,
-        authTokenKeyName: self.authTokenKeyName,
-        authTokenValue: self.authTokenValue,
-        authUsername: self.authUsername,
-        endpoint: self.endpoint,)
+        endpoint: endpoint,
+        authAuthorizerName: authAuthorizerName,
+        authTokenKeyName: authTokenKeyName,
+        authTokenValue: authTokenValue,
+        authAuthorizerSignature: authAuthorizerSignature,
+        authUsername: authUsername,
+        authPassword: authPassword)
     
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -133,11 +133,12 @@ An MQTT 5 WebSocket connection can be made using Amazon Cognito to authenticate 
 To create an MQTT 5 builder configured for this connection, see the following code:
 
 ```swift
-    // The signing region. e.x.: 'us-east-1'
+    let endpoint: String = "<Host name of AWS IoT server>"
+    // The signing region. e.g.: 'us-east-1'
     let signingRegion: String = "<signing region>"
-
-    # See https://docs.aws.amazon.com/general/latest/gr/cognito_identity.html for Cognito endpoints
-    let cognitoEndpoint: String = "cognito-identity." + signing_region + ".amazonaws.com"
+    
+    // See https://docs.aws.amazon.com/general/latest/gr/cognito_identity.html for Cognito endpoints
+    let cognitoEndpoint: String = "cognito-identity." + signingRegion + ".amazonaws.com"
     let cognitoIdentityId = "<Cognito identity ID>"
 
     // Create bootstrap and tlsContext for the cognito provider
@@ -152,16 +153,16 @@ To create an MQTT 5 builder configured for this connection, see the following co
     // Create the cognito provider
     let cognitoProvider = try CredentialsProvider(
         source: .cognito(
-            bootstrap: self.clientBootstrap,
-            tlsContext: self.tlsContext,
-            endpoint: self.cognitoEndpoint, 
-            identity: self.cognitoIdentity))
+            bootstrap: clientBootstrap,
+            tlsContext: tlsContext,
+            endpoint: cognitoEndpoint, 
+            identity: cognitoIdentity))
 
     // Create the Mqtt5ClientBuilder
     let clientBuilder = try Mqtt5ClientBuilder.websocketsWithDefaultAwsSigning(
-        region: self.region,
-        credentialsProvider: cognitoProvider,
-        endpoint: self.endpoint);
+        endpoint: endpoint,
+        region: region,
+        credentialsProvider: cognitoProvider)
         
     // Set MQTT 5 client callbacks and other options using Mqtt5ClientBuilder functions (see next section)
 
@@ -198,7 +199,7 @@ by adding `HTTPProxyOptions` to the builder:
     // After creating the Mqtt5ClientBuilder
 
     // add HTTPProxyOptions to the builder
-    builder.withHttyProxyOptions(HTTPProxyOptions(hostName: "<Http Proxy Host>", port: <Http Proxy Port>))
+    clientBuilder.withHttpProxyOptions(HTTPProxyOptions(hostName: "<Http Proxy Host>", port: <Http Proxy Port>))
 
     // Create an MQTT5 Client using Mqtt5ClientBuilder
     let client = try clientBuilder.build()
@@ -215,7 +216,7 @@ recurrently establishes a connection to the configured remote endpoint. Reconnec
     // Create an MQTT 5 client using a configured Mqtt5ClientBuilder    
     let client = try clientBuilder.build()
 
-    # Use the client
+    // Use the client
     try client.start()
     ...
 ```
@@ -252,7 +253,7 @@ There are four basic MQTT operations you can perform with the MQTT 5 client.
 The `Subscribe` operation takes a description of the `SUBSCRIBE` packet you wish to send and asynchronously returns the corresponding `SUBACK` returned by the broker. The operation throws an exception if anything goes wrong before the `SUBACK` is received.
 
 ```swift
-    let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: "<topic>", qos: <QoS>, payload: <payload>)
+    let subscribePacket: SubscribePacket = SubscribePacket(topicFilter: "<topic>", qos: <QoS>)
     let subackPacket: SubackPacket = try await client.subscribe(subscribePacket: subscribePacket)
 ```
 
@@ -269,13 +270,12 @@ The `Publish` operation takes a description of the PUBLISH packet you wish to se
 
 ```swift
     let publishPacket: PublishPacket = PublishPacket(qos: .atLeastOnce, topic: "<topic>", payload: <Data>)
-    let publishResult: PublishResult = try await client.publish(publishPacket: self.publishPacket)
+    let publishResult: PublishResult = try await client.publish(publishPacket: publishPacket)
 
     // on success of a QoS1 PUBLISH, the publishResult will contain a `PubackPacket`
-    if pubackPacket: PubackPacket = publishResult.puback {
+    if let pubackPacket: PubackPacket = publishResult.puback {
         print("PubackPacket received with result \(pubackPacket.reasonCode)")
     }
-
 ```
 
 ### Disconnect
@@ -283,7 +283,7 @@ The `stop()` API supports a DISCONNECT packet as an optional parameter.  If supp
 
 ```swift
     let disconnectPacket: DisconnectPacket = DisconnectPacket(reasonCode: DisconnectReasonCode.normalDisconnection)
-    try client.stop(disconnectPacket: this.disconnectPacket)
+    try client.stop(disconnectPacket: disconnectPacket)
 ```
 
 ## **MQTT 5 Best Practices**
