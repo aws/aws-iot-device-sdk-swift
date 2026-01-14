@@ -102,8 +102,8 @@ public class Mqtt5ClientBuilder {
 
   // websocketsWithDefaultAwsSigning
   init(
-    region: String, credentialsProvider: CredentialsProvider,
-    bootstrap: ClientBootstrap? = nil, endpoint: String
+    endpoint: String, region: String, credentialsProvider: CredentialsProvider,
+    bootstrap: ClientBootstrap? = nil
   ) throws {
     _tlsOptions = TLSContextOptions.makeDefault()
     _endpoint = endpoint
@@ -131,14 +131,14 @@ public class Mqtt5ClientBuilder {
 
   // Custom Auth
   init(
+    endpoint: String,
     authAuthorizerName: String? = nil,
+    authPassword: Data? = nil,
+    authAuthorizerSignature: String? = nil,
     authTokenKeyName: String? = nil,
     authTokenValue: String? = nil,
-    authAuthorizerSignature: String? = nil,
     authUsername: String? = nil,
-    authPassword: Data? = nil,
-    useWebsocket: Bool = true,
-    endpoint: String
+    useWebsocket: Bool = true
   ) throws {
 
     _endpoint = endpoint
@@ -288,10 +288,10 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
+      endpoint: endpoint,
       region: region,
       credentialsProvider: credentialsProvider,
-      bootstrap: bootstrap,
-      endpoint: endpoint)
+      bootstrap: bootstrap)
   }
 
   /// Create an Mqtt5ClientBuilder that will use websockets and a custom authenticator controlled by the username and password values.
@@ -299,25 +299,25 @@ public class Mqtt5ClientBuilder {
   /// - Parameters:
   ///   - endpoint: Host name of AWS IoT server.
   ///   - authAuthorizerName: Name of the custom authorizer to use. It is strongly suggested to URL-encode this value; the SDK will not do so for you.
-  ///   - authPassword: The password to use with the custom authorizer. Becomes the MQTT5 CONNECT packet's password property. AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
   ///   - authUsername: The username to use with the custom authorizer. Query-string elements of this property value will be unioned with the query-string elements implied by other properties in this object.
   ///                   For example, if you set `authUsername` to `MyUsername?someKey=someValue`, and use authorizerName to specify the authorizer, the final username would look like:
   ///                   `MyUsername?someKey=someValue&x-amz-customauthorizer-name=<your authorizer's name >`
+  ///   - authPassword: The password to use with the custom authorizer. Becomes the MQTT5 CONNECT packet's password property. AWS IoT Core will base64 encode this binary data before passing it to the authorizer's lambda function.
   /// - Throws: `CommonRuntimeError.crtError`
   /// - Returns: An Mqtt5ClientBuilder configured to connect using websockets with custom authorization.
   public static func websocketsWithCustomAuthorizer(
     endpoint: String,
     authAuthorizerName: String,
-    authPassword: Data,
-    authUsername: String? = nil
+    authUsername: String? = nil,
+    authPassword: Data
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
+      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
-      authUsername: authUsername,
       authPassword: authPassword,
-      useWebsocket: true,
-      endpoint: endpoint)
+      authUsername: authUsername,
+      useWebsocket: true)
   }
 
   /// Create an Mqtt5ClientBuilder that will use websockets and an unsigned custom authorizer.
@@ -344,13 +344,13 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
+      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
+      authPassword: authPassword,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
       authUsername: authUsername,
-      authPassword: authPassword,
-      useWebsocket: true,
-      endpoint: endpoint)
+      useWebsocket: true)
   }
 
   /// Create an Mqtt5ClientBuilder that will use websockets and a signed custom authorizer.
@@ -377,14 +377,14 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
+      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
+      authPassword: authPassword,
+      authAuthorizerSignature: authAuthorizerSignature,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
-      authAuthorizerSignature: authAuthorizerSignature,
       authUsername: authUsername,
-      authPassword: authPassword,
-      useWebsocket: true,
-      endpoint: endpoint)
+      useWebsocket: true)
   }
 
   /// Create an Mqtt5ClientBuilder that will use direct MQTT and an unsigned custom authorizer.
@@ -406,11 +406,11 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
+      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
-      authUsername: authUsername,
       authPassword: authPassword,
-      useWebsocket: false,
-      endpoint: endpoint)
+      authUsername: authUsername,
+      useWebsocket: false)
   }
 
   /// Create an Mqtt5ClientBuilder that will use direct MQTT and a signed custom authorizer.
@@ -439,14 +439,14 @@ public class Mqtt5ClientBuilder {
   ) throws -> Mqtt5ClientBuilder {
 
     return try Mqtt5ClientBuilder(
+      endpoint: endpoint,
       authAuthorizerName: authAuthorizerName,
+      authPassword: authPassword,
+      authAuthorizerSignature: authAuthorizerSignature,
       authTokenKeyName: authTokenKeyName,
       authTokenValue: authTokenValue,
-      authAuthorizerSignature: authAuthorizerSignature,
       authUsername: authUsername,
-      authPassword: authPassword,
-      useWebsocket: false,
-      endpoint: endpoint)
+      useWebsocket: false)
   }
 
   /// Set callbacks for MQTT5 Client.
