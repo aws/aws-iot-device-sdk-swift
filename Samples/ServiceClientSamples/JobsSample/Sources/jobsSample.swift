@@ -83,7 +83,7 @@ struct ShadowClientSample: AsyncParsableCommand {
     do {
       // Create an Mqtt5ClientBuilder configured to connect using a certificate and private key.
       let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(
-        certPath: self.cert, keyPath: self.key, endpoint: self.endpoint)
+        endpoint: self.endpoint, certPath: self.cert, keyPath: self.key)
 
       // Various other configuration options can be set on the Mqtt5ClientBuilder.
       clientBuilder.withClientId(clientId)

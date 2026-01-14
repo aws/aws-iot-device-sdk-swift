@@ -83,22 +83,22 @@ struct SignedCustomAuthSample: ParsableCommand {
         let _tokenSignature = tokenSignature
       {
         clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
+          endpoint: endpoint,
           authAuthorizerName: authorizerName,
           authAuthorizerSignature: _tokenSignature,
           authPassword: authorizerPassword.data(using: .utf8)!,
           authTokenKeyName: _tokenKeyName,
           authTokenValue: _tokenValue,
-          authUsername: authorizerUsername,
-          endpoint: endpoint)
+          authUsername: authorizerUsername)
       }
       // If optional token arguments are not provided, initialize an Mqtt5ClientBuilder configured to connect using
       // an unsigned custom authorizer.
       else {
         clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
+          endpoint: endpoint,
           authAuthorizerName: authorizerName,
           authPassword: authorizerPassword.data(using: .utf8),
-          authUsername: authorizerUsername,
-          endpoint: endpoint)
+          authUsername: authorizerUsername)
       }
 
       /**************************************

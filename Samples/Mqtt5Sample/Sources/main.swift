@@ -50,7 +50,7 @@ struct Mqtt5Sample: AsyncParsableCommand {
     do {
       // Create an Mqtt5ClientBuilder configured to connect using a certificate and private key.
       let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(
-        certPath: self.cert, keyPath: self.key, endpoint: self.endpoint)
+        endpoint: self.endpoint, certPath: self.cert, keyPath: self.key)
 
       // Callbacks to be assigned to the builder
       // The full list of callbacks and their uses can be found in the MQTT5 User Guide
