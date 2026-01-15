@@ -108,11 +108,12 @@ jobs:
             - macos-14
             - macos-14-large #x64
             - macos-15
+          # NOTE: If simulator target has error, checkout runner-images readmes for changes: https://github.com/actions/runner-images/tree/main/images/macos
           target:
             [{ os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'},
-            { os: ios, destination: 'iOS Simulator,OS=18.4,name=iPhone 16'},
+            { os: ios, destination: 'iOS Simulator,OS=18.5,name=iPhone 16'},
             { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)'},
-            { os: tvos, destination: 'tvOS Simulator,OS=18.4,name=Apple TV 4K (3rd generation) (at 1080p)'}]
+            { os: tvos, destination: 'tvOS Simulator,OS=18.5,name=Apple TV 4K (3rd generation) (at 1080p)'}]
           xcode:
             - Xcode_15.2
             - Xcode_16.3
@@ -132,9 +133,9 @@ jobs:
             - target: { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15' }
               xcode: Xcode_16.3
             # Don't run new simulators with old Xcode
-            - target: { os: tvos, destination: 'tvOS Simulator,OS=18.4,name=Apple TV 4K (3rd generation) (at 1080p)' }
+            - target: { os: tvos, destination: 'tvOS Simulator,OS=18.5,name=Apple TV 4K (3rd generation) (at 1080p)' }
               xcode: Xcode_15.2
-            - target: { os: ios, destination: 'iOS Simulator,OS=18.4,name=iPhone 16' }
+            - target: { os: ios, destination: 'iOS Simulator,OS=18.5,name=iPhone 16' }
               xcode: Xcode_15.2
       permissions:
         id-token: write
