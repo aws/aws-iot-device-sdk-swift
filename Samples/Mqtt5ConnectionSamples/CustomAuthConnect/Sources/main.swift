@@ -85,9 +85,9 @@ struct SignedCustomAuthSample: ParsableCommand {
         clientBuilder = try Mqtt5ClientBuilder.directWithSignedCustomAuthorizer(
           endpoint: endpoint,
           authAuthorizerName: authorizerName,
-          authAuthorizerSignature: _tokenSignature,
           authTokenKeyName: _tokenKeyName,
           authTokenValue: _tokenValue,
+          authAuthorizerSignature: _tokenSignature,
           authUsername: authorizerUsername,
           authPassword: authorizerPassword.data(using: .utf8)!)
       }
@@ -97,8 +97,8 @@ struct SignedCustomAuthSample: ParsableCommand {
         clientBuilder = try Mqtt5ClientBuilder.directWithUnsignedCustomAuthorizer(
           endpoint: endpoint,
           authAuthorizerName: authorizerName,
-          authPassword: authorizerPassword.data(using: .utf8),
-          authUsername: authorizerUsername)
+          authUsername: authorizerUsername,
+          authPassword: authorizerPassword.data(using: .utf8))
       }
 
       /**************************************

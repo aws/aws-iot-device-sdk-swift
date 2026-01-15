@@ -50,14 +50,14 @@ class ShadowClientTests: XCTestCase {
       let pkcs12Password = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_PKCS12_PASSWORD")
       let builder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
-        pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password, endpoint: endpoint)
+        endpoint: endpoint, pkcs12Path: pkcs12Path, pkcs12Password: pkcs12Password)
     #else
       let certPath = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
       let keyPath = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
       let builder = try Mqtt5ClientBuilder.mtlsFromPath(
-        certPath: certPath, keyPath: keyPath, endpoint: endpoint)
+        endpoint: endpoint, certPath: certPath, keyPath: keyPath)
     #endif
 
     // Used to track whether the Mqtt5 Client connection is successful.

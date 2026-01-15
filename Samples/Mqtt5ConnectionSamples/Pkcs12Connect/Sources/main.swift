@@ -58,7 +58,7 @@ struct PKCS12Sample: ParsableCommand {
        **************************************/
       // Create an Mqtt5ClientBuilder configured to connect using PKCS12
       let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPKCS12(
-        pkcs12Path: pkcs12File, pkcs12Password: pkcs12Password, endpoint: endpoint)
+        endpoint: endpoint, pkcs12Path: pkcs12File, pkcs12Password: pkcs12Password)
 
       /**************************************
        * 3. Setup Callbacks and other options

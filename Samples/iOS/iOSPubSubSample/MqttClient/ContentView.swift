@@ -138,7 +138,7 @@ func setupClientAndStart() async {
       // 1. Setup Connect Options & Create a Mqtt Client
       // 1.1 Create and config a client builder to access credentials from data
       let clientBuilder = try Mqtt5ClientBuilder.mtlsFromData(
-        certData: certData, keyData: keyData, endpoint: TEST_HOST)
+        endpoint: TEST_HOST, certData: certData, keyData: keyData)
       // 1.2 Setup callbacks and other client options
       clientBuilder.withClientId("test-" + UUID().uuidString)
       clientBuilder.withCallbacks(
