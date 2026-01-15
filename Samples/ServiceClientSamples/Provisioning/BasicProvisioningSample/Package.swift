@@ -14,7 +14,7 @@ let package = Package(
     .executable(name: "BasicProvisioningSample", targets: ["BasicProvisioningSample"])
   ],
   dependencies: [
-    .package(path: "../../../"),
+    .package(path: "../../../../"),
     // This package gives us the capability to do a argument parsing
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
   ],
