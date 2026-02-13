@@ -16,7 +16,7 @@ let package = Package(
   dependencies: [
     .package(path: "../../../"),
     // This package gives us the capability to do a argument parsing
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.5.0"),
     .package(
       url: "https://github.com/awslabs/aws-sdk-swift.git",
       branch: "aws-iot-device-sdk-swift-testing-branch"),
