@@ -14,6 +14,7 @@
     * [Adding an HTTP Proxy](#adding-an-http-proxy)
 * [Client Lifecycle Management](#client-lifecycle-management)
     * [Lifecycle Events](#lifecycle-events)
+* [How to Process Message](#how-to-process-message)
 * [Client Operations](#client-operations)
     * [Subscribe](#subscribe)
     * [Unsubscribe](#unsubscribe)
@@ -245,6 +246,30 @@ Emitted when the client's network connection is shut down, either by a local act
 
 #### **Stopped**
 Emitted once the client has shut down any associated network connection and entered an idle state where it will no longer attempt to reconnect. Only emitted after an invocation of `stop()` on the client. A stopped client can be started again.
+
+## **How to Process Message**
+`onPublishReceived` callback will get involved when a publish packet is received on a subscribed topic. The callback should be set before building the client. Please note, once a MQTT5 client is built and finalized, the client configuration is immutable.
+```swift
+// Setup a callback handles all publish packets the Mqtt5 Client receives.
+// Once the client subscribe to a topic, the message publish to the topics will received from the callback.
+func onPublishReceived(publishData: PublishReceivedData) {
+    let packet: PublishPacket = publishData.publishPacket
+    let payload = packet.payloadAsString() ?? "[no payload]"
+    print(
+        """
+        Publish Packet Received
+            QoS: \(packet.qos)
+            Topic: \(packet.topic)
+            Payload: \(payload)
+        """)
+    }
+
+// Create an Mqtt5ClientBuilder configured to connect using a certificate and private key.
+let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(endpoint: self.endpoint, certPath: self.cert, keyPath: self.key)
+
+// Set `onPublishReceived` callback on client creation
+clientBuilder.withOnPublishReceived(onPublishReceived)
+```
 
 ## **Client Operations**
 There are four basic MQTT operations you can perform with the MQTT 5 client.
