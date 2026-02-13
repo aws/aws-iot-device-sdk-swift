@@ -194,7 +194,9 @@ All lifecycle events and the callback for publishes received by the MQTT 5 clien
 ```
 ### **Adding an HTTP Proxy**
 No matter what your connection transport or authentication method is, you can connect through an HTTP proxy
-by adding `HTTPProxyOptions` to the builder:
+by adding `HTTPProxyOptions` to the builder.
+
+**Note**: HTTP proxy is currently not supported on iOS and tvOS.
 
 ```swift
     // After creating the Mqtt5ClientBuilder
