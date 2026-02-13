@@ -14,6 +14,7 @@
     * [Adding an HTTP Proxy](#adding-an-http-proxy)
 * [Client Lifecycle Management](#client-lifecycle-management)
     * [Lifecycle Events](#lifecycle-events)
+* [How to Process Message](#how-to-process-message)
 * [Client Operations](#client-operations)
     * [Subscribe](#subscribe)
     * [Unsubscribe](#unsubscribe)
@@ -193,7 +194,9 @@ All lifecycle events and the callback for publishes received by the MQTT 5 clien
 ```
 ### **Adding an HTTP Proxy**
 No matter what your connection transport or authentication method is, you can connect through an HTTP proxy
-by adding `HTTPProxyOptions` to the builder:
+by adding `HTTPProxyOptions` to the builder.
+
+**Note**: HTTP proxy is currently not supported on iOS and tvOS.
 
 ```swift
     // After creating the Mqtt5ClientBuilder
@@ -246,6 +249,30 @@ Emitted when the client's network connection is shut down, either by a local act
 #### **Stopped**
 Emitted once the client has shut down any associated network connection and entered an idle state where it will no longer attempt to reconnect. Only emitted after an invocation of `stop()` on the client. A stopped client can be started again.
 
+## **How to Process Message**
+`onPublishReceived` callback will get involved when a publish packet is received on a subscribed topic. The callback should be set before building the client. Please note, once a MQTT5 client is built and finalized, the client configuration is immutable.
+```swift
+// Setup a callback handles all publish packets the Mqtt5 Client receives.
+// Once the client subscribe to a topic, the message publish to the topics will received from the callback.
+func onPublishReceived(publishData: PublishReceivedData) {
+    let packet: PublishPacket = publishData.publishPacket
+    let payload = packet.payloadAsString() ?? "[no payload]"
+    print(
+        """
+        Publish Packet Received
+            QoS: \(packet.qos)
+            Topic: \(packet.topic)
+            Payload: \(payload)
+        """)
+    }
+
+// Create an Mqtt5ClientBuilder configured to connect using a certificate and private key.
+let clientBuilder = try Mqtt5ClientBuilder.mtlsFromPath(endpoint: self.endpoint, certPath: self.cert, keyPath: self.key)
+
+// Set `onPublishReceived` callback on client creation
+clientBuilder.withOnPublishReceived(onPublishReceived)
+```
+
 ## **Client Operations**
 There are four basic MQTT operations you can perform with the MQTT 5 client.
 
@@ -293,5 +320,5 @@ The following are some best practices for the MQTT 5 client that help provide th
 * When creating MQTT 5 clients, make sure to use client IDs that are unique. If you connect two MQTT 5 clients with the same client ID, they will disconnect each other. If you don't configure a client ID, the MQTT 5 server will automatically assign one.
 * Use the minimum Quality of service (QoS) you can get away with for the lowest latency and bandwidth costs. For example, if you're sending data consistently multiple times per second and don't have to have a guarantee the server got each and every publish, using QoS 0 may be ideal compared to QoS 1. Of course, this heavily depends on your use case but it's generally recommended to use the lowest QoS possible.
 * If you are getting unexpected disconnects when trying to connect to AWS IoT Core, make sure to check your AWS IoT Core thing’s policy and permissions to make sure your device is has the permissions it needs to connect.
-* For **Publish**, **Subscribe**, and **Unsubscribe**, you can check the reason codes in the returned Future to see if the operation actually succeeded.
+* For **Publish**, **Subscribe**, and **Unsubscribe**, you can check the reason codes in the returned ack packet to see if the operation actually succeeded.
 * You must not perform blocking operations (like waiting for a publish result) within any callback, as this can cause a deadlock. Additionally, the client pauses socket I/O operations until the user callback returns, so blocking within the callback will prevent further progress.
