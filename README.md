@@ -25,6 +25,7 @@ The primary purpose of the AWS IoT Device SDK for Swift is to simplify the proce
 * Integrated service clients for AWS IoT Core services
 * Secure device connections to AWS IoT Core using MQTT protocol including MQTT 5.0
 * Support for [multiple authentication methods and connection types](./Documentation/MQTT5_Userguide.md#creating-an-mqtt-5-client)
+* Support for [manual publish acknowledgement](./Documentation/MQTT5_Userguide.md#manual-publish-acknowledgement) for control over QoS 1 PUBACK delivery
 
 #### Supported AWS IoT Core services
 
