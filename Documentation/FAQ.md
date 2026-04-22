@@ -5,6 +5,7 @@
 * [How do I enable logging](#how-do-i-enable-logging)
 * [I am getting OSStatus -34018 when adding a certificate](#i-am-getting-osstatus--34018-when-adding-a-certificate)
 * [I keep getting AWS_ERROR_MQTT_UNEXPECTED_HANGUP](#i-keep-getting-aws_error_mqtt_unexpected_hangup)
+* [What is Error Code 5153 (AWS_ERROR_MQTT5_USER_REQUESTED_STOP)?](#what-is-error-code-5153-aws_error_mqtt5_user_requested_stop)
 * [What certificates do I need?](#what-certificates-do-i-need)
 * [Error: unable to create symlink aws-common-runtime/config/s2n: Permission denied](#error-unable-to-create-symlink-aws-common-runtimeconfigs2n-Permission-denied)
 * [Certificate and Private Key Usage Across Different Versions of the SDK on macOS](#certificate-and-private-key-usage-across-different-versions-of-the-sdk-on-macos)
@@ -50,6 +51,18 @@ This error is most likely due to a policy issue. Try using a super permissive IA
 ```
 
 After you resolve this error, make sure to only allow the actions and resources that you need. To learn more about IAM policies for AWS IoT, see [How AWS IoT works with IAM](https://docs.aws.amazon.com/iot/latest/developerguide/security_iam_service-with-iam.html) in the *AWS IoT Core Developer Guide*.
+
+### What is Error Code 5153 (AWS_ERROR_MQTT5_USER_REQUESTED_STOP)?
+
+Error code 5153 (`AWS_ERROR_MQTT5_USER_REQUESTED_STOP`) is **not an error**. It is an informational status code indicating that the MQTT5 client connection was closed because your application called `client.stop()`.
+
+The SDK reports all connection shutdown reasons through error codes, including intentional disconnections. When you see this in your logs:
+
+```
+Mqtt5 client connection interrupted by user request.
+```
+
+It means the disconnect was initiated by your code, not by a network failure or broker rejection. This is the expected behavior when gracefully shutting down a connection.
 
 ### What certificates do I need?
 

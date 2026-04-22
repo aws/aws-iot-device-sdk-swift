@@ -13,16 +13,16 @@ struct Mqtt5Sample: AsyncParsableCommand {
   /**************************************
   * Arguments used by ArgumentParser
   **************************************/
-  @Argument(help: "The endpoint to connect to.")
+  @Option(help: "The endpoint to connect to.")
   var endpoint: String
 
-  @Argument(help: "The path to the certificate file.")
+  @Option(help: "The path to the certificate file.")
   var cert: String
 
-  @Argument(help: "The path to the private key file.")
+  @Option(help: "The path to the private key file.")
   var key: String
 
-  @Argument(
+  @Option(
     help: "Client id to use (optional). Please make sure the client id matches the policy.")
   var clientId: String = "test-" + UUID().uuidString
 
