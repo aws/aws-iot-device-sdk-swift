@@ -24,7 +24,7 @@ The [What is AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/what
 ### Build the sample
 ```
 // The sample should be built from the sample's folder
-cd aws-iot-device-sdk-swift/Samples/Mqtt5PubSub
+cd aws-iot-device-sdk-swift/Samples/Mqtt5Samples
 
 // build the sample
 swift build
