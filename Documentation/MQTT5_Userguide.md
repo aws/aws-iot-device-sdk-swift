@@ -6,7 +6,7 @@
 * [Connecting to AWS IoT Core](#connecting-to-aws-iot-core)
 * [Creating an MQTT 5 Client](#creating-an-mqtt-5-client)
     * [Direct MQTT with X.509-based Mutual TLS](#direct-mqtt-with-x509-based-mutual-tls)
-    * [Direct MQTT with PKCS #12 Method (macOS only)](#direct-mqtt-with-pkcs-12-method-macos-only)
+    * [Direct MQTT with PKCS #12 Method](#direct-mqtt-with-pkcs-12-method)
     * [Direct MQTT with Custom Authentication](#direct-mqtt-with-custom-authentication)
     * [MQTT over WebSockets with Amazon Cognito Authentication](#mqtt-over-websockets-with-amazon-cognito-authentication)
 * [Assigning Callbacks and Optional Configurations](#assigning-callbacks-and-optional-configurations)
@@ -65,7 +65,7 @@ For X.509-based Mutual TLS (mTLS), you can create a client where the certificate
     let client = try clientBuilder.build()
 ```
 
-#### **Direct MQTT with PKCS #12 Method (macOS only)**
+#### **Direct MQTT with PKCS #12 Method**
 
 An MQTT 5 direct connection can be made using a PKCS #12 file rather than using a PEM encoded private key. To create an MQTT 5 builder configured for this connection, see the following code:
 
