@@ -48,6 +48,7 @@ public class Mqtt5ClientBuilder {
   private var _onLifecycleEventDisconnection: OnLifecycleEventDisconnection?
   private var _onLifecycleEventStopped: OnLifecycleEventStopped?
   private var _enableMetricsCollection: Bool = true
+  private var _featureList: IoTSDKMetricsFeatureList = IoTSDKMetricsFeatureList()
   private var _tlsOptions: TLSContextOptions?
   private var _caPath: String?
   private var _caFile: String?
@@ -82,6 +83,8 @@ public class Mqtt5ClientBuilder {
       certificatePath: certPath, privateKeyPath: keyPath)
     _endpoint = endpoint
     _port = 8883
+    // Track certificate source for metrics
+    _featureList.certificateSource = .certificateFiles
   }
 
   // mtlsFromData
@@ -90,6 +93,8 @@ public class Mqtt5ClientBuilder {
       certificateData: certData, privateKeyData: keyData)
     _endpoint = endpoint
     _port = 8883
+    // Track certificate source for metrics (certificate data is treated as certificate files)
+    _featureList.certificateSource = .certificateFiles
   }
 
   // mtlsFromPKCS12
@@ -98,6 +103,8 @@ public class Mqtt5ClientBuilder {
       pkcs12Path: pkcs12Path, password: pkcs12Password)
     _endpoint = endpoint
     _port = 8883
+    // Track certificate source for metrics
+    _featureList.certificateSource = .pkcs12File
   }
 
   // websocketsWithDefaultAwsSigning
@@ -203,13 +210,6 @@ public class Mqtt5ClientBuilder {
         inputString: usernameString,
         parameterValue: tokenValue,
         parameterPretext: "\(tokenKeyName)=")
-    }
-
-    if _enableMetricsCollection {
-      usernameString = appendToUsernameParameter(
-        inputString: usernameString,
-        parameterValue: "SDK=Swift&Version=\(packageVersion)",
-        parameterPretext: "")
     }
 
     if !usernameString.isEmpty {
@@ -851,6 +851,11 @@ public class Mqtt5ClientBuilder {
       throw CommonRunTimeError.crtError(CRTError.makeFromLastError())
     }
 
+    // Build SDK metrics if metrics collection is enabled
+    // The metrics will be passed to the CRT layer which will merge them with CRT-level metrics
+    let sdkMetrics: IoTDeviceSDKMetrics? =
+      _enableMetricsCollection ? IoTSDKMetricsBuilder.createMetrics(from: _featureList) : nil
+
     // Configure client options
     let clientOptions = MqttClientOptions(
       hostName: unwrappedEndpoint,
@@ -877,7 +882,9 @@ public class Mqtt5ClientBuilder {
       onLifecycleEventAttemptingConnectFn: _onLifecycleEventAttemptingConnect,
       onLifecycleEventConnectionSuccessFn: _onLifecycleEventConnectionSuccess,
       onLifecycleEventConnectionFailureFn: _onLifecycleEventConnectionFailure,
-      onLifecycleEventDisconnectionFn: _onLifecycleEventDisconnection)
+      onLifecycleEventDisconnectionFn: _onLifecycleEventDisconnection,
+      disableMetrics: !_enableMetricsCollection,
+      metrics: sdkMetrics)
 
     // Return the configured Mqtt5Client
     return try Mqtt5Client(clientOptions: clientOptions)
