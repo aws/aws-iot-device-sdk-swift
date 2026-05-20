@@ -93,25 +93,28 @@ class JobsClientTests: XCTestCase {
   }
 
   // Runs an AWS CLI command and returns trimmed stdout, or nil on failure.
-  @discardableResult
-  private func runAWSCLI(_ arguments: [String]) -> String? {
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
-    let pipe = Pipe()
-    process.standardOutput = pipe
-    process.standardError = Pipe()  // suppress stderr
-    do {
-      try process.run()
-      process.waitUntilExit()
-      guard process.terminationStatus == 0 else { return nil }
-      let data = pipe.fileHandleForReading.readDataToEndOfFile()
-      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
-    } catch {
-      print("AWS CLI error: \(error)")
-      return nil
+  // Process is only available on macOS and Linux.
+  #if os(macOS) || os(Linux)
+    @discardableResult
+    private func runAWSCLI(_ arguments: [String]) -> String? {
+      let process = Process()
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+      process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+      let pipe = Pipe()
+      process.standardOutput = pipe
+      process.standardError = Pipe()  // suppress stderr
+      do {
+        try process.run()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+      } catch {
+        print("AWS CLI error: \(error)")
+        return nil
+      }
     }
-  }
+  #endif
 
   private func verifyNoPendingJobs(testContext: TestContext) async throws {
     // Verify there is no jobs in progress/pending
@@ -219,12 +222,15 @@ class JobsClientTests: XCTestCase {
 
       // Now that streams are subscribed, add the thing to the group to trigger job notifications.
       // This is done via the AWS CLI so we don't need aws-sdk-swift as a dependency.
-      let addResult = runAWSCLI([
-        "iot", "add-thing-to-thing-group",
-        "--thing-group-name", testContext.thingGroupName!,
-        "--thing-name", testContext.thingName!,
-      ])
-      XCTAssertNotNil(addResult, "Failed to add thing to thing group via AWS CLI")
+      // Process (used by runAWSCLI) is only available on macOS and Linux.
+      #if os(macOS) || os(Linux)
+        let addResult = runAWSCLI([
+          "iot", "add-thing-to-thing-group",
+          "--thing-group-name", testContext.thingGroupName!,
+          "--thing-name", testContext.thingName!,
+        ])
+        XCTAssertNotNil(addResult, "Failed to add thing to thing group via AWS CLI")
+      #endif
 
       await fulfillment(
         of: [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)

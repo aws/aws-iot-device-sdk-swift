@@ -78,90 +78,96 @@ class IdentityClientTests: XCTestCase {
 
   // Helper function that uses the AWS CLI to clean up IoT Things and certificates
   // created in the identity tests.
+  // Process is only available on macOS and Linux, so cleanup is a no-op on iOS/tvOS.
   private func cleanUpThing(
     certificateId: String?, thingName: String?, deleteCert: Bool = false
   ) async {
-    guard let certificateId, let thingName else {
-      print("Missing certificateId or thingName, skipping cleanup")
-      return
-    }
-
-    // Get certificate ARN
-    let describeResult = runAWSCLI([
-      "iot", "describe-certificate",
-      "--certificate-id", certificateId,
-      "--query", "certificateDescription.certificateArn",
-      "--output", "text",
-    ])
-    guard let certificateArn = describeResult else {
-      print("Failed to get certificate ARN, skipping cleanup")
-      return
-    }
-
-    // Detach principal from thing
-    _ = runAWSCLI([
-      "iot", "detach-thing-principal",
-      "--principal", certificateArn,
-      "--thing-name", thingName,
-    ])
-
-    print("Deleting thing: \(thingName)")
-    _ = runAWSCLI(["iot", "delete-thing", "--thing-name", thingName])
-    print("Cleanup of \(thingName) complete")
-
-    guard deleteCert else { return }
-    print("Cleaning up certificate: \(certificateArn)")
-
-    // List and detach policies
-    let policiesResult = runAWSCLI([
-      "iot", "list-attached-policies",
-      "--target", certificateArn,
-      "--query", "policies[].policyName",
-      "--output", "text",
-    ])
-    if let policiesOutput = policiesResult {
-      let policyNames = policiesOutput.split(separator: "\t").map(String.init)
-      for policyName in policyNames where !policyName.isEmpty {
-        print("Detaching policy: \(policyName)")
-        _ = runAWSCLI([
-          "iot", "detach-policy",
-          "--policy-name", policyName,
-          "--target", certificateArn,
-        ])
+    #if os(macOS) || os(Linux)
+      guard let certificateId, let thingName else {
+        print("Missing certificateId or thingName, skipping cleanup")
+        return
       }
-    }
 
-    // Deactivate and delete certificate
-    _ = runAWSCLI([
-      "iot", "update-certificate",
-      "--certificate-id", certificateId,
-      "--new-status", "INACTIVE",
-    ])
-    print("Certificate deactivated.")
-    _ = runAWSCLI(["iot", "delete-certificate", "--certificate-id", certificateId])
-    print("Certificate deleted.")
+      // Get certificate ARN
+      let describeResult = runAWSCLI([
+        "iot", "describe-certificate",
+        "--certificate-id", certificateId,
+        "--query", "certificateDescription.certificateArn",
+        "--output", "text",
+      ])
+      guard let certificateArn = describeResult else {
+        print("Failed to get certificate ARN, skipping cleanup")
+        return
+      }
+
+      // Detach principal from thing
+      _ = runAWSCLI([
+        "iot", "detach-thing-principal",
+        "--principal", certificateArn,
+        "--thing-name", thingName,
+      ])
+
+      print("Deleting thing: \(thingName)")
+      _ = runAWSCLI(["iot", "delete-thing", "--thing-name", thingName])
+      print("Cleanup of \(thingName) complete")
+
+      guard deleteCert else { return }
+      print("Cleaning up certificate: \(certificateArn)")
+
+      // List and detach policies
+      let policiesResult = runAWSCLI([
+        "iot", "list-attached-policies",
+        "--target", certificateArn,
+        "--query", "policies[].policyName",
+        "--output", "text",
+      ])
+      if let policiesOutput = policiesResult {
+        let policyNames = policiesOutput.split(separator: "\t").map(String.init)
+        for policyName in policyNames where !policyName.isEmpty {
+          print("Detaching policy: \(policyName)")
+          _ = runAWSCLI([
+            "iot", "detach-policy",
+            "--policy-name", policyName,
+            "--target", certificateArn,
+          ])
+        }
+      }
+
+      // Deactivate and delete certificate
+      _ = runAWSCLI([
+        "iot", "update-certificate",
+        "--certificate-id", certificateId,
+        "--new-status", "INACTIVE",
+      ])
+      print("Certificate deactivated.")
+      _ = runAWSCLI(["iot", "delete-certificate", "--certificate-id", certificateId])
+      print("Certificate deleted.")
+    #endif
   }
 
   // Runs an AWS CLI command and returns trimmed stdout, or nil on failure.
-  @discardableResult
-  private func runAWSCLI(_ arguments: [String]) -> String? {
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
-    let pipe = Pipe()
-    process.standardOutput = pipe
-    process.standardError = Pipe()  // suppress stderr
-    do {
-      try process.run()
-      process.waitUntilExit()
-      guard process.terminationStatus == 0 else { return nil }
-      let data = pipe.fileHandleForReading.readDataToEndOfFile()
-      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
-    } catch {
-      print("AWS CLI error: \(error)")
-      return nil
+  // Process is only available on macOS and Linux.
+  #if os(macOS) || os(Linux)
+    @discardableResult
+    private func runAWSCLI(_ arguments: [String]) -> String? {
+      let process = Process()
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+      process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+      let pipe = Pipe()
+      process.standardOutput = pipe
+      process.standardError = Pipe()  // suppress stderr
+      do {
+        try process.run()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+      } catch {
+        print("AWS CLI error: \(error)")
+        return nil
+      }
     }
-  }
+  #endif
 
   func testIdentityClientCreateDestroy() async throws {
     let identityClient = try await getIdentityClient()
