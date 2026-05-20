@@ -26,7 +26,7 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.60.0")),
+      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.60.0"))
   ],
   targets: [
     .target(
@@ -62,9 +62,7 @@ let package = Package(
     ),
     .testTarget(
       name: "IotJobsClientTests",
-      dependencies: [
-        "IotJobsClient",
-      ],
+      dependencies: ["IotJobsClient"],
       path: "Tests/IotJobsClientTests"),
     .target(
       name: "IotIdentityClient",
@@ -75,9 +73,7 @@ let package = Package(
     ),
     .testTarget(
       name: "IotIdentityClientTests",
-      dependencies: [
-        "IotIdentityClient",
-      ],
+      dependencies: ["IotIdentityClient"],
       path: "Tests/IotIdentityClientTests"
     ),
   ]
