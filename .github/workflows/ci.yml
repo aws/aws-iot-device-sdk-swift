@@ -27,14 +27,12 @@ env:
 jobs:
     linux:
       runs-on: ubuntu-24.04
-      container: swift:${{ matrix.swift }}
-      strategy:
-        matrix:
-          swift:
-            - 6.0-noble
       permissions:
         id-token: write
       steps:
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.0"
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
@@ -47,11 +45,8 @@ jobs:
           role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           output-credentials: true
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get install -y python3
       - name: Build ${{ env.PACKAGE_NAME }}
-        env: 
+        env:
           AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
           AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
