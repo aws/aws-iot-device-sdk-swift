@@ -27,6 +27,11 @@ env:
 jobs:
     linux:
       runs-on: ubuntu-24.04
+      container: swift:${{ matrix.swift }}
+      strategy:
+        matrix:
+          swift:
+            - 6.0-noble
       permissions:
         id-token: write
       steps:
