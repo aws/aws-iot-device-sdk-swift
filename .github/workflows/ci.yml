@@ -47,6 +47,9 @@ jobs:
           role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           output-credentials: true
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get install -y python3
       - name: Build ${{ env.PACKAGE_NAME }}
         env: 
           AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
