@@ -26,13 +26,10 @@ env:
 
 jobs:
     linux:
-      runs-on: ubuntu-24.04
+      runs-on: ubuntu-22.04
       permissions:
         id-token: write
       steps:
-      - uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "6.1"
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
