@@ -92,6 +92,27 @@ class JobsClientTests: XCTestCase {
     return iotJobsClient
   }
 
+  // Runs an AWS CLI command and returns trimmed stdout, or nil on failure.
+  @discardableResult
+  private func runAWSCLI(_ arguments: [String]) -> String? {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()  // suppress stderr
+    do {
+      try process.run()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0 else { return nil }
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    } catch {
+      print("AWS CLI error: \(error)")
+      return nil
+    }
+  }
+
   private func verifyNoPendingJobs(testContext: TestContext) async throws {
     // Verify there is no jobs in progress/pending
     let getPendingJobResponse = try await testContext.iotJobsClient!.getPendingJobExecutions(
@@ -196,8 +217,15 @@ class JobsClientTests: XCTestCase {
       // Verify there is no jobs in progress/pending
       try await verifyNoPendingJobs(testContext: testContext)
 
-      // The thing was pre-added to the group by setup_jobs_test.sh, so the job should
-      // already be queued. Wait for the queued notifications.
+      // Now that streams are subscribed, add the thing to the group to trigger job notifications.
+      // This is done via the AWS CLI so we don't need aws-sdk-swift as a dependency.
+      let addResult = runAWSCLI([
+        "iot", "add-thing-to-thing-group",
+        "--thing-group-name", testContext.thingGroupName!,
+        "--thing-name", testContext.thingName!,
+      ])
+      XCTAssertNotNil(addResult, "Failed to add thing to thing group via AWS CLI")
+
       await fulfillment(
         of: [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)

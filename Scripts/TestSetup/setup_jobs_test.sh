@@ -25,10 +25,9 @@ aws iot create-job \
 echo "Creating thing: $THING_NAME"
 aws iot create-thing --thing-name "$THING_NAME" > /dev/null
 
-echo "Adding thing to group"
-aws iot add-thing-to-thing-group \
-  --thing-group-name "$THING_GROUP_NAME" \
-  --thing-name "$THING_NAME" > /dev/null
+# NOTE: The thing is NOT added to the group here.
+# The test adds the thing to the group after subscribing to job streams,
+# so that the job notification events are received by the test.
 
 echo "Setup complete."
 
