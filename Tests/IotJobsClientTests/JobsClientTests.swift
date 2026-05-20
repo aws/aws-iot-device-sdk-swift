@@ -1,4 +1,3 @@
-import AWSIoT
 import AwsIotDeviceSdkSwift
 import Foundation
 import IotShadowClient
@@ -20,7 +19,6 @@ class TestContext: @unchecked Sendable {
   var jobId: String?
   var thingGroupName: String?
   var thingName: String?
-  var iotClient: IoTClient?
   var iotJobsClient: IotJobsClient?
 }
 
@@ -94,58 +92,6 @@ class JobsClientTests: XCTestCase {
     return iotJobsClient
   }
 
-  // Use AWS SDK iotClient to setup testing jobs in IoT account
-  static private func setupJobTestContext(testContext: TestContext) async throws {
-
-    testContext.iotClient = try await AWSIoT.IoTClient(
-      config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-    let iotClient = testContext.iotClient!
-
-    let testGroupName = "tgn_" + UUID().uuidString
-    let newThingGroup = try await iotClient.createThingGroup(
-      input: CreateThingGroupInput(thingGroupName: testGroupName))
-
-    XCTAssertNotNil(newThingGroup.thingGroupName)
-    testContext.thingGroupName = newThingGroup.thingGroupName
-    let thingGroupArn = newThingGroup.thingGroupArn
-
-    let jobId = UUID().uuidString
-    // Job with an empty document will not be executed
-    let newJob = try await iotClient.createJob(
-      input: CreateJobInput(
-        document: "{\"test\":\"do-something\"}", jobId: jobId,
-        targetSelection: IoTClientTypes.TargetSelection.continuous, targets: [thingGroupArn!]))
-    XCTAssertNotNil(newJob.jobId)
-    testContext.jobId = newJob.jobId
-
-    let thingName = "SwiftJobTest_" + UUID().uuidString
-    let createThingResponse = try await testContext.iotClient!.createThing(
-      input: CreateThingInput(thingName: thingName))
-    testContext.thingName = createThingResponse.thingName
-
-  }
-
-  // Use AWS SDK iotClient to setup testing jobs in IoT account
-  static private func cleanupJobTestContext(testContext: TestContext) async throws {
-    guard let iotClient = testContext.iotClient else {
-      return
-    }
-
-    if let thingGroupName = testContext.thingGroupName {
-      _ = try await iotClient.deleteThingGroup(
-        input: DeleteThingGroupInput(thingGroupName: thingGroupName))
-    }
-
-    if let jobId = testContext.jobId {
-      _ = try await iotClient.deleteJob(input: DeleteJobInput(force: true, jobId: jobId))
-    }
-
-    if let thingName = testContext.thingName {
-      _ = try await iotClient.deleteThing(input: DeleteThingInput(thingName: thingName))
-    }
-
-  }
-
   private func verifyNoPendingJobs(testContext: TestContext) async throws {
     // Verify there is no jobs in progress/pending
     let getPendingJobResponse = try await testContext.iotJobsClient!.getPendingJobExecutions(
@@ -170,13 +116,15 @@ class JobsClientTests: XCTestCase {
       let _ = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-      // Job Test Context
+      // Job Test Context - resources are pre-created by Scripts/TestSetup/setup_jobs_test.sh
+      // and passed in via environment variables.
       let testContext = TestContext()
-      try await JobsClientTests.setupJobTestContext(testContext: testContext)
-
-      addTeardownBlock {
-        try await JobsClientTests.cleanupJobTestContext(testContext: testContext)
-      }
+      testContext.thingName = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "TEST_THING_NAME")
+      testContext.jobId = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "TEST_JOB_ID")
+      testContext.thingGroupName = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "TEST_THING_GROUP_NAME")
 
       let iotJobsClient: IotJobsClient = try await getJobsClient()
       testContext.iotJobsClient = iotJobsClient
@@ -248,10 +196,8 @@ class JobsClientTests: XCTestCase {
       // Verify there is no jobs in progress/pending
       try await verifyNoPendingJobs(testContext: testContext)
 
-      _ = try await testContext.iotClient?.addThingToThingGroup(
-        input: AddThingToThingGroupInput(
-          thingGroupName: testContext.thingGroupName, thingName: testContext.thingName))
-
+      // The thing was pre-added to the group by setup_jobs_test.sh, so the job should
+      // already be queued. Wait for the queued notifications.
       await fulfillment(
         of: [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)
       XCTAssertFalse(testContext.nextJobChangedEvents.isEmpty)

@@ -1,6 +1,3 @@
-import AWSClientRuntime
-import AWSIoT
-import AWSSDKIdentity
 import AwsIotDeviceSdkSwift
 import Foundation
 import XCTest
@@ -79,77 +76,90 @@ class IdentityClientTests: XCTestCase {
     return identityClient
   }
 
-  // Helper function that creates an IoTClient from the AWSIoT SDK to clean up IoT Things and certificates
+  // Helper function that uses the AWS CLI to clean up IoT Things and certificates
   // created in the identity tests.
   private func cleanUpThing(
     certificateId: String?, thingName: String?, deleteCert: Bool = false
   ) async {
     guard let certificateId, let thingName else {
-      print("Missing certificateId or thingName")
+      print("Missing certificateId or thingName, skipping cleanup")
       return
     }
 
-    let iotClient: IoTClient
-    do {
-      iotClient = try await IoTClient(
-        config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-    } catch {
-      print(
-        "Skipping cleanup of created thing/certificate: failed to create IoTClient with error: \(error)"
-      )
+    // Get certificate ARN
+    let describeResult = runAWSCLI([
+      "iot", "describe-certificate",
+      "--certificate-id", certificateId,
+      "--query", "certificateDescription.certificateArn",
+      "--output", "text",
+    ])
+    guard let certificateArn = describeResult else {
+      print("Failed to get certificate ARN, skipping cleanup")
       return
     }
 
+    // Detach principal from thing
+    _ = runAWSCLI([
+      "iot", "detach-thing-principal",
+      "--principal", certificateArn,
+      "--thing-name", thingName,
+    ])
+
+    print("Deleting thing: \(thingName)")
+    _ = runAWSCLI(["iot", "delete-thing", "--thing-name", thingName])
+    print("Cleanup of \(thingName) complete")
+
+    guard deleteCert else { return }
+    print("Cleaning up certificate: \(certificateArn)")
+
+    // List and detach policies
+    let policiesResult = runAWSCLI([
+      "iot", "list-attached-policies",
+      "--target", certificateArn,
+      "--query", "policies[].policyName",
+      "--output", "text",
+    ])
+    if let policiesOutput = policiesResult {
+      let policyNames = policiesOutput.split(separator: "\t").map(String.init)
+      for policyName in policyNames where !policyName.isEmpty {
+        print("Detaching policy: \(policyName)")
+        _ = runAWSCLI([
+          "iot", "detach-policy",
+          "--policy-name", policyName,
+          "--target", certificateArn,
+        ])
+      }
+    }
+
+    // Deactivate and delete certificate
+    _ = runAWSCLI([
+      "iot", "update-certificate",
+      "--certificate-id", certificateId,
+      "--new-status", "INACTIVE",
+    ])
+    print("Certificate deactivated.")
+    _ = runAWSCLI(["iot", "delete-certificate", "--certificate-id", certificateId])
+    print("Certificate deleted.")
+  }
+
+  // Runs an AWS CLI command and returns trimmed stdout, or nil on failure.
+  @discardableResult
+  private func runAWSCLI(_ arguments: [String]) -> String? {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()  // suppress stderr
     do {
-      // Get certificate ARN
-      let describeResp = try await iotClient.describeCertificate(
-        input: .init(certificateId: certificateId))
-
-      guard let certificateArn = describeResp.certificateDescription?.certificateArn else {
-        print("Certificate ARN not found")
-        return
-      }
-
-      do {
-        // Detach principal from thing
-        _ = try await iotClient.detachThingPrincipal(
-          input: .init(principal: certificateArn, thingName: thingName))
-
-        print("Deleting thing: \(thingName)")
-        _ = try await iotClient.deleteThing(input: .init(thingName: thingName))
-        print("Cleanup of \(thingName) complete")
-      } catch {
-        print("failed to delete iot thing")
-      }
-
-      guard deleteCert else { return }
-      print("Cleaning up certificate: \(certificateArn)")
-
-      // Detach policies
-      let policyResp = try await iotClient.listAttachedPolicies(
-        input: .init(target: certificateArn))
-
-      for policy in policyResp.policies ?? [] {
-        if let policyName = policy.policyName {
-          print("Detaching policy: \(policyName)")
-          do {
-            _ = try await iotClient.detachPolicy(
-              input: .init(policyName: policyName, target: certificateArn))
-          } catch {
-            print("Failed to detach policy '\(policyName)': \(error)")
-          }
-        }
-      }
-
-      // Deactivate and delete certificate
-      _ = try await iotClient.updateCertificate(
-        input: .init(certificateId: certificateId, newStatus: .inactive))
-      print("Certificate deactivated.")
-      _ = try await iotClient.deleteCertificate(input: .init(certificateId: certificateId))
-      print("Certificate deleted.")
-
+      try process.run()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0 else { return nil }
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
     } catch {
-      print("Cleanup failed: \(error)")
+      print("AWS CLI error: \(error)")
+      return nil
     }
   }
 
