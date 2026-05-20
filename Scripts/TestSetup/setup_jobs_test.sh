@@ -10,9 +10,9 @@ JOB_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
 THING_NAME="SwiftJobTest_$(uuidgen | tr '[:upper:]' '[:lower:]')"
 
 echo "Creating thing group: $THING_GROUP_NAME"
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+THING_GROUP_ARN="arn:aws:iot:${AWS_DEFAULT_REGION}:${ACCOUNT_ID}:thinggroup/${THING_GROUP_NAME}"
 aws iot create-thing-group --thing-group-name "$THING_GROUP_NAME" > /dev/null
-
-THING_GROUP_ARN=$(aws iot describe-thing-group --thing-group-name "$THING_GROUP_NAME" --query thingGroupArn --output text)
 echo "Thing group ARN: $THING_GROUP_ARN"
 
 echo "Creating job: $JOB_ID"
