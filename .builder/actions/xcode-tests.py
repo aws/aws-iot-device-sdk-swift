@@ -11,7 +11,6 @@ class XCodeTests(Builder.Action):
             'AwsIotDeviceSdkSwift-Package',
             'test',
             '-destination',
-            "platform={}".format(destination),
-            '-skipPackagePluginValidation'
+            "platform={}".format(destination)
         ]
         env.shell.exec(commands, check=True)
