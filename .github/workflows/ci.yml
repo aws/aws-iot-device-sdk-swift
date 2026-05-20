@@ -42,10 +42,6 @@ jobs:
           role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           output-credentials: true
-      - name: Fix ICU header conflict
-        run: |
-          # Remove the system ICU headers so libxml2's module doesn't conflict with Swift's bundled ICU
-          sudo rm -rf /usr/include/unicode
       - name: Build ${{ env.PACKAGE_NAME }}
         env:
           AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
