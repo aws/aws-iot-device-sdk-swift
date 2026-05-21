@@ -3,7 +3,7 @@
 [**Return to main sample list**](../../README.md)
 
 This is an interactive sample that supports a set of commands that allow you to interact with the AWS IoT [Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html) Service.  The sample includes both control plane
-commands (that require the AWS SDK for Swift and use HTTP as transport) and data plane commands (that use the device SDK and use MQTT as transport).  In a real use case,
+commands (that use the [AWS CLI](https://aws.amazon.com/cli/) and use HTTP as transport) and data plane commands (that use the device SDK and use MQTT as transport).  In a real use case,
 control plane commands would be issued by applications under control of the customer, while the data plane operations would be issued by software running on the
 IoT device itself.
 
@@ -68,12 +68,12 @@ Your IoT Core Thing's [Policy](https://docs.aws.amazon.com/iot/latest/developerg
       "Effect": "Allow",
       "Action": "iot:Subscribe",
       "Resource": [
-        "arn:aws:iot:<b>region</b>:<b>account</b>:topicfilter/$aws/things/<b>thingname</b>/jobs/notify",
-        "arn:aws:iot:<b>region</b>:<b>account</b>:topicfilter/$aws/things/<b>thingname</b>/jobs/notify-next",
-        "arn:aws:iot:<b>region</b>:<b>account</b>:topicfilter/$aws/things/<b>thingname</b>/jobs/start-next/*",
-        "arn:aws:iot:<b>region</b>:<b>account</b>:topicfilter/$aws/things/<b>thingname</b>/jobs/*/update/*",
-        "arn:aws:iot:<b>region</b>:<b>account</b>:topicfilter/$aws/things/<b>thingname</b>/jobs/get/*",
-        "arn:aws:iot:<b>region</b>:<b>account</b>:topicfilter/$aws/things/<b>thingname</b>/jobs/*/get/*"
+        "arn:aws:iot:<b>region</b>:<b>account</b>:topic/$aws/things/<b>thingname</b>/jobs/notify",
+        "arn:aws:iot:<b>region</b>:<b>account</b>:topic/$aws/things/<b>thingname</b>/jobs/notify-next",
+        "arn:aws:iot:<b>region</b>:<b>account</b>:topic/$aws/things/<b>thingname</b>/jobs/start-next/*",
+        "arn:aws:iot:<b>region</b>:<b>account</b>:topic/$aws/things/<b>thingname</b>/jobs/*/update/*",
+        "arn:aws:iot:<b>region</b>:<b>account</b>:topic/$aws/things/<b>thingname</b>/jobs/get/*",
+        "arn:aws:iot:<b>region</b>:<b>account</b>:topic/$aws/things/<b>thingname</b>/jobs/*/get/*"
       ]
     },
     {
@@ -94,14 +94,27 @@ Note that in a real application, you may want to avoid the use of wildcards in y
 
 </details>
 
-Additionally, the sample's control plane operations require that AWS credentials with appropriate permissions be sourceable by the default credentials provider chain
-of the Swift SDK.  At a minimum, the following permissions must be granted:
+Additionally, the sample's control plane operations (`create-job` and `delete-job`) are executed via the [AWS CLI](https://aws.amazon.com/cli/).  You must have the AWS CLI installed and configured with credentials that have the appropriate IAM permissions before running the sample.
+
+#### AWS CLI Setup
+
+1. **Install the AWS CLI** — follow the [official installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for your platform.
+
+2. **Configure credentials** — run `aws configure` (or set the standard `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables).  The region configured in the CLI does not need to match the `<region>` argument passed to the sample; the sample always passes `--region <region>` explicitly to every CLI call.
+
+3. **Required IAM permissions** — the credentials used by the CLI must allow at least the following actions:
+
 <details>
 <summary>Sample Policy</summary>
 <pre>
 {
   "Version": "2012-10-17",
   "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iot:DescribeThing",
+      "Resource": "arn:aws:iot:<b>region</b>:<b>account</b>:thing/<b>thingname</b>"
+    },
     {
       "Effect": "Allow",
       "Action": "iot:CreateJob",
@@ -128,7 +141,8 @@ Replace with the following with the data from your AWS account:
 * `<thingname>`: The name of your AWS IoT Core thing you want the device connection to be associated with
 
 Notice that you must provide `iot:CreateJob` permission to all things targeted by your jobs as well as the job itself.  In this example, we use a wildcard for the
-job permission so that you can name the jobs whatever you would like.
+job permission so that you can name the jobs whatever you would like.  The `iot:DescribeThing` permission is needed so the sample can look up the thing's ARN
+when creating a job.
 
 </details>
 
@@ -449,7 +463,7 @@ At this point, no incomplete job executions remain.
 
 ### Job Cleanup
 When all executions for a given job have reached a terminal state (SUCCEEDED, FAILED, CANCELED), you can delete the jobs themselves.  This is a control plane operation
-that requires the AWS SDK for Swift and should not be performed by the device executing jobs:
+executed via the AWS CLI and should not be performed by the device executing jobs:
 
 ```
 delete-job Job1
