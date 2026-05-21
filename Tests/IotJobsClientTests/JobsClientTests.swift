@@ -1,10 +1,34 @@
-import AWSIoT
 import AwsIotDeviceSdkSwift
 import Foundation
 import IotShadowClient
 import XCTest
 
 @testable import IotJobsClient
+
+// Free function that runs an AWS CLI command and returns trimmed stdout, or nil on failure.
+// Defined at file scope so it can be called without capturing `self`, avoiding Swift 6
+// concurrency issues when used inside addTeardownBlock closures.
+#if os(macOS) || os(Linux)
+  @discardableResult
+  func awsCLI(_ arguments: [String]) -> String? {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()  // suppress stderr
+    do {
+      try process.run()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0 else { return nil }
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    } catch {
+      print("AWS CLI error: \(error)")
+      return nil
+    }
+  }
+#endif
 
 enum MqttTestError: Error {
   case timeout
@@ -20,7 +44,6 @@ class TestContext: @unchecked Sendable {
   var jobId: String?
   var thingGroupName: String?
   var thingName: String?
-  var iotClient: IoTClient?
   var iotJobsClient: IotJobsClient?
 }
 
@@ -44,7 +67,7 @@ class JobsClientTests: XCTestCase {
   }
 
   // Helper function that creates an MqttClient, connects the client, uses the client to create an
-  // IotShadowClient, then returns the shadow client in a ready for use state.
+  // IotJobsClient, then returns the jobs client in a ready for use state.
   private func getJobsClient() async throws -> IotJobsClient {
 
     // Obtain required endpoint and files from the environment or skip test.
@@ -94,57 +117,54 @@ class JobsClientTests: XCTestCase {
     return iotJobsClient
   }
 
-  // Use AWS SDK iotClient to setup testing jobs in IoT account
-  static private func setupJobTestContext(testContext: TestContext) async throws {
+  // Creates AWS IoT resources needed for the Jobs integration test and registers
+  // a teardown block to clean them up after the test completes.
+  #if os(macOS) || os(Linux)
+    private func setupJobTestContext(testContext: TestContext) {
+      let thingGroupName = "tgn_\(UUID().uuidString.lowercased())"
+      let jobId = UUID().uuidString.lowercased()
+      let thingName = "SwiftJobTest_\(UUID().uuidString.lowercased())"
 
-    testContext.iotClient = try await AWSIoT.IoTClient(
-      config: IoTClient.IoTClientConfiguration(region: "us-east-1"))
-    let iotClient = testContext.iotClient!
+      // Get account ID to construct the thing group ARN without needing iot:DescribeThingGroup
+      guard
+        let accountId = awsCLI([
+          "sts", "get-caller-identity", "--query", "Account", "--output", "text",
+        ])
+      else {
+        XCTFail("Failed to get AWS account ID")
+        return
+      }
+      let thingGroupArn =
+        "arn:aws:iot:us-east-1:\(accountId):thinggroup/\(thingGroupName)"
 
-    let testGroupName = "tgn_" + UUID().uuidString
-    let newThingGroup = try await iotClient.createThingGroup(
-      input: CreateThingGroupInput(thingGroupName: testGroupName))
+      awsCLI(["iot", "create-thing-group", "--thing-group-name", thingGroupName])
+      awsCLI([
+        "iot", "create-job",
+        "--job-id", jobId,
+        "--targets", thingGroupArn,
+        "--document", "{\"test\":\"do-something\"}",
+        "--target-selection", "CONTINUOUS",
+      ])
+      awsCLI(["iot", "create-thing", "--thing-name", thingName])
 
-    XCTAssertNotNil(newThingGroup.thingGroupName)
-    testContext.thingGroupName = newThingGroup.thingGroupName
-    let thingGroupArn = newThingGroup.thingGroupArn
+      testContext.thingGroupName = thingGroupName
+      testContext.jobId = jobId
+      testContext.thingName = thingName
 
-    let jobId = UUID().uuidString
-    // Job with an empty document will not be executed
-    let newJob = try await iotClient.createJob(
-      input: CreateJobInput(
-        document: "{\"test\":\"do-something\"}", jobId: jobId,
-        targetSelection: IoTClientTypes.TargetSelection.continuous, targets: [thingGroupArn!]))
-    XCTAssertNotNil(newJob.jobId)
-    testContext.jobId = newJob.jobId
-
-    let thingName = "SwiftJobTest_" + UUID().uuidString
-    let createThingResponse = try await testContext.iotClient!.createThing(
-      input: CreateThingInput(thingName: thingName))
-    testContext.thingName = createThingResponse.thingName
-
-  }
-
-  // Use AWS SDK iotClient to setup testing jobs in IoT account
-  static private func cleanupJobTestContext(testContext: TestContext) async throws {
-    guard let iotClient = testContext.iotClient else {
-      return
+      // Register teardown to clean up resources after the test, even on failure.
+      addTeardownBlock {
+        if let groupName = testContext.thingGroupName {
+          awsCLI(["iot", "delete-thing-group", "--thing-group-name", groupName])
+        }
+        if let jId = testContext.jobId {
+          awsCLI(["iot", "delete-job", "--job-id", jId, "--force"])
+        }
+        if let tName = testContext.thingName {
+          awsCLI(["iot", "delete-thing", "--thing-name", tName])
+        }
+      }
     }
-
-    if let thingGroupName = testContext.thingGroupName {
-      _ = try await iotClient.deleteThingGroup(
-        input: DeleteThingGroupInput(thingGroupName: thingGroupName))
-    }
-
-    if let jobId = testContext.jobId {
-      _ = try await iotClient.deleteJob(input: DeleteJobInput(force: true, jobId: jobId))
-    }
-
-    if let thingName = testContext.thingName {
-      _ = try await iotClient.deleteThing(input: DeleteThingInput(thingName: thingName))
-    }
-
-  }
+  #endif
 
   private func verifyNoPendingJobs(testContext: TestContext) async throws {
     // Verify there is no jobs in progress/pending
@@ -170,12 +190,18 @@ class JobsClientTests: XCTestCase {
       let _ = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-      // Job Test Context
       let testContext = TestContext()
-      try await JobsClientTests.setupJobTestContext(testContext: testContext)
 
-      addTeardownBlock {
-        try await JobsClientTests.cleanupJobTestContext(testContext: testContext)
+      // Create AWS IoT resources (thing group, job, thing) via the AWS CLI.
+      // Resources are cleaned up automatically via addTeardownBlock.
+      #if os(macOS) || os(Linux)
+        setupJobTestContext(testContext: testContext)
+      #endif
+
+      guard testContext.thingName != nil, testContext.jobId != nil,
+        testContext.thingGroupName != nil
+      else {
+        throw XCTSkip("Skipping test: failed to set up AWS IoT test resources.")
       }
 
       let iotJobsClient: IotJobsClient = try await getJobsClient()
@@ -248,9 +274,16 @@ class JobsClientTests: XCTestCase {
       // Verify there is no jobs in progress/pending
       try await verifyNoPendingJobs(testContext: testContext)
 
-      _ = try await testContext.iotClient?.addThingToThingGroup(
-        input: AddThingToThingGroupInput(
-          thingGroupName: testContext.thingGroupName, thingName: testContext.thingName))
+      // Now that streams are subscribed, add the thing to the group to trigger job notifications.
+      // This is done via the AWS CLI so we don't need aws-sdk-swift as a dependency.
+      #if os(macOS) || os(Linux)
+        let addResult = awsCLI([
+          "iot", "add-thing-to-thing-group",
+          "--thing-group-name", testContext.thingGroupName!,
+          "--thing-name", testContext.thingName!,
+        ])
+        XCTAssertNotNil(addResult, "Failed to add thing to thing group via AWS CLI")
+      #endif
 
       await fulfillment(
         of: [nextJobExecutionQueuedExpectation, jobExecutionStartedExpectation], timeout: 30)
