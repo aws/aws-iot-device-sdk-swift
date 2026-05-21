@@ -42,13 +42,6 @@ jobs:
           role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           output-credentials: true
-      - name: Setup Jobs test resources
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: bash Scripts/TestSetup/setup_jobs_test.sh
       - name: Build ${{ env.PACKAGE_NAME }}
         env:
           AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
@@ -59,14 +52,6 @@ jobs:
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
           chmod a+x builder
           ./builder build -p ${{ env.PACKAGE_NAME }}
-      - name: Teardown Jobs test resources
-        if: always()
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: bash Scripts/TestSetup/teardown_jobs_test.sh
 
     macos:
       runs-on: ${{ matrix.runner }}
@@ -98,13 +83,6 @@ jobs:
           role-to-assume: ${{ env.CI_CRT }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
           output-credentials: true
-      - name: Setup Jobs test resources
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: bash Scripts/TestSetup/setup_jobs_test.sh
       - name: Build ${{ env.PACKAGE_NAME }} + consumers
         run: |
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
@@ -115,14 +93,6 @@ jobs:
           TEST_RUNNER_AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
           TEST_RUNNER_AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
           TEST_RUNNER_AWS_REGION: ${{ env.AWS_DEFAULT_REGION }}
-      - name: Teardown Jobs test resources
-        if: always()
-        env:
-          AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_DEFAULT_REGION }}
-        run: bash Scripts/TestSetup/teardown_jobs_test.sh
 
     devices:
       runs-on: ${{ matrix.runner }}

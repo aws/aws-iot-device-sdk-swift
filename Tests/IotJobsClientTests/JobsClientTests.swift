@@ -42,7 +42,7 @@ class JobsClientTests: XCTestCase {
   }
 
   // Helper function that creates an MqttClient, connects the client, uses the client to create an
-  // IotShadowClient, then returns the shadow client in a ready for use state.
+  // IotJobsClient, then returns the jobs client in a ready for use state.
   private func getJobsClient() async throws -> IotJobsClient {
 
     // Obtain required endpoint and files from the environment or skip test.
@@ -114,6 +114,53 @@ class JobsClientTests: XCTestCase {
         return nil
       }
     }
+
+    // Creates AWS IoT resources needed for the Jobs integration test and registers
+    // a teardown block to clean them up after the test completes.
+    private func setupJobTestContext(testContext: TestContext) {
+      let thingGroupName = "tgn_\(UUID().uuidString.lowercased())"
+      let jobId = UUID().uuidString.lowercased()
+      let thingName = "SwiftJobTest_\(UUID().uuidString.lowercased())"
+
+      // Get account ID to construct the thing group ARN without needing iot:DescribeThingGroup
+      guard
+        let accountId = runAWSCLI([
+          "sts", "get-caller-identity", "--query", "Account", "--output", "text",
+        ])
+      else {
+        XCTFail("Failed to get AWS account ID")
+        return
+      }
+      let thingGroupArn =
+        "arn:aws:iot:us-east-1:\(accountId):thinggroup/\(thingGroupName)"
+
+      runAWSCLI(["iot", "create-thing-group", "--thing-group-name", thingGroupName])
+      runAWSCLI([
+        "iot", "create-job",
+        "--job-id", jobId,
+        "--targets", thingGroupArn,
+        "--document", "{\"test\":\"do-something\"}",
+        "--target-selection", "CONTINUOUS",
+      ])
+      runAWSCLI(["iot", "create-thing", "--thing-name", thingName])
+
+      testContext.thingGroupName = thingGroupName
+      testContext.jobId = jobId
+      testContext.thingName = thingName
+
+      // Register teardown to clean up resources after the test, even on failure.
+      addTeardownBlock {
+        if let groupName = testContext.thingGroupName {
+          self.runAWSCLI(["iot", "delete-thing-group", "--thing-group-name", groupName])
+        }
+        if let jId = testContext.jobId {
+          self.runAWSCLI(["iot", "delete-job", "--job-id", jId, "--force"])
+        }
+        if let tName = testContext.thingName {
+          self.runAWSCLI(["iot", "delete-thing", "--thing-name", tName])
+        }
+      }
+    }
   #endif
 
   private func verifyNoPendingJobs(testContext: TestContext) async throws {
@@ -140,15 +187,20 @@ class JobsClientTests: XCTestCase {
       let _ = try getEnvironmentVarOrSkipTest(
         environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
 
-      // Job Test Context - resources are pre-created by Scripts/TestSetup/setup_jobs_test.sh
-      // and passed in via environment variables.
       let testContext = TestContext()
-      testContext.thingName = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "TEST_THING_NAME")
-      testContext.jobId = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "TEST_JOB_ID")
-      testContext.thingGroupName = try getEnvironmentVarOrSkipTest(
-        environmentVarName: "TEST_THING_GROUP_NAME")
+
+      // Create AWS IoT resources (thing group, job, thing) via the AWS CLI.
+      // Resources are cleaned up automatically via addTeardownBlock.
+      // Process (used by setupJobTestContext) is only available on macOS and Linux.
+      #if os(macOS) || os(Linux)
+        setupJobTestContext(testContext: testContext)
+      #endif
+
+      guard testContext.thingName != nil, testContext.jobId != nil,
+        testContext.thingGroupName != nil
+      else {
+        throw XCTSkip("Skipping test: failed to set up AWS IoT test resources.")
+      }
 
       let iotJobsClient: IotJobsClient = try await getJobsClient()
       testContext.iotJobsClient = iotJobsClient
