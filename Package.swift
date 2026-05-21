@@ -26,7 +26,7 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      url: "https://github.com/awslabs/aws-crt-swift.git", branch: "metrics_metadata")
+      url: "https://github.com/awslabs/aws-crt-swift.git", .upToNextMajor(from: "0.61.0"))
   ],
   targets: [
     .target(
