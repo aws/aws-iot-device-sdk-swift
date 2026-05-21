@@ -5,6 +5,32 @@ import XCTest
 
 @testable import IotJobsClient
 
+// Free function that runs an AWS CLI command and returns trimmed stdout, or nil on failure.
+// Defined at file scope so it can be called without capturing `self`, avoiding Swift 6
+// concurrency issues when used inside addTeardownBlock closures.
+// Process is only available on macOS and Linux.
+#if os(macOS) || os(Linux)
+  @discardableResult
+  func awsCLI(_ arguments: [String]) -> String? {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()  // suppress stderr
+    do {
+      try process.run()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0 else { return nil }
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    } catch {
+      print("AWS CLI error: \(error)")
+      return nil
+    }
+  }
+#endif
+
 enum MqttTestError: Error {
   case timeout
   case connectionFail
@@ -92,31 +118,10 @@ class JobsClientTests: XCTestCase {
     return iotJobsClient
   }
 
-  // Runs an AWS CLI command and returns trimmed stdout, or nil on failure.
-  // Process is only available on macOS and Linux.
+  // Creates AWS IoT resources needed for the Jobs integration test and registers
+  // a teardown block to clean them up after the test completes.
+  // awsCLI (used here) is only available on macOS and Linux.
   #if os(macOS) || os(Linux)
-    @discardableResult
-    private func runAWSCLI(_ arguments: [String]) -> String? {
-      let process = Process()
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-      process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
-      let pipe = Pipe()
-      process.standardOutput = pipe
-      process.standardError = Pipe()  // suppress stderr
-      do {
-        try process.run()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return nil }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
-      } catch {
-        print("AWS CLI error: \(error)")
-        return nil
-      }
-    }
-
-    // Creates AWS IoT resources needed for the Jobs integration test and registers
-    // a teardown block to clean them up after the test completes.
     private func setupJobTestContext(testContext: TestContext) {
       let thingGroupName = "tgn_\(UUID().uuidString.lowercased())"
       let jobId = UUID().uuidString.lowercased()
@@ -124,7 +129,7 @@ class JobsClientTests: XCTestCase {
 
       // Get account ID to construct the thing group ARN without needing iot:DescribeThingGroup
       guard
-        let accountId = runAWSCLI([
+        let accountId = awsCLI([
           "sts", "get-caller-identity", "--query", "Account", "--output", "text",
         ])
       else {
@@ -134,15 +139,15 @@ class JobsClientTests: XCTestCase {
       let thingGroupArn =
         "arn:aws:iot:us-east-1:\(accountId):thinggroup/\(thingGroupName)"
 
-      runAWSCLI(["iot", "create-thing-group", "--thing-group-name", thingGroupName])
-      runAWSCLI([
+      awsCLI(["iot", "create-thing-group", "--thing-group-name", thingGroupName])
+      awsCLI([
         "iot", "create-job",
         "--job-id", jobId,
         "--targets", thingGroupArn,
         "--document", "{\"test\":\"do-something\"}",
         "--target-selection", "CONTINUOUS",
       ])
-      runAWSCLI(["iot", "create-thing", "--thing-name", thingName])
+      awsCLI(["iot", "create-thing", "--thing-name", thingName])
 
       testContext.thingGroupName = thingGroupName
       testContext.jobId = jobId
@@ -151,13 +156,13 @@ class JobsClientTests: XCTestCase {
       // Register teardown to clean up resources after the test, even on failure.
       addTeardownBlock {
         if let groupName = testContext.thingGroupName {
-          self.runAWSCLI(["iot", "delete-thing-group", "--thing-group-name", groupName])
+          awsCLI(["iot", "delete-thing-group", "--thing-group-name", groupName])
         }
         if let jId = testContext.jobId {
-          self.runAWSCLI(["iot", "delete-job", "--job-id", jId, "--force"])
+          awsCLI(["iot", "delete-job", "--job-id", jId, "--force"])
         }
         if let tName = testContext.thingName {
-          self.runAWSCLI(["iot", "delete-thing", "--thing-name", tName])
+          awsCLI(["iot", "delete-thing", "--thing-name", tName])
         }
       }
     }
@@ -191,7 +196,7 @@ class JobsClientTests: XCTestCase {
 
       // Create AWS IoT resources (thing group, job, thing) via the AWS CLI.
       // Resources are cleaned up automatically via addTeardownBlock.
-      // Process (used by setupJobTestContext) is only available on macOS and Linux.
+      // awsCLI is only available on macOS and Linux.
       #if os(macOS) || os(Linux)
         setupJobTestContext(testContext: testContext)
       #endif
@@ -274,9 +279,9 @@ class JobsClientTests: XCTestCase {
 
       // Now that streams are subscribed, add the thing to the group to trigger job notifications.
       // This is done via the AWS CLI so we don't need aws-sdk-swift as a dependency.
-      // Process (used by runAWSCLI) is only available on macOS and Linux.
+      // awsCLI is only available on macOS and Linux.
       #if os(macOS) || os(Linux)
-        let addResult = runAWSCLI([
+        let addResult = awsCLI([
           "iot", "add-thing-to-thing-group",
           "--thing-group-name", testContext.thingGroupName!,
           "--thing-name", testContext.thingName!,

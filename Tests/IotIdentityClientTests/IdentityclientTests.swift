@@ -4,6 +4,32 @@ import XCTest
 
 @testable import IotIdentityClient
 
+// Free function that runs an AWS CLI command and returns trimmed stdout, or nil on failure.
+// Defined at file scope so it can be called without capturing `self`, avoiding Swift 6
+// concurrency issues when used inside closures.
+// Process is only available on macOS and Linux.
+#if os(macOS) || os(Linux)
+  @discardableResult
+  func awsCLI(_ arguments: [String]) -> String? {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()  // suppress stderr
+    do {
+      try process.run()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0 else { return nil }
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    } catch {
+      print("AWS CLI error: \(error)")
+      return nil
+    }
+  }
+#endif
+
 func createClientId() -> String {
   return "test-iot-device-sdk-swift-" + UUID().uuidString
 }
@@ -65,7 +91,7 @@ class IdentityClientTests: XCTestCase {
     // Await the expectation being fulfilled with a timeout.
     await fulfillment(of: [connectionExpectation], timeout: 5, enforceOrder: false)
 
-    // Build and return the IotShadowClient
+    // Build and return the IotIdentityClient
     let options: MqttRequestResponseClientOptions = MqttRequestResponseClientOptions(
       maxRequestResponseSubscription: 5,
       maxStreamingSubscription: 3,
@@ -89,7 +115,7 @@ class IdentityClientTests: XCTestCase {
       }
 
       // Get certificate ARN
-      let describeResult = runAWSCLI([
+      let describeResult = awsCLI([
         "iot", "describe-certificate",
         "--certificate-id", certificateId,
         "--query", "certificateDescription.certificateArn",
@@ -101,21 +127,21 @@ class IdentityClientTests: XCTestCase {
       }
 
       // Detach principal from thing
-      _ = runAWSCLI([
+      awsCLI([
         "iot", "detach-thing-principal",
         "--principal", certificateArn,
         "--thing-name", thingName,
       ])
 
       print("Deleting thing: \(thingName)")
-      _ = runAWSCLI(["iot", "delete-thing", "--thing-name", thingName])
+      awsCLI(["iot", "delete-thing", "--thing-name", thingName])
       print("Cleanup of \(thingName) complete")
 
       guard deleteCert else { return }
       print("Cleaning up certificate: \(certificateArn)")
 
       // List and detach policies
-      let policiesResult = runAWSCLI([
+      let policiesResult = awsCLI([
         "iot", "list-attached-policies",
         "--target", certificateArn,
         "--query", "policies[].policyName",
@@ -125,7 +151,7 @@ class IdentityClientTests: XCTestCase {
         let policyNames = policiesOutput.split(separator: "\t").map(String.init)
         for policyName in policyNames where !policyName.isEmpty {
           print("Detaching policy: \(policyName)")
-          _ = runAWSCLI([
+          awsCLI([
             "iot", "detach-policy",
             "--policy-name", policyName,
             "--target", certificateArn,
@@ -134,40 +160,16 @@ class IdentityClientTests: XCTestCase {
       }
 
       // Deactivate and delete certificate
-      _ = runAWSCLI([
+      awsCLI([
         "iot", "update-certificate",
         "--certificate-id", certificateId,
         "--new-status", "INACTIVE",
       ])
       print("Certificate deactivated.")
-      _ = runAWSCLI(["iot", "delete-certificate", "--certificate-id", certificateId])
+      awsCLI(["iot", "delete-certificate", "--certificate-id", certificateId])
       print("Certificate deleted.")
     #endif
   }
-
-  // Runs an AWS CLI command and returns trimmed stdout, or nil on failure.
-  // Process is only available on macOS and Linux.
-  #if os(macOS) || os(Linux)
-    @discardableResult
-    private func runAWSCLI(_ arguments: [String]) -> String? {
-      let process = Process()
-      process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-      process.arguments = ["aws"] + arguments + ["--region", "us-east-1"]
-      let pipe = Pipe()
-      process.standardOutput = pipe
-      process.standardError = Pipe()  // suppress stderr
-      do {
-        try process.run()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0 else { return nil }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
-      } catch {
-        print("AWS CLI error: \(error)")
-        return nil
-      }
-    }
-  #endif
 
   func testIdentityClientCreateDestroy() async throws {
     let identityClient = try await getIdentityClient()
