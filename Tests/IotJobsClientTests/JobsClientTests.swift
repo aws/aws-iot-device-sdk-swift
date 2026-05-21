@@ -8,7 +8,6 @@ import XCTest
 // Free function that runs an AWS CLI command and returns trimmed stdout, or nil on failure.
 // Defined at file scope so it can be called without capturing `self`, avoiding Swift 6
 // concurrency issues when used inside addTeardownBlock closures.
-// Process is only available on macOS and Linux.
 #if os(macOS) || os(Linux)
   @discardableResult
   func awsCLI(_ arguments: [String]) -> String? {
@@ -120,7 +119,6 @@ class JobsClientTests: XCTestCase {
 
   // Creates AWS IoT resources needed for the Jobs integration test and registers
   // a teardown block to clean them up after the test completes.
-  // awsCLI (used here) is only available on macOS and Linux.
   #if os(macOS) || os(Linux)
     private func setupJobTestContext(testContext: TestContext) {
       let thingGroupName = "tgn_\(UUID().uuidString.lowercased())"
@@ -196,7 +194,6 @@ class JobsClientTests: XCTestCase {
 
       // Create AWS IoT resources (thing group, job, thing) via the AWS CLI.
       // Resources are cleaned up automatically via addTeardownBlock.
-      // awsCLI is only available on macOS and Linux.
       #if os(macOS) || os(Linux)
         setupJobTestContext(testContext: testContext)
       #endif
@@ -279,7 +276,6 @@ class JobsClientTests: XCTestCase {
 
       // Now that streams are subscribed, add the thing to the group to trigger job notifications.
       // This is done via the AWS CLI so we don't need aws-sdk-swift as a dependency.
-      // awsCLI is only available on macOS and Linux.
       #if os(macOS) || os(Linux)
         let addResult = awsCLI([
           "iot", "add-thing-to-thing-group",

@@ -7,7 +7,6 @@ import XCTest
 // Free function that runs an AWS CLI command and returns trimmed stdout, or nil on failure.
 // Defined at file scope so it can be called without capturing `self`, avoiding Swift 6
 // concurrency issues when used inside closures.
-// Process is only available on macOS and Linux.
 #if os(macOS) || os(Linux)
   @discardableResult
   func awsCLI(_ arguments: [String]) -> String? {
@@ -104,7 +103,6 @@ class IdentityClientTests: XCTestCase {
 
   // Helper function that uses the AWS CLI to clean up IoT Things and certificates
   // created in the identity tests.
-  // Process is only available on macOS and Linux, so cleanup is a no-op on iOS/tvOS.
   private func cleanUpThing(
     certificateId: String?, thingName: String?, deleteCert: Bool = false
   ) async {
