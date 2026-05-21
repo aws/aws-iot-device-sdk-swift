@@ -1,0 +1,166 @@
+name: Update Version on Release
+
+# This workflow automatically updates the CRTVersion in CommonRuntimeKit.swift when a new release is created.
+# It extracts the version from the tag (e.g., v0.61.0 -> 0.61.0), updates the source file,
+# and moves the tag to point to the new commit with the updated version.
+# The original release title and body are preserved when recreating the release.
+
+on:
+  release:
+    types: [published]  # Triggers when a release is published via GitHub UI
+
+permissions:
+  id-token: write   # Required for OIDC authentication with AWS
+  contents: read    # Required to checkout repository
+
+env:
+  AWS_REGION: us-east-1
+  GH_TOKEN: ${{ secrets.BOT_PAT }}
+  CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.CI_BUILD_AND_TEST_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Retrieve deploy key and setup SSH
+        run: |
+          # Retrieve the private key from Secrets Manager
+          DEPLOY_KEY=$(aws secretsmanager get-secret-value --secret-id aws-iot-device-sdk-swift/deploykey/privatekey --query SecretString --output text)
+
+          # Set up SSH configuration
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Add GitHub to known hosts to avoid host verification prompt
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+          # Configure SSH to use the key for GitHub
+          cat > ~/.ssh/config << EOF
+            Host github.com
+              HostName github.com
+              User git
+              IdentityFile ~/.ssh/deploy_key
+            EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}  # Checkout the release tag to apply the version update
+          fetch-depth: 0
+
+      - name: Configure git to use SSH with deploy key
+        run: |
+          # Set remote URL to use SSH
+          git remote set-url origin git@github.com:${{ github.repository }}.git
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          # Remove the 'v' prefix to get the version
+          VERSION=${TAG_NAME#v}
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION from tag: $TAG_NAME"
+          
+          # Store release info for later use
+          echo "Release title: ${{ github.event.release.name }}"
+          echo "Release is prerelease: ${{ github.event.release.prerelease }}"
+
+      - name: Update CRTVersion in CommonRuntimeKit.swift
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          VERSION_FILE="Source/AwsCommonRuntimeKit/CommonRuntimeKit.swift"
+          
+          # Update the CRTVersion in CommonRuntimeKit.swift
+          sed -i "s/public static let CRTVersion = \".*\"/public static let CRTVersion = \"$VERSION\"/" "$VERSION_FILE"
+          
+          # Verify the update
+          echo "Updated $VERSION_FILE:"
+          cat "$VERSION_FILE"
+          
+          # Check if the version was actually updated
+          if grep -q "public static let CRTVersion = \"$VERSION\"" "$VERSION_FILE"; then
+            echo "✅ CRTVersion successfully updated to $VERSION"
+          else
+            echo "❌ Failed to update CRTVersion"
+            exit 1
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected (version may already be up to date)"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+            git diff
+          fi
+
+      - name: Commit version update, move tag, and recreate release
+        if: steps.check_changes.outputs.has_changes == 'true'
+        env:
+          RELEASE_TITLE: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG_NAME="${{ steps.get_version.outputs.tag }}"
+          
+          git config --local user.email "aws-sdk-common-runtime@amazon.com"
+          git config --local user.name "aws-crt-bot"
+          
+          # Commit the version update
+          git add Source/AwsCommonRuntimeKit/CommonRuntimeKit.swift
+          git commit -m "chore: update CRTVersion to $VERSION"
+          
+          # Push the commit to main
+          git push origin main
+          
+          # Delete the old release (this also allows us to delete the tag)
+          echo "Deleting old release..."
+          gh release delete "$TAG_NAME" --yes
+          
+          # Delete the old tag (both locally and remotely)
+          git tag -d "$TAG_NAME"
+          git push origin --delete "$TAG_NAME"
+          
+          # Create a new tag pointing to the new commit with the updated version
+          # Use the release body as the tag message
+          if [ -n "$RELEASE_BODY" ]; then
+            git tag -a "$TAG_NAME" -m "$RELEASE_BODY"
+          else
+            git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          fi
+          git push origin "$TAG_NAME"
+          
+          # Recreate the release with the original title and body
+          echo "Recreating release with original title and body..."
+          PRERELEASE_FLAG=""
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          
+          # Use the original title, or fall back to tag name if empty
+          if [ -n "$RELEASE_TITLE" ]; then
+            TITLE="$RELEASE_TITLE"
+          else
+            TITLE="$TAG_NAME"
+          fi
+          
+          gh release create "$TAG_NAME" \
+            --title "$TITLE" \
+            --notes "$RELEASE_BODY" \
+            $PRERELEASE_FLAG
+          
+          echo "✅ CRTVersion updated to $VERSION, tag $TAG_NAME moved to new commit, and release recreated"
