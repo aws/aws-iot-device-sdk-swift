@@ -1,13 +1,33 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0.
 
-import AWSIoT
 // ArgumentParser is used by the sample to parse arguments.
 // This is not a required import for the MQTT5 Client.
 import ArgumentParser
 import AwsIotDeviceSdkSwift
 import Foundation
 import IotJobsClient
+
+// Free function that runs an AWS CLI command and returns trimmed stdout, or nil on failure.
+@discardableResult
+func awsCLI(_ arguments: [String]) -> String? {
+  let process = Process()
+  process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+  process.arguments = ["aws"] + arguments
+  let pipe = Pipe()
+  process.standardOutput = pipe
+  process.standardError = Pipe()  // suppress stderr
+  do {
+    try process.run()
+    process.waitUntilExit()
+    guard process.terminationStatus == 0 else { return nil }
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+  } catch {
+    print("AWS CLI error: \(error)")
+    return nil
+  }
+}
 
 @main
 struct ShadowClientSample: AsyncParsableCommand {
@@ -40,7 +60,7 @@ struct ShadowClientSample: AsyncParsableCommand {
       """
 
       Usage:
-      IoT control plane commands:
+      IoT control plane commands (executed via the AWS CLI):
           create-job <jobId> <job-document-as-json> -- create a new job with the specified job id and (JSON) document
           delete-job <jobId>                        -- deletes a job with the specified job id
 
@@ -124,40 +144,11 @@ struct ShadowClientSample: AsyncParsableCommand {
       return
     }
 
-    do {
-      // IoTClient is used for control plane operations
-      let iotClient = try await AWSIoT.IoTClient(
-        config: IoTClient.IoTClientConfiguration(region: region))
-
-      clientState.iotClient = iotClient
-    } catch {
-      print("Failed to setup IoTClient with error: \(error)")
-      return
-    }
-
-    do {
-      let describeThingInput = DescribeThingInput(thingName: thingName)
-      let describeThingOutput = try await clientState.iotClient!.describeThing(
-        input: describeThingInput)
-      guard let thingArn: String = describeThingOutput.thingArn else {
-        print("Failed to retrieve Arn for thingName: \(thingName)")
-        return
-      }
-      clientState.thingArn = thingArn
-    } catch {
-      print(
-        "Failed to retreive Arn for provided thingName: \(thingName) with error: \(error)"
-      )
-      return
-    }
-
     // Display commands.
     showMenu()
 
     // Enter the interactive loop.
-    await interactiveLoop(
-      jobsClient: clientState.jobsClient!, iotClient: clientState.iotClient!,
-      clientState: clientState)
+    await interactiveLoop(jobsClient: clientState.jobsClient!, clientState: clientState)
 
   }
 
@@ -317,7 +308,7 @@ struct ShadowClientSample: AsyncParsableCommand {
     }
   }
 
-  // Helper function that takes user input JSON and converts it to the [String: Any] type expected for `ShadowState`
+  // Helper function that parses a JSON string returned by the AWS CLI into a [String: Any] dictionary
   func parseJSONStringToDictionary(_ json: String) -> [String: Any]? {
     guard let data = json.data(using: .utf8) else {
       print("Failed to encode string to Data")
@@ -341,7 +332,7 @@ struct ShadowClientSample: AsyncParsableCommand {
 
   // Main loop that runs while the sample is active
   func interactiveLoop(
-    jobsClient: IotJobsClient, iotClient: AWSIoT.IoTClient, clientState: ClientState
+    jobsClient: IotJobsClient, clientState: ClientState
   ) async {
     var shouldExit = false
     while !shouldExit {
@@ -440,34 +431,62 @@ struct ShadowClientSample: AsyncParsableCommand {
               showMenu()
               break
             }
+            let jobId = String(tokens[1])
             let inputJSON = tokens.dropFirst(2).joined(separator: " ")
-            let createJobInput = CreateJobInput(
-              document: inputJSON,
-              jobId: String(tokens[1]),
-              targetSelection: IoTClientTypes.TargetSelection.snapshot,
-              targets: [clientState.thingArn!])
-            do {
-              let result = try await iotClient.createJob(input: createJobInput)
+
+            // Look up the thing ARN via the AWS CLI
+            guard
+              let thingArn = awsCLI([
+                "iot", "describe-thing",
+                "--thing-name", thingName,
+                "--query", "thingArn",
+                "--output", "text",
+                "--region", region,
+              ])
+            else {
+              print("Error: failed to retrieve ARN for thing '\(thingName)' via AWS CLI.")
+              break
+            }
+
+            // Create the job via the AWS CLI
+            guard
+              let createJobOutput = awsCLI([
+                "iot", "create-job",
+                "--job-id", jobId,
+                "--targets", thingArn,
+                "--document", inputJSON,
+                "--target-selection", "SNAPSHOT",
+                "--region", region,
+              ])
+            else {
+              print("Error: failed to create job '\(jobId)' via AWS CLI.")
+              break
+            }
+
+            // Parse and display the result
+            if let result = parseJSONStringToDictionary(createJobOutput) {
               print(
                 """
 
                 ─── CreateJobOutput ───────────────────────────────────────────────────────────────
-                description: \(result.description ?? "<nil>")
-                jobArn: \(result.jobArn ?? "<nil>")
-                jobId: \(result.jobId ?? "<nil>")
+                description: \(result["description"] as? String ?? "<nil>")
+                jobArn: \(result["jobArn"] as? String ?? "<nil>")
+                jobId: \(result["jobId"] as? String ?? "<nil>")
 
                 """)
-            } catch {
-              print("Error encountered while attempting to create job \(error)")
+            } else {
+              print(createJobOutput)
             }
 
           } else if lowercasedInput.hasPrefix("delete-job") {
-            print("Deleting Job with jobId: " + String(tokens[1]))
-            let deleteJobInput = DeleteJobInput(jobId: String(tokens[1]))
-            do {
-              let _ = try await iotClient.deleteJob(input: deleteJobInput)
-            } catch {
-              print("Error encountered while attempting to delete job \(error)")
+            let jobId = String(tokens[1])
+            print("Deleting Job with jobId: " + jobId)
+            if awsCLI([
+              "iot", "delete-job",
+              "--job-id", jobId,
+              "--region", region,
+            ]) == nil {
+              print("Error: failed to delete job '\(jobId)' via AWS CLI.")
             }
           } else {
             print("Invalid jobs command")
@@ -482,9 +501,7 @@ struct ShadowClientSample: AsyncParsableCommand {
 // Contains members that need to be accessed from across the sample and to prevent multiple resume calls
 final class ClientState {
   var mqttClient: Mqtt5Client?
-  var iotClient: IoTClient?
   var jobsClient: IotJobsClient?
-  var thingArn: String?
   var stream1: StreamingOperation?
   var stream2: StreamingOperation?
   private var isResumed = false
