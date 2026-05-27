@@ -47,7 +47,7 @@ public class Mqtt5ClientBuilder {
   private var _onLifecycleEventConnectionFailure: OnLifecycleEventConnectionFailure?
   private var _onLifecycleEventDisconnection: OnLifecycleEventDisconnection?
   private var _onLifecycleEventStopped: OnLifecycleEventStopped?
-  private var _enableMetricsCollection: Bool = true
+  private var _disableMetricsCollection: Bool = false
   private var _featureList: IoTSDKMetricsFeatureList = IoTSDKMetricsFeatureList()
   private var _tlsOptions: TLSContextOptions?
   private var _caPath: String?
@@ -854,7 +854,7 @@ public class Mqtt5ClientBuilder {
     // Build SDK metrics if metrics collection is enabled
     // The metrics will be passed to the CRT layer which will merge them with CRT-level metrics
     let sdkMetrics: IoTDeviceSDKMetrics? =
-      _enableMetricsCollection ? IoTSDKMetricsBuilder.createMetrics(from: _featureList) : nil
+      _disableMetricsCollection ? nil : IoTSDKMetricsBuilder.createMetrics(from: _featureList)
 
     // Configure client options
     let clientOptions = MqttClientOptions(
@@ -883,7 +883,7 @@ public class Mqtt5ClientBuilder {
       onLifecycleEventConnectionSuccessFn: _onLifecycleEventConnectionSuccess,
       onLifecycleEventConnectionFailureFn: _onLifecycleEventConnectionFailure,
       onLifecycleEventDisconnectionFn: _onLifecycleEventDisconnection,
-      disableMetrics: !_enableMetricsCollection,
+      disableMetrics: _disableMetricsCollection,
       metrics: sdkMetrics)
 
     // Return the configured Mqtt5Client
