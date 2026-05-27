@@ -31,7 +31,7 @@ jobs:
       - name: Retrieve deploy key and setup SSH
         run: |
           # Retrieve the private key from Secrets Manager
-          DEPLOY_KEY=$(aws secretsmanager get-secret-value --secret-id aws-crt-bot/deploy-key/privatekey --query SecretString --output text)
+          DEPLOY_KEY=$(aws secretsmanager get-secret-value --secret-id aws-iot-device-sdk-swift/deploykey/privatekey --query SecretString --output text)
 
           # Set up SSH configuration
           mkdir -p ~/.ssh
