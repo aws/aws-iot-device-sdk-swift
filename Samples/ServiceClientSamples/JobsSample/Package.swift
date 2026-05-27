@@ -17,9 +17,6 @@ let package = Package(
     .package(path: "../../../"),
     // This package gives us the capability to do a argument parsing
     .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.5.0"),
-    .package(
-      url: "https://github.com/awslabs/aws-sdk-swift.git",
-      branch: "aws-iot-device-sdk-swift-testing-branch"),
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -29,7 +26,6 @@ let package = Package(
       dependencies: [
         .product(name: "IotJobsClient", package: "aws-iot-device-sdk-swift"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        .product(name: "AWSIoT", package: "aws-sdk-swift"),
       ],
       path: "Sources")
   ]
