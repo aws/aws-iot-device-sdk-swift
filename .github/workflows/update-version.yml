@@ -1,0 +1,129 @@
+name: Update Version on Release
+
+# This workflow automatically updates the packageVersion in Version.swift when a new release is created.
+# It extracts the version from the tag (e.g., v0.61.0 -> 0.61.0), updates the source file,
+# and moves the tag to point to the new commit with the updated version.
+# The original release title and body are preserved when recreating the release.
+
+on:
+  release:
+    types: [published]  # Triggers when a release is published via GitHub UI
+
+permissions:
+  id-token: write   # Required for OIDC authentication with AWS
+  contents: read    # Required to checkout repository
+
+env:
+  AWS_REGION: us-east-1
+  GH_TOKEN: ${{ secrets.BOT_PAT }}
+  CI_BUILD_AND_TEST_ROLE: arn:aws:iam::180635532705:role/V2_SDK_Unit_Testing
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.CI_BUILD_AND_TEST_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Retrieve deploy key and setup SSH
+        run: |
+          # Retrieve the private key from Secrets Manager
+          DEPLOY_KEY=$(aws secretsmanager get-secret-value --secret-id aws-iot-device-sdk-swift/deploykey/privatekey --query SecretString --output text)
+
+          # Set up SSH configuration
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Add GitHub to known hosts to avoid host verification prompt
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+          # Configure SSH to use the key for GitHub
+          cat > ~/.ssh/config << EOF
+          Host github.com
+            HostName github.com
+            User git
+            IdentityFile ~/.ssh/deploy_key
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Configure git to use SSH with deploy key
+        run: |
+          # Set remote URL to use SSH
+          git remote set-url origin git@github.com:${{ github.repository }}.git
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          # Remove the 'v' prefix to get the version
+          VERSION=${TAG_NAME#v}
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION from tag: $TAG_NAME"
+
+      - name: Update packageVersion in Version.swift
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          VERSION_FILE="Sources/AwsIotDeviceSdkSwift/Version.swift"
+
+          # Update the packageVersion in Version.swift
+          sed -i "s/public let packageVersion: String = \".*\"/public let packageVersion: String = \"$VERSION\"/" "$VERSION_FILE"
+
+          # Verify the update
+          echo "Updated $VERSION_FILE:"
+          cat "$VERSION_FILE"
+
+          if grep -q "public let packageVersion: String = \"$VERSION\"" "$VERSION_FILE"; then
+            echo "✅ packageVersion successfully updated to $VERSION"
+          else
+            echo "❌ Failed to update packageVersion"
+            exit 1
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected (version may already be up to date)"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+            git diff
+          fi
+
+      - name: Commit and push to main, then move tag to new commit
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG_NAME="${{ steps.get_version.outputs.tag }}"
+
+          git config --local user.email "aws-sdk-common-runtime@amazon.com"
+          git config --local user.name "aws-crt-bot"
+
+          # Commit the version update
+          git add Sources/AwsIotDeviceSdkSwift/Version.swift
+          git commit -m "chore: update packageVersion to $VERSION"
+
+          # Push the commit to main
+          git push origin main
+
+          echo "Pushed version update to main"
+
+          # Force-move the tag to the new commit — no need to delete/recreate the release.
+          # GitHub releases are associated with the tag name; after the force-push the release
+          # automatically points to the new commit.
+          git tag -f "$TAG_NAME"
+          git push origin --force "refs/tags/$TAG_NAME"
+
+          echo "✅ packageVersion updated to $VERSION and tag $TAG_NAME moved to new commit"
