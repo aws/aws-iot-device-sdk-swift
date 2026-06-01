@@ -2,4 +2,4 @@
 ///  SPDX-License-Identifier: Apache-2.0.
 
 // The version number of the SDK
-public let packageVersion: String = "0.7.1"
+public let packageVersion: String = "1.0.0"
