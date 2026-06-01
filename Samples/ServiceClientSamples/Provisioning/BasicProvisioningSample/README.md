@@ -1,6 +1,6 @@
 # Basic Fleet Provisioning
 
-[**Return to main sample list**](../../README.md)
+[**Return to main sample list**](../../../README.md)
 
 This sample uses the AWS IoT [Fleet provisioning service](https://docs.aws.amazon.com/iot/latest/developerguide/provision-wo-cert.html) to provision devices using the CreateKeysAndCertificate and RegisterThing APIs. This allows you to create new AWS IoT Core thing resources using a Fleet Provisioning Template.
 

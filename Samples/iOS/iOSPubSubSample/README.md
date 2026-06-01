@@ -1,13 +1,13 @@
 # iOS PubSub Sample
 
-[**Return to main sample list**](./README.md)
+[**Return to main sample list**](../../README.md)
 
 This sample demonstrates how to establish an MQTT connection with the [AWS IoT Core message broker](https://docs.aws.amazon.com/iot/latest/developerguide/iot-message-broker.html) and execute MQTT operations using the MQTT 5 Client in iOS Application.
 
-The sample would perform the following actions: 
+The sample would perform the following actions:
 1. Initializes the Device SDK library
 2. Sets up the MQTT Client
-3. Opens the MQTT connection 
+3. Opens the MQTT connection
 4. Subscribes to test topics
 5. Publishes to test topics
 6. Closes the MQTT connection
@@ -33,11 +33,11 @@ let TEST_HOST = "<your-endpoint>"
 
 ![image](./iOSAppScreenshot.png)
 
-4. Test the operation: 
+4. Test the operation:
 
-* Click "Setup Client and Start" to start a connection session. 
+* Click "Setup Client and Start" to start a connection session.
 * Click "Publish A Message" to send a publish message.
-* Click "Stop Connection" to stop a connection session. 
+* Click "Stop Connection" to stop a connection session.
 
 ## Troubleshooting
 ### Enable logging in samples
