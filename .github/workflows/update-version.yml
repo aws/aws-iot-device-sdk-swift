@@ -63,8 +63,9 @@ jobs:
 
       - name: Extract version from tag
         id: get_version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          TAG_NAME="${{ github.event.release.tag_name }}"
           # Remove the 'v' prefix to get the version
           VERSION=${TAG_NAME#v}
           echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
