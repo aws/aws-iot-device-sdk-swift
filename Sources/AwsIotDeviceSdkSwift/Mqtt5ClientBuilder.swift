@@ -853,7 +853,7 @@ public class Mqtt5ClientBuilder {
 
     // Build SDK metrics if metrics collection is enabled
     // The metrics will be passed to the CRT layer which will merge them with CRT-level metrics
-    let sdkMetrics: IoTDeviceSDKMetrics? =
+    let sdkMetrics: AWSIoTMetrics? =
       _disableMetricsCollection ? nil : IoTSDKMetricsBuilder.createMetrics(from: _featureList)
 
     // Configure client options
