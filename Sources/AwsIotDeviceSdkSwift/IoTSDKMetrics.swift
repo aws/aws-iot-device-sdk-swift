@@ -51,14 +51,14 @@ enum CertificateSource: Sendable {
 /// This struct collects feature flags that are set during client builder configuration.
 struct IoTSDKMetricsFeatureList: Sendable {
   /// The certificate source used for mTLS authentication (if applicable)
-  public var certificateSource: CertificateSource?
+  var certificateSource: CertificateSource?
 
   /// Creates an empty feature list
-  public init() {}
+  init() {}
 
   /// Creates a feature list with a certificate source
   /// - Parameter certificateSource: The certificate source to track
-  public init(certificateSource: CertificateSource?) {
+  init(certificateSource: CertificateSource?) {
     self.certificateSource = certificateSource
   }
 
@@ -97,10 +97,10 @@ class IoTSDKMetricsBuilder {
   ///
   /// - Parameter featureList: The SDK-level feature list to encode
   /// - Returns: IoTDeviceSDKMetrics configured with SDK-level metadata
-  public static func createMetrics(from featureList: IoTSDKMetricsFeatureList)
-    -> IoTDeviceSDKMetrics
+  static func createMetrics(from featureList: IoTSDKMetricsFeatureList)
+    -> AWSIoTMetrics
   {
-    let metrics = IoTDeviceSDKMetrics()
+    let metrics = AWSIoTMetrics()
 
     // Set IoTSDKVersion
     metrics.metadata["IoTSDKVersion"] = packageVersion
