@@ -238,10 +238,14 @@ public class Mqtt5ClientBuilder {
 
   /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key data.
   ///
+  /// The `certData` and `keyData` buffers must be in PEM format.
+  ///
+  /// - Note: This is unsupported on watchOS.
+  ///
   /// - Parameters:
   ///   - endpoint: Host name of AWS IoT server.
-  ///   - certData: Certificate file bytes.
-  ///   - keyData: Private key bytes.
+  ///   - certData: Certificate contents in memory, in PEM format.
+  ///   - keyData: Private key contents in memory, in PEM format.
   /// - Throws: `CommonRuntimeError.crtError`
   /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
   public static func mtlsFromData(
