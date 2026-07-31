@@ -823,8 +823,6 @@ public class Mqtt5ClientBuilder {
     // Builds _username with one set by user, custom auth, and metrics
     buildUsername()
 
-    _extendedValidationAndFlowControlOptions = .awsIotCoreDefaults
-
     // Configure connection options
     let connectOptions = MqttConnectOptions(
       keepAliveInterval: _keepAliveInterval,
