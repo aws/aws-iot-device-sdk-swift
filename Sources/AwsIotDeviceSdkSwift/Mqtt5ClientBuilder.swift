@@ -221,10 +221,14 @@ public class Mqtt5ClientBuilder {
 
   /// Create an Mqtt5ClientBuilder configured to connect using certificate and private key file paths.
   ///
+  /// The certificate and private key files must be in PEM format.
+  ///
+  /// - Note: This is unsupported on watchOS.
+  ///
   /// - Parameters:
   ///   - endpoint: Host name of AWS IoT server.
-  ///   - certPath: Path to certificate file.
-  ///   - keyPath: Path to private key file.
+  ///   - certPath: Path to certificate file, in PEM format.
+  ///   - keyPath: Path to private key file, in PEM format.
   /// - Throws: `CommonRuntimeError.crtError`
   /// - Returns: An Mqtt5ClientBuilder configured to connect using Mutual TLS.
   public static func mtlsFromPath(
@@ -258,6 +262,8 @@ public class Mqtt5ClientBuilder {
   }
 
   /// Create an Mqtt5ClientBuilder configured to connect using a PKCS12 file.
+  ///
+  /// - Note: This is only supported on Apple platforms (macOS, iOS, tvOS, watchOS).
   ///
   /// - Parameters:
   ///   - endpoint: Host name of AWS IoT server.
@@ -618,7 +624,10 @@ public class Mqtt5ClientBuilder {
   }
 
   /// Provide specific human readable labels for the certificate and private key being stored in the
-  /// Apple keychain. Only used with secitem.
+  /// Apple keychain.
+  ///
+  /// - Note: This only applies on Apple platforms that store certificates in the Apple keychain via
+  /// SecItem. It has no effect on other platforms.
   ///
   /// - Parameters:
   ///   - certLabel: Human readable label to use with certificate
