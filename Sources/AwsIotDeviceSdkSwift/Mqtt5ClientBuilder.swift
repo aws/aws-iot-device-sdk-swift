@@ -28,6 +28,7 @@ public class Mqtt5ClientBuilder {
 
   private var _endpoint: String?
   private var _port: UInt32 = 8883
+  private var _isDirectMtls: Bool = false
   private var _onWebsocketTransform: OnWebSocketHandshakeIntercept?
   private var _clientId: String?
   private var _username: String?
@@ -83,11 +84,7 @@ public class Mqtt5ClientBuilder {
       certificatePath: certPath, privateKeyPath: keyPath)
     _endpoint = endpoint
     _port = 8883
-    // On platforms that support ALPN, use the "x-amzn-mqtt-ca" protocol so IoT Core accepts the
-    // direct mTLS connection on either port.
-    if TLSContextOptions.isAlpnSupported() {
-      _tlsOptions?.setAlpnList(["x-amzn-mqtt-ca"])
-    }
+    _isDirectMtls = true
     // Track certificate source for metrics
     _featureList.certificateSource = .certificateFiles
   }
@@ -98,11 +95,7 @@ public class Mqtt5ClientBuilder {
       certificateData: certData, privateKeyData: keyData)
     _endpoint = endpoint
     _port = 8883
-    // On platforms that support ALPN, use the "x-amzn-mqtt-ca" protocol so IoT Core accepts the
-    // direct mTLS connection on either port.
-    if TLSContextOptions.isAlpnSupported() {
-      _tlsOptions?.setAlpnList(["x-amzn-mqtt-ca"])
-    }
+    _isDirectMtls = true
     // Track certificate source for metrics (certificate data is treated as certificate files)
     _featureList.certificateSource = .certificateFiles
   }
@@ -113,11 +106,7 @@ public class Mqtt5ClientBuilder {
       pkcs12Path: pkcs12Path, password: pkcs12Password)
     _endpoint = endpoint
     _port = 8883
-    // On platforms that support ALPN, use the "x-amzn-mqtt-ca" protocol so IoT Core accepts the
-    // direct mTLS connection on either port.
-    if TLSContextOptions.isAlpnSupported() {
-      _tlsOptions?.setAlpnList(["x-amzn-mqtt-ca"])
-    }
+    _isDirectMtls = true
     // Track certificate source for metrics
     _featureList.certificateSource = .pkcs12File
   }
@@ -871,6 +860,12 @@ public class Mqtt5ClientBuilder {
         // Apply labels if available
         if _certLabel != nil || _keyLabel != nil {
           try tlsOptions.setSecitemLabels(certLabel: _certLabel, keyLabel: _keyLabel)
+        }
+
+        // For direct mTLS connections on platforms that support ALPN, use the "x-amzn-mqtt-ca"
+        // protocol so IoT Core accepts the connection on either port.
+        if _isDirectMtls && TLSContextOptions.isAlpnSupported() {
+          tlsOptions.setAlpnList(["x-amzn-mqtt-ca"])
         }
 
         _tlsCtx = try TLSContext(options: tlsOptions, mode: .client)
