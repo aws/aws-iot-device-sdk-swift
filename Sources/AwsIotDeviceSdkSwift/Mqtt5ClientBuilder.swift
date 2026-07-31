@@ -83,6 +83,11 @@ public class Mqtt5ClientBuilder {
       certificatePath: certPath, privateKeyPath: keyPath)
     _endpoint = endpoint
     _port = 8883
+    // On platforms that support ALPN, use the "x-amzn-mqtt-ca" protocol so IoT Core accepts the
+    // direct mTLS connection on either port.
+    if TLSContextOptions.isAlpnSupported() {
+      _tlsOptions?.setAlpnList(["x-amzn-mqtt-ca"])
+    }
     // Track certificate source for metrics
     _featureList.certificateSource = .certificateFiles
   }
@@ -93,6 +98,11 @@ public class Mqtt5ClientBuilder {
       certificateData: certData, privateKeyData: keyData)
     _endpoint = endpoint
     _port = 8883
+    // On platforms that support ALPN, use the "x-amzn-mqtt-ca" protocol so IoT Core accepts the
+    // direct mTLS connection on either port.
+    if TLSContextOptions.isAlpnSupported() {
+      _tlsOptions?.setAlpnList(["x-amzn-mqtt-ca"])
+    }
     // Track certificate source for metrics (certificate data is treated as certificate files)
     _featureList.certificateSource = .certificateFiles
   }
@@ -103,6 +113,11 @@ public class Mqtt5ClientBuilder {
       pkcs12Path: pkcs12Path, password: pkcs12Password)
     _endpoint = endpoint
     _port = 8883
+    // On platforms that support ALPN, use the "x-amzn-mqtt-ca" protocol so IoT Core accepts the
+    // direct mTLS connection on either port.
+    if TLSContextOptions.isAlpnSupported() {
+      _tlsOptions?.setAlpnList(["x-amzn-mqtt-ca"])
+    }
     // Track certificate source for metrics
     _featureList.certificateSource = .pkcs12File
   }
