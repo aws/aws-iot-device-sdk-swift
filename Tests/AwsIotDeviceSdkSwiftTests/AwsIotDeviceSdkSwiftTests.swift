@@ -227,6 +227,51 @@ class Mqtt5ClientTests: XCBaseTestCase {
     try disconnectClientCleanup(client: mqttClient, testContext: context)
   }
 
+  /// A direct mTLS connection on port 443 requires the "x-amzn-mqtt-ca" ALPN protocol to be set so
+  /// IoT Core accepts mTLS over the HTTPS port. This connection fails if that ALPN is not applied.
+  func testMqttBuilderMTLSFromPathPort443() throws {
+
+    let certPath, keyPath, endpoint: String
+
+    if (!isIOSDeviceFarm) {
+      try skipIfPlatformDoesntSupportTLS()
+      certPath = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_CERT")
+      keyPath = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_RSA_KEY")
+      endpoint = try getEnvironmentVarOrSkipTest(
+        environmentVarName: "AWS_TEST_MQTT5_IOT_CORE_HOST")
+    } else {
+      guard let certURL = Bundle.main.url(forResource: "cert", withExtension: "pem"),
+        let keyURL = Bundle.main.url(forResource: "privatekey", withExtension: "pem")
+      else {
+        XCTFail("Missing cert or key resource.")
+        throw MqttTestError.resourceMissing
+      }
+
+      certPath = certURL.relativePath
+      keyPath = keyURL.relativePath
+      endpoint = "<AWS_TEST_MQTT5_IOT_CORE_HOST>"
+    }
+    let context = MqttTestContext(contextName: "MTLSFromPathPort443")
+    let builder = try Mqtt5ClientBuilder.mtlsFromPath(
+      endpoint: endpoint, certPath: certPath, keyPath: keyPath)
+
+    builder.withPort(443)
+    builder.withCallbacks(
+      onPublishReceived: context.onPublishReceived,
+      onLifecycleEventConnectionSuccess: context.onLifecycleEventConnectionSuccess,
+      onLifecycleEventConnectionFailure: context.onLifecycleEventConnectionFailure,
+      onLifecycleEventDisconnection: context.onLifecycleEventDisconnection,
+      onLifecycleEventStopped: context.onLifecycleEventStopped)
+
+    let mqttClient = try builder.build()
+
+    XCTAssertNotNil(mqttClient)
+    try connectClient(client: mqttClient, testContext: context)
+    try disconnectClientCleanup(client: mqttClient, testContext: context)
+  }
+
   func testMqttBuilderMTLSFromData() throws {
 
     let certFileURL, keyFileURL: URL
