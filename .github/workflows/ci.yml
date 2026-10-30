@@ -88,7 +88,7 @@ jobs:
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
           chmod a+x builder
           ./builder build -p ${{ env.PACKAGE_NAME }}
-        env: 
+        env:
           TEST_RUNNER_AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
           TEST_RUNNER_AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
           TEST_RUNNER_AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
@@ -110,12 +110,12 @@ jobs:
             - macos-15
           # NOTE: If simulator target has error, checkout runner-images readmes for changes: https://github.com/actions/runner-images/tree/main/images/macos
           target:
-            [{ os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15'},
+            [{ os: ios, destination: 'iOS Simulator,OS=26.5,name=iPhone 17'},
             { os: ios, destination: 'iOS Simulator,OS=18.5,name=iPhone 16'},
             { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)'},
             { os: tvos, destination: 'tvOS Simulator,OS=18.5,name=Apple TV 4K (3rd generation) (at 1080p)'}]
           xcode:
-            - Xcode_15.2
+            - Xcode_26.6
             - Xcode_16.4
           exclude:
             # Don't run old macOS with new Xcode
@@ -123,20 +123,20 @@ jobs:
               xcode: Xcode_16.4
             # Don't run old macOS with new Xcode
             - runner: macos-15-large
-              xcode: Xcode_16.4
+              xcode: Xcode_26.6
             # Don't run new macOS with old Xcode
             - runner: macos-15
-              xcode: Xcode_15.2
+              xcode: Xcode_26.6
             # Don't run old simulators with new Xcode
-            - target: { os: tvos, destination: 'tvOS Simulator,OS=17.2,name=Apple TV 4K (3rd generation) (at 1080p)' }
+            - target: { os: tvos, destination: 'tvOS Simulator,OS=26.5,name=Apple TV 4K (3rd generation) (at 1080p)' }
               xcode: Xcode_16.4
-            - target: { os: ios, destination: 'iOS Simulator,OS=17.2,name=iPhone 15' }
+            - target: { os: ios, destination: 'iOS Simulator,OS=26.5,name=iPhone 15' }
               xcode: Xcode_16.4
             # Don't run new simulators with old Xcode
             - target: { os: tvos, destination: 'tvOS Simulator,OS=18.5,name=Apple TV 4K (3rd generation) (at 1080p)' }
-              xcode: Xcode_15.2
+              xcode: Xcode_26.6
             - target: { os: ios, destination: 'iOS Simulator,OS=18.5,name=iPhone 16' }
-              xcode: Xcode_15.2
+              xcode: Xcode_26.6
       permissions:
         id-token: write
       steps:
@@ -157,7 +157,7 @@ jobs:
           python3 -c "from urllib.request import urlretrieve; urlretrieve('${{ env.BUILDER_HOST }}/${{ env.BUILDER_SOURCE }}/${{ env.BUILDER_VERSION }}/builder.pyz?run=${{ env.RUN }}', 'builder')"
           chmod a+x builder
           ./builder build -p ${{ env.PACKAGE_NAME }} --target=${{ matrix.target.os }}-armv8
-        env: 
+        env:
           TEST_RUNNER_AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
           TEST_RUNNER_AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
           TEST_RUNNER_AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
@@ -192,7 +192,7 @@ jobs:
             - name: run CertAndKeyFileConnectSample sample
               run: |
                 source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cert_key_file_connect_cfg.json            
+                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cert_key_file_connect_cfg.json
             # The Pkcs12Connect sample on macOS requires keychain access. This codepath is tested in aws-iot-device-sdk-cpp-v2 as we are able to codesign the binary there.
             # - name: run Pkcs12Connect sample
             #   run: |
@@ -219,7 +219,7 @@ jobs:
             - name: run CognitoWebsocketConnect sample
               run: |
                 source .venv/bin/activate
-                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cognito_provider_websocket_connect_cfg.json            
+                python3 ${{ env.CI_UTILS_FOLDER }}/SmokeTests/run_sample_ci.py --file ${{ env.CI_SAMPLES_CFG_FOLDER }}/ci_run_cognito_provider_websocket_connect_cfg.json
             - name: configure AWS credentials (X509)
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -236,11 +236,11 @@ jobs:
             - name: Build Basic Provisioning Client Sample
               run: |
                 cd Samples/ServiceClientSamples/Provisioning/BasicProvisioningSample/
-                swift build 
+                swift build
             - name: Build CSR Provisioning Client Sample
               run: |
                 cd Samples/ServiceClientSamples/Provisioning/CsrProvisioningSample/
-                swift build 
+                swift build
 
     ios-device-farm:
         runs-on: macos-15
@@ -268,7 +268,7 @@ jobs:
                 role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: ${{ env.AWS_DEFAULT_REGION }}
                 # Bump from default 1 hour to 8 hours to allow device farm tests to complete (and delete)
-                role-duration-seconds: 28800 
+                role-duration-seconds: 28800
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
@@ -288,7 +288,7 @@ jobs:
                 # import certificate to keychain
                 security import $CERTIFICATE_PATH -P "$pkcs12_identity_pw" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
                 security list-keychain -d user -s $KEYCHAIN_PATH
-                # apply provisioning profile        
+                # apply provisioning profile
                 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
                 cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
             - name: configure AWS credentials (grab test resource from CRT)
@@ -335,7 +335,7 @@ jobs:
                 role-to-assume: ${{ env.CI_DEVICEFARM_ROLE }}
                 aws-region: us-west-2 # Device Farm only available on us-west-2
                 # Bump from default 1 hour to 8 hours to allow device farm tests to complete (and delete)
-                role-duration-seconds: 28800 
+                role-duration-seconds: 28800
             - name: Execute device farm
               run: |
                 cd Scripts/DeviceFarmScripts/
@@ -371,7 +371,7 @@ jobs:
         run: |
           swift build
           swift test
-    
+
     lint:
       runs-on: macos-15 # latest
       steps:
