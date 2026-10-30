@@ -64,8 +64,8 @@ jobs:
         matrix:
           # This matrix runs tests on Mac, on oldest & newest supported Xcodes
           runner:
-            - macos-14
-            - macos-14-large #x64
+            - macos-latest
+            - macos-latest-large #x64
             - macos-15
             - macos-15-large #x64
       permissions:
@@ -105,8 +105,8 @@ jobs:
         matrix:
           # This matrix runs tests on iOS and tvOS on oldest & newest supported Xcodes
           runner:
-            - macos-14
-            - macos-14-large #x64
+            - macos-latest
+            - macos-15-large #x64
             - macos-15
           # NOTE: If simulator target has error, checkout runner-images readmes for changes: https://github.com/actions/runner-images/tree/main/images/macos
           target:
@@ -119,10 +119,10 @@ jobs:
             - Xcode_16.4
           exclude:
             # Don't run old macOS with new Xcode
-            - runner: macos-14
+            - runner: macos-latest
               xcode: Xcode_16.4
             # Don't run old macOS with new Xcode
-            - runner: macos-14-large
+            - runner: macos-15-large
               xcode: Xcode_16.4
             # Don't run new macOS with old Xcode
             - runner: macos-15
@@ -168,7 +168,7 @@ jobs:
         strategy:
             matrix:
                 runner:
-                    - macos-14
+                    - macos-15
                     - macos-latest
         permissions:
             id-token: write
@@ -243,7 +243,7 @@ jobs:
                 swift build 
 
     ios-device-farm:
-        runs-on: macos-14
+        runs-on: macos-15
         permissions:
             id-token: write # This is required for requesting the JWT
             contents: read # This is required for actions/checkout
