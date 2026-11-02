@@ -118,21 +118,21 @@ jobs:
             - Xcode_26.6
             - Xcode_16.4
           exclude:
-            # Don't run old macOS with new Xcode
+            # Don't run new macOS with old Xcode
             - runner: macos-latest
               xcode: Xcode_16.4
             # Don't run old macOS with new Xcode
             - runner: macos-15-large
               xcode: Xcode_26.6
-            # Don't run new macOS with old Xcode
+            # Don't run old macOS with new Xcode
             - runner: macos-15
               xcode: Xcode_26.6
-            # Don't run old simulators with new Xcode
+            # Don't run new simulators with old Xcode
             - target: { os: tvos, destination: 'tvOS Simulator,OS=26.5,name=Apple TV 4K (3rd generation) (at 1080p)' }
               xcode: Xcode_16.4
             - target: { os: ios, destination: 'iOS Simulator,OS=26.5,name=iPhone 17' }
               xcode: Xcode_16.4
-            # Don't run new simulators with old Xcode
+            # Don't run old simulators with new Xcode
             - target: { os: tvos, destination: 'tvOS Simulator,OS=18.5,name=Apple TV 4K (3rd generation) (at 1080p)' }
               xcode: Xcode_26.6
             - target: { os: ios, destination: 'iOS Simulator,OS=18.5,name=iPhone 16' }
